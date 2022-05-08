@@ -21,5 +21,4 @@
 
 #include <GLFW/glfw3.h>
 
-int number_of_threads = std::thread::hardware_concurrency() ? std::thread::hardware_concurrency() : 1; //hardware_concurrency can fail and give 0
-constexpr float epsilon = pow(10, -5);
+#include "Scene.h"

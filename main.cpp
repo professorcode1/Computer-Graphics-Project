@@ -1,4 +1,7 @@
 #include "main.h"
+#include <cmath>
+
+
 
 int main(void)
 {
@@ -12,7 +15,7 @@ int main(void)
     // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);    
     
-    window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -29,106 +32,76 @@ int main(void)
     std::cout<<glGetString(GL_VERSION) << std::endl;
 
     float positions[] = {
-        100.0f, 100.0f, 0.0f, 0.0f,//0
-        200.0f, 100.0f, 1.0f, 0.0f,//1
-        200.0f, 200.0f, 1.0f, 1.0f,//2
-        100.0f, 200.0f, 0.0f, 1.0f//3
+        -0.5f,-0.5f,//0
+         0.5f,-0.5f,//1
+         0.5f, 0.5f,//2
+        -0.5f, 0.5f,//3
     };
-    const int nm_vrtx_pnts = 4 * 4;
+    const int nm_vrtx_pnts = 4 * 2;
     unsigned int indices[] = {
 		0, 1, 2,
 		2, 3, 0
     };
     const int nm_indices = 6;
-    
-    glm::mat4 proj = glm::ortho(0.0f, 960.0f, 1.0f, 540.0f , -1.0f, 1.0f);
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0 ,0));
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200 ,0));
-    glm::mat4 mvp = proj * view * model ; 
-    
-    GLCall(glEnable(GL_BLEND));
-    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    
+
     VertexArray va;
     VertexBuffer vb(positions, nm_vrtx_pnts * sizeof(float));
     VertexBufferLayout layout;
-    layout.Push<float>(2);
     layout.Push<float>(2);
     va.AddBuffer(vb,layout);
     IndexBuffer ib(indices, nm_indices);
     
     Shader shader("vertex.glsl" , "fragment.glsl");
-    shader.Bind();
+
     float r = 0.0f;
     float increment = 0.05f;
-    Texture texture("Apple-logo.png"); 
-    texture.Bind();
-    shader.SetUniform1i("u_Texture", 0);
-    shader.SetUniformMat4f("u_MVP", mvp);
+
     va.Unbind();
     vb.Unbind();
     ib.Unbind();
     shader.Unbind();
-    
-    Renderer renderer;
+    Scene s(0,10,0,10,
+    [](float a,float b , float x){
+        float lambda = std::min(1.0f, std::max(0.0f, (x - b )/ (a - b)));
+        return lambda * lambda * ( 3 - 2 * lambda );
+        },
+    [](float i, float j){
+        float u = 50 * i / M_PI, v = 50 * j / M_PI ;
+        float interm = u * v * ( u + v );
+        return 2 * (interm - (long)interm) - 1 ;
+    },
+     37.0f * M_PI / 180.0f, 10, 0.1f);
 
-    const char* glsl_version = "#version 130";
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    // ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-    glm::vec3 translation = glm::vec3(200, 200 ,0);
     while(!glfwWindowShouldClose(window)){
-        renderer.Clear();
-   // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-        glm::mat4 model = glm::translate(glm::mat4(1.0f),translation );
-        glm::mat4 mvp = proj * view * model ; 
         shader.Bind();
-        shader.SetUniform4f("u_Color", r, 0.3, 0.8, 1.0);        
-        shader.SetUniformMat4f("u_MVP", mvp);
+        shader.SetUniform4f("u_Color", r, 0.3, 0.8, 1.0);
+	    // GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
+	    // GLCall(glEnableVertexAttribArray(0));
+	    // GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
+        
+        // GLCall(glBindVertexArray(vao));
+        va.Bind();
+        ib.Bind();
 
-        renderer.Draw(va,ib,shader);
     
 	    if (r > 1.0f)
 	    	increment = -0.05f;
 	    else if ( r < 0.0f)
 	        increment =  0.05f;
-        
-	    r += increment;
 
-        {
-            ImGui::Begin("Hello, world!");   
-            ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);
-            ImGui::Text("Application average %.3f ms/frame(%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::End();
-        }
+	    r += increment;
+        GLCall(glClear(GL_COLOR_BUFFER_BIT));
         
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
         glfwSwapBuffers(window);
+
         glfwPollEvents();
     }
 
-    ImGui_ImplGlfw_Shutdown();
+
     glfwTerminate();
     return 0;
 }

@@ -1,11 +1,13 @@
-Scene::Scene(float min_x,float max_x,float min_z,float max_z, float (*smoothStep)(float, float, float), float (*a_i_j)(int, int), float m_matrix_theta, int N, float marching_cubes_cube_length){
+#include "Scene.h"
+
+Scene::Scene ( float min_x,float max_x,float min_z,float max_z, float (*smoothStep)(float, float, float), float (*a_i_j)(float, float), float m_matrix_theta_rad, int N, float marching_cubes_cube_length){
     this->min_x = min_x;
     this->max_x = max_x;
     this->min_z = min_z;
     this->max_z = max_z;
     this->smoothStep = smoothStep;
-    this->a_i_ja_i_j;
-    this->m_matrix_theta = m_matrix_theta;
+    this->a_i_j = a_i_j;
+    this->m_matrix_theta_rad = m_matrix_theta_rad;
     this->N = N;
     this->marching_cubes_cube_length = marching_cubes_cube_length;
 
@@ -20,7 +22,12 @@ Scene::Scene(float min_x,float max_x,float min_z,float max_z, float (*smoothStep
         workers.emplace_back(&Scene::worker_thread_function, this, i);
     
 }
-
+Scene::~Scene(){
+    std::fill(this->terminate_now.begin(), this->terminate_now.end(), true);
+    for(int i=0 ; i<number_of_threads ; i++)
+        this->workers.at(i).join();
+    
+}
 void Scene::block_untill_all_worker_threads_finish(int millisoncds_per_polling){
     while(true){
         std::this_thread::sleep_for(std::chrono::milliseconds(millisoncds_per_polling));
@@ -32,6 +39,7 @@ void Scene::block_untill_all_worker_threads_finish(int millisoncds_per_polling){
 
 void Scene::worker_thread_function(const int my_thread_id){
     std::cout<<"Worker Thread " << my_thread_id << "has launched." <<std::endl;
+    constexpr float epsilon = 0.0000000001;
     auto Noise_Function = [ this ](const float x, const float z){
         float ans_ = 0;
 
@@ -49,34 +57,36 @@ void Scene::worker_thread_function(const int my_thread_id){
                 float S_x = this->smoothStep(0, 1, x_frac_prt);
                 float S_z = this->smoothStep(0, 1, z_frac_prt);
                 
-                ans_ += (a + ( b - a ) * S_x + ( c - a ) * S_z + ( a - b - c + d ) * S_x * S_z) / (1 << i);
+                ans_ += (a + ( b - a ) * S_x + ( c - a ) * S_z + ( a - b - c + d ) * S_x * S_z) / (1 << rotation_and_amp_factor);
             }
         }
-        return ans;
+        return ans_;
     };
     int edge_to_vertex_index_map[12];
     int vertex_index_to_edge_map[12];
     while(not terminate_now[my_thread_id]){
     
         if( not thread_done_status[my_thread_id] ){
-    
+
+            std::cout<<"Worker thread "<< my_thread_id << " has started working"<<std::endl;
             float delta_x = (this->max_x - this->min_x) / number_of_threads;
             float x_start = my_thread_id * delta_x, 
                 x_end = (my_thread_id + 1) * delta_x;
 
-            vector<float> temp_vertex_buffer;
-            vector<int> temp_index_buffer
+            std::vector<float> temp_vertex_buffer;
+            std::vector<unsigned int> temp_index_buffer;
     
-            for(int iter_i = 0 ; (float x = x_start + iter_i * marching_cubes_cube_length) < x_end ; iter_i++){
-                for( int iter_j = 0 ; (float z = this->min_z + iter_j * marching_cubes_cube_length) < this->max_z ; iter_j++){
-                    
-                    float y_vetrex_0 = Noise_Function(x                             , z                             );
-                    float y_vetrex_1 = Noise_Function(x + marching_cubes_cube_length, z                             );
-                    float y_vetrex_2 = Noise_Function(x + marching_cubes_cube_length, z + marching_cubes_cube_length);
-                    float y_vetrex_3 = Noise_Function(x                             , z + marching_cubes_cube_length);
+            for(int iter_i = 0 ; x_start + iter_i * marching_cubes_cube_length < x_end ; iter_i++){
+                float x_this_iter = x_start + iter_i * marching_cubes_cube_length;
+                for( int iter_j = 0 ; this->min_z + iter_j * marching_cubes_cube_length < this->max_z ; iter_j++){
+                    float z_this_iter = this->min_z + iter_j * marching_cubes_cube_length;
+                    float y_vetrex_0 = Noise_Function(x_this_iter                             , z_this_iter                             );
+                    float y_vetrex_1 = Noise_Function(x_this_iter + marching_cubes_cube_length, z_this_iter                             );
+                    float y_vetrex_2 = Noise_Function(x_this_iter + marching_cubes_cube_length, z_this_iter + marching_cubes_cube_length);
+                    float y_vetrex_3 = Noise_Function(x_this_iter                             , z_this_iter + marching_cubes_cube_length);
 
-                    float max_y = max(max(y_vetrex_0,y_vetrex_1),max(y_vetrex_2,y_vetrex_3));
-                    float min_y = min(min(y_vetrex_0,y_vetrex_1),min(y_vetrex_2,y_vetrex_3));
+                    float max_y = std::max(std::max(y_vetrex_0,y_vetrex_1),std::max(y_vetrex_2,y_vetrex_3));
+                    float min_y = std::min(std::min(y_vetrex_0,y_vetrex_1), std::min(y_vetrex_2,y_vetrex_3));
 
                     int number_of_vertical_cubes = ceil( ( (max_y - min_y) / marching_cubes_cube_length ) + epsilon); //need 1 cube even if max_y == min_y
                     
@@ -86,10 +96,10 @@ void Scene::worker_thread_function(const int my_thread_id){
                         if( min_y + iter_k * marching_cubes_cube_length <= y_vetrex_1 )         marching_cubes_key |= (1 << 1);
                         if( min_y + iter_k * marching_cubes_cube_length <= y_vetrex_2 )         marching_cubes_key |= (1 << 2);
                         if( min_y + iter_k * marching_cubes_cube_length <= y_vetrex_3 )         marching_cubes_key |= (1 << 3);
-                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_4 ) marching_cubes_key |= (1 << 4);
-                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_5 ) marching_cubes_key |= (1 << 5);
-                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_6 ) marching_cubes_key |= (1 << 6);
-                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_7 ) marching_cubes_key |= (1 << 7);
+                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_0 ) marching_cubes_key |= (1 << 4);
+                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_1 ) marching_cubes_key |= (1 << 5);
+                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_2 ) marching_cubes_key |= (1 << 6);
+                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_3 ) marching_cubes_key |= (1 << 7);
                         
                         int edges_activated = this->edges_marching_cubes[marching_cubes_key];
                         int number_of_edges_activated = 0;
@@ -98,13 +108,13 @@ void Scene::worker_thread_function(const int my_thread_id){
                         // int number_of_edges_activated = std::popcount(edges_activated);
                         for(int iter_l = 0; iter_l < 12 ; iter_l++ ){
                             if( edges_activated & (1 << iter_l) ){
-                                edge_to_vertex_index_map[ number_of_edges_activated ] = iter_l;
-                                vertex_index_to_edge_map[ iter_l ] = number_of_edges_activated;
+                                vertex_index_to_edge_map[ number_of_edges_activated ] = iter_l;
+                                edge_to_vertex_index_map[ iter_l ] = number_of_edges_activated;
                                 number_of_edges_activated++;
                             }
                         }
                         for(int iter_l = 0; iter_l < number_of_edges_activated ; iter_l++){
-                            edge_activated = edge_to_vertex_index_map[ iter_l ];
+                            const int edge_activated = vertex_index_to_edge_map[ iter_l ];
                             
                             switch(edge_activated){
                                 case 0:
@@ -169,7 +179,7 @@ void Scene::worker_thread_function(const int my_thread_id){
                                     temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length );
                                     temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length );
                                     break;
-                                case default:
+                                default:
                                     __builtin_trap(); //Posix Function. Comment this is using windows
                                     break;
 
@@ -180,14 +190,16 @@ void Scene::worker_thread_function(const int my_thread_id){
                         for(int iter_l = 0 ; true ; iter_l++){
                             if(Scene::triangulation[ marching_cubes_key ][ 3 * iter_l ] == -1)
                                 break; 
-                            temp_index_buffer.push_back( starting_index_of_index_buffer + vertex_index_to_edge_map[ Scene::triangulation[ marching_cubes_key ][ 3 * iter_l     ] ] );
-                            temp_index_buffer.push_back( starting_index_of_index_buffer + vertex_index_to_edge_map[ Scene::triangulation[ marching_cubes_key ][ 3 * iter_l + 1 ] ] );
-                            temp_index_buffer.push_back( starting_index_of_index_buffer + vertex_index_to_edge_map[ Scene::triangulation[ marching_cubes_key ][ 3 * iter_l + 2 ] ] );
+                            temp_index_buffer.push_back( starting_index_of_index_buffer + edge_to_vertex_index_map[ Scene::triangulation[ marching_cubes_key ][ 3 * iter_l     ] ] );
+                            temp_index_buffer.push_back( starting_index_of_index_buffer + edge_to_vertex_index_map[ Scene::triangulation[ marching_cubes_key ][ 3 * iter_l + 1 ] ] );
+                            temp_index_buffer.push_back( starting_index_of_index_buffer + edge_to_vertex_index_map[ Scene::triangulation[ marching_cubes_key ][ 3 * iter_l + 2 ] ] );
                         }
                     }
 
                 }
             }
+            this->worker_thread_update_state(my_thread_id, temp_vertex_buffer, temp_index_buffer);
+            std::cout<<"Worker thread "<< my_thread_id << " has ended working"<<std::endl;
 
         }
 
@@ -195,9 +207,29 @@ void Scene::worker_thread_function(const int my_thread_id){
 
 }
 
+void Scene::worker_thread_update_state(int its_thread_id,const std::vector<float> &temp_vertex_buffer, const std::vector<unsigned int> &temp_index_buffer){
+    if ( this->vertex_buffers_per_thread.at(its_thread_id) ) 
+        delete[] this->vertex_buffers_per_thread.at(its_thread_id);
+    
+    this->vertices_per_thread.at(its_thread_id) = temp_vertex_buffer.size();
+    std::cout<<its_thread_id<<'\t'<<this->vertices_per_thread.at(its_thread_id)/3<<std::endl;
+    this->vertex_buffers_per_thread.at(its_thread_id) = new float[temp_vertex_buffer.size()];
+    std::copy( temp_vertex_buffer.data(), temp_vertex_buffer.data() + temp_vertex_buffer.size(), vertex_buffers_per_thread.at(its_thread_id) );
+
+    if ( this->indexs_per_thread.at(its_thread_id) )
+        delete[] this->index_buffers_per_thread.at(its_thread_id);
+
+    this->indexs_per_thread.at(its_thread_id) = temp_index_buffer.size();
+    this->index_buffers_per_thread.at(its_thread_id) = new unsigned int[temp_index_buffer.size()];
+    std::copy( temp_index_buffer.data(), temp_index_buffer.data() + temp_index_buffer.size(), this->index_buffers_per_thread.at(its_thread_id) );
+
+    thread_done_status.at(its_thread_id) = true;
+}
+
+
 // Values from http://paulbourke.net/geometry/polygonise/
 
-int Scene::edges_marching_cubes[256] = {
+const int Scene::edges_marching_cubes[256] = {
     0x0,
     0x109,
     0x203,
@@ -456,7 +488,7 @@ int Scene::edges_marching_cubes[256] = {
     0x0
 };
 
-int Scene::triangulation[256][16] = {
+const int Scene::triangulation[256][16] = {
     {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
     { 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
     { 0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
@@ -715,7 +747,7 @@ int Scene::triangulation[256][16] = {
     {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
 };
 
-int Scene::cornerIndexAFromEdge[12] = {
+const int Scene::cornerIndexAFromEdge[12] = {
     0,
     1,
     2,
@@ -730,7 +762,7 @@ int Scene::cornerIndexAFromEdge[12] = {
     3
 };
 
-int Scene::cornerIndexBFromEdge[12] = {
+const int Scene::cornerIndexBFromEdge[12] = {
     1,
     2,
     3,
@@ -744,3 +776,5 @@ int Scene::cornerIndexBFromEdge[12] = {
     6,
     7
 };
+
+const int Scene::number_of_threads = std::thread::hardware_concurrency() ? std::thread::hardware_concurrency() : 1; //hardware_concurrency can fail and give 0
