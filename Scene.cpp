@@ -1,6 +1,11 @@
 #include "Scene.h"
+#include "Cherno_OpenGL_Library/VertexArray.h"
+#include "Cherno_OpenGL_Library/VertexBuffer.h"
+#include <ostream>
+#include <string>
 
-Scene::Scene ( float min_x,float max_x,float min_z,float max_z, float (*smoothStep)(float, float, float), float (*a_i_j)(float, float), float m_matrix_theta_rad, int N, float marching_cubes_cube_length){
+
+Scene::Scene ( float min_x,float max_x,float min_z,float max_z, float (*smoothStep)(float, float, float), float (*a_i_j)(float, float), float m_matrix_theta_rad, int N, float marching_cubes_cube_length_x, float marching_cubes_cube_length_y ,float marching_cubes_cube_length_z,float shrink_input_factor, float scale_output_factor,float increase_output_value){
     this->min_x = min_x;
     this->max_x = max_x;
     this->min_z = min_z;
@@ -9,7 +14,12 @@ Scene::Scene ( float min_x,float max_x,float min_z,float max_z, float (*smoothSt
     this->a_i_j = a_i_j;
     this->m_matrix_theta_rad = m_matrix_theta_rad;
     this->N = N;
-    this->marching_cubes_cube_length = marching_cubes_cube_length;
+    this->marching_cubes_cube_length_x = marching_cubes_cube_length_x ;
+    this->marching_cubes_cube_length_y = marching_cubes_cube_length_y ;
+    this->marching_cubes_cube_length_z = marching_cubes_cube_length_z ;
+    this->shrink_input_factor = shrink_input_factor ;
+    this->scale_output_factor = scale_output_factor ;
+    this->increase_output_value = increase_output_value ;
 
     vertex_buffers_per_thread.resize(number_of_threads, nullptr);
     vertices_per_thread.resize(number_of_threads, 0);
@@ -20,6 +30,8 @@ Scene::Scene ( float min_x,float max_x,float min_z,float max_z, float (*smoothSt
 
     for(int i=0 ; i< number_of_threads ; i++)
         workers.emplace_back(&Scene::worker_thread_function, this, i);
+
+    m_layout.Push<float>(3);
     
 }
 Scene::~Scene(){
@@ -39,14 +51,14 @@ void Scene::block_untill_all_worker_threads_finish(int millisoncds_per_polling){
 
 void Scene::worker_thread_function(const int my_thread_id){
     std::cout<<"Worker Thread " << my_thread_id << "has launched." <<std::endl;
-    constexpr float epsilon = 0.0000000001;
+    // constexpr float epsilon = 0.0000000001;
     auto Noise_Function = [ this ](const float x, const float z){
         float ans_ = 0;
 
         for(int rotation_and_amp_factor = 0 ; rotation_and_amp_factor < this->N ; rotation_and_amp_factor++){
             if(this->deactivated_n.find(rotation_and_amp_factor) == this->deactivated_n.end()){
-                float x_this_iter = ( 1 << rotation_and_amp_factor ) * cos(this->m_matrix_theta_rad * rotation_and_amp_factor) * x - sin(this->m_matrix_theta_rad * rotation_and_amp_factor ) * z;
-                float z_this_iter = ( 1 << rotation_and_amp_factor ) * sin(this->m_matrix_theta_rad * rotation_and_amp_factor) * x + cos(this->m_matrix_theta_rad * rotation_and_amp_factor ) * z;
+                float x_this_iter = pow( 2 , rotation_and_amp_factor ) * cos(this->m_matrix_theta_rad * rotation_and_amp_factor) * x - sin(this->m_matrix_theta_rad * rotation_and_amp_factor ) * z;
+                float z_this_iter = pow( 2 , rotation_and_amp_factor ) * sin(this->m_matrix_theta_rad * rotation_and_amp_factor) * x + cos(this->m_matrix_theta_rad * rotation_and_amp_factor ) * z;
                 float x_frac_prt, z_frac_prt, i, j, a, b, c, d;
                 x_frac_prt = modf(x_this_iter, &i);
                 z_frac_prt = modf(z_this_iter, &j);
@@ -54,13 +66,13 @@ void Scene::worker_thread_function(const int my_thread_id){
                 b = a_i_j(i + 1, j    );
                 c = a_i_j(i    , j + 1);
                 d = a_i_j(i + 1, j + 1);
-                float S_x = this->smoothStep(0, 1, x_frac_prt);
-                float S_z = this->smoothStep(0, 1, z_frac_prt);
+                float S_x = x_frac_prt;
+                float S_z = z_frac_prt;
                 
-                ans_ += (a + ( b - a ) * S_x + ( c - a ) * S_z + ( a - b - c + d ) * S_x * S_z) / (1 << rotation_and_amp_factor);
+                ans_ += (a + ( b - a ) * S_x + ( c - a ) * S_z + ( a - b - c + d ) * S_x * S_z) / pow(2 , rotation_and_amp_factor);
             }
         }
-        return ans_;
+        return ans_ * this->scale_output_factor + this->increase_output_value;
     };
     int edge_to_vertex_index_map[12];
     int vertex_index_to_edge_map[12];
@@ -76,30 +88,31 @@ void Scene::worker_thread_function(const int my_thread_id){
             std::vector<float> temp_vertex_buffer;
             std::vector<unsigned int> temp_index_buffer;
     
-            for(int iter_i = 0 ; x_start + iter_i * marching_cubes_cube_length < x_end ; iter_i++){
-                float x_this_iter = x_start + iter_i * marching_cubes_cube_length;
-                for( int iter_j = 0 ; this->min_z + iter_j * marching_cubes_cube_length < this->max_z ; iter_j++){
-                    float z_this_iter = this->min_z + iter_j * marching_cubes_cube_length;
+            for(int iter_i = 0 ; x_start + iter_i * marching_cubes_cube_length_x < x_end ; iter_i++){
+                float x_this_iter = (x_start + iter_i * marching_cubes_cube_length_x)/ this->shrink_input_factor;
+                printf("%f\n", (x_start + iter_i * marching_cubes_cube_length_x) / 1);
+                for( int iter_j = 0 ; this->min_z + iter_j * marching_cubes_cube_length_z < this->max_z ; iter_j++){
+                    float z_this_iter = (this->min_z + iter_j * marching_cubes_cube_length_z) / this->shrink_input_factor;
                     float y_vetrex_0 = Noise_Function(x_this_iter                             , z_this_iter                             );
-                    float y_vetrex_1 = Noise_Function(x_this_iter + marching_cubes_cube_length, z_this_iter                             );
-                    float y_vetrex_2 = Noise_Function(x_this_iter + marching_cubes_cube_length, z_this_iter + marching_cubes_cube_length);
-                    float y_vetrex_3 = Noise_Function(x_this_iter                             , z_this_iter + marching_cubes_cube_length);
+                    float y_vetrex_1 = Noise_Function(x_this_iter + marching_cubes_cube_length_x, z_this_iter                             );
+                    float y_vetrex_2 = Noise_Function(x_this_iter + marching_cubes_cube_length_x, z_this_iter + marching_cubes_cube_length_z);
+                    float y_vetrex_3 = Noise_Function(x_this_iter                             , z_this_iter + marching_cubes_cube_length_z);
 
                     float max_y = std::max(std::max(y_vetrex_0,y_vetrex_1),std::max(y_vetrex_2,y_vetrex_3));
                     float min_y = std::min(std::min(y_vetrex_0,y_vetrex_1), std::min(y_vetrex_2,y_vetrex_3));
 
-                    int number_of_vertical_cubes = ceil( ( (max_y - min_y) / marching_cubes_cube_length ) + epsilon); //need 1 cube even if max_y == min_y
-                    
+                    int number_of_vertical_cubes = ceil((max_y - min_y) / marching_cubes_cube_length_y) ;
+                    if (!number_of_vertical_cubes) number_of_vertical_cubes++; //need 1 cube even if max_y == min_y
                     for( int iter_k = 0 ; iter_k < number_of_vertical_cubes ; iter_k++){
                         int marching_cubes_key = 0;
-                        if( min_y + iter_k * marching_cubes_cube_length <= y_vetrex_0 )         marching_cubes_key |= (1 << 0);
-                        if( min_y + iter_k * marching_cubes_cube_length <= y_vetrex_1 )         marching_cubes_key |= (1 << 1);
-                        if( min_y + iter_k * marching_cubes_cube_length <= y_vetrex_2 )         marching_cubes_key |= (1 << 2);
-                        if( min_y + iter_k * marching_cubes_cube_length <= y_vetrex_3 )         marching_cubes_key |= (1 << 3);
-                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_0 ) marching_cubes_key |= (1 << 4);
-                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_1 ) marching_cubes_key |= (1 << 5);
-                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_2 ) marching_cubes_key |= (1 << 6);
-                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length <= y_vetrex_3 ) marching_cubes_key |= (1 << 7);
+                        if( min_y + iter_k * marching_cubes_cube_length_y <= y_vetrex_0 )         marching_cubes_key |= (1 << 0);
+                        if( min_y + iter_k * marching_cubes_cube_length_y <= y_vetrex_1 )         marching_cubes_key |= (1 << 1);
+                        if( min_y + iter_k * marching_cubes_cube_length_y <= y_vetrex_2 )         marching_cubes_key |= (1 << 2);
+                        if( min_y + iter_k * marching_cubes_cube_length_y <= y_vetrex_3 )         marching_cubes_key |= (1 << 3);
+                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length_y <= y_vetrex_0 ) marching_cubes_key |= (1 << 4);
+                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length_y <= y_vetrex_1 ) marching_cubes_key |= (1 << 5);
+                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length_y <= y_vetrex_2 ) marching_cubes_key |= (1 << 6);
+                        if( min_y + ( iter_k + 1 ) * marching_cubes_cube_length_y <= y_vetrex_3 ) marching_cubes_key |= (1 << 7);
                         
                         int edges_activated = this->edges_marching_cubes[marching_cubes_key];
                         int number_of_edges_activated = 0;
@@ -118,73 +131,72 @@ void Scene::worker_thread_function(const int my_thread_id){
                             
                             switch(edge_activated){
                                 case 0:
-                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length / 2 );
-                                    temp_vertex_buffer.push_back( min_y + iter_k * marching_cubes_cube_length );
+                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length_x / 2 );
+                                    temp_vertex_buffer.push_back( min_y + iter_k * marching_cubes_cube_length_y );
                                     temp_vertex_buffer.push_back( z_this_iter );
                                     break;
                                 case 1:
-                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( min_y + iter_k * marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length / 2 );
+                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length_x );
+                                    temp_vertex_buffer.push_back( min_y + iter_k * marching_cubes_cube_length_y );
+                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length_z / 2 );
                                     break;
                                 case 2:
-                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length / 2 );
-                                    temp_vertex_buffer.push_back( min_y + iter_k * marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length );
+                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length_x / 2 );
+                                    temp_vertex_buffer.push_back( min_y + iter_k * marching_cubes_cube_length_y );
+                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length_z );
                                     break;
                                 case 3:
                                     temp_vertex_buffer.push_back( x_this_iter );
-                                    temp_vertex_buffer.push_back( min_y + iter_k * marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length / 2 );
+                                    temp_vertex_buffer.push_back( min_y + iter_k * marching_cubes_cube_length_y );
+                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length_z / 2 );
                                     break;
                                 
                                 case 4:
-                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length / 2 );
-                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 1 ) * marching_cubes_cube_length );
+                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length_x / 2 );
+                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 1 ) * marching_cubes_cube_length_y );
                                     temp_vertex_buffer.push_back( z_this_iter );
                                     break;
                                 case 5:
-                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 1 ) * marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length / 2 );
+                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length_x );
+                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 1 ) * marching_cubes_cube_length_y );
+                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length_z / 2 );
                                     break;
                                 case 6:
-                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length / 2 );
-                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 1 ) * marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length );
+                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length_x / 2 );
+                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 1 ) * marching_cubes_cube_length_y );
+                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length_z );
                                     break;
                                 case 7:
                                     temp_vertex_buffer.push_back( x_this_iter );
-                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 1 ) * marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length / 2 );
+                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 1 ) * marching_cubes_cube_length_y );
+                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length_z / 2 );
                                     break;
                                 
                                 case 8:
                                     temp_vertex_buffer.push_back( x_this_iter );
-                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length );
+                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length_y );
                                     temp_vertex_buffer.push_back( z_this_iter );
                                     break;
                                 case 9:
-                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length );
+                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length_x );
+                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length_y );
                                     temp_vertex_buffer.push_back( z_this_iter );
                                     break;
                                 case 10:
-                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length );
+                                    temp_vertex_buffer.push_back( x_this_iter + marching_cubes_cube_length_x );
+                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length_y );
+                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length_z );
                                     break;
                                 case 11:
                                     temp_vertex_buffer.push_back( x_this_iter );
-                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length );
-                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length );
+                                    temp_vertex_buffer.push_back( min_y + ( iter_k + 0.5f ) * marching_cubes_cube_length_y );
+                                    temp_vertex_buffer.push_back( z_this_iter + marching_cubes_cube_length_z );
                                     break;
                                 default:
                                     __builtin_trap(); //Posix Function. Comment this is using windows
                                     break;
 
                             }
-                            
                         }
 
                         for(int iter_l = 0 ; true ; iter_l++){
@@ -207,7 +219,39 @@ void Scene::worker_thread_function(const int my_thread_id){
 
 }
 
+void Scene::print_state(){
+    // for(int iter_i = 0; iter_i < Scene::number_of_threads ; iter_i++){
+    //     std::cout<<"Priting Vertex Buffer for "<<iter_i<<" thread."<<std::endl;
+    //     for(int iter_j = 0 ; iter_j * 3 < this->vertices_per_thread.at(iter_i) ; iter_j++){
+    //         std::cout<<iter_j * 3<< '\t'<<this->vertices_per_thread.at(iter_i)<<std::endl;
+    //         std::cout<<this->vertex_buffers_per_thread.at(iter_i)[3 * iter_j] << '\t'<<this->vertex_buffers_per_thread.at(iter_i)[3 * iter_j+1]<<'\t'<<this->vertex_buffers_per_thread.at(iter_i)[3 * iter_j+2]<<std::endl;
+    //     }
+    //     std::cout<<"Priting Index Buffer for "<<iter_i<<" thread."<<std::endl;
+    //     for(int iter_j = 0 ; iter_j * 3 < this->indexs_per_thread.at(iter_i) ; iter_j++){
+    //         std::cout<<iter_j * 3<< '\t'<<this->indexs_per_thread.at(iter_i)<<std::endl;
+    //         std::cout<<this->index_buffers_per_thread.at(iter_i)[3 * iter_j] << '\t'<<this->index_buffers_per_thread.at(iter_i)[3 * iter_j+1]<<'\t'<<this->index_buffers_per_thread.at(iter_i)[3 * iter_j+2]<<std::endl;
+    //     }   
+    // }
+    for(int iter_i = 0; iter_i < Scene::number_of_threads ; iter_i++){
+        std::cout<<"Priting Triangled for "<<iter_i<<" thread. Number of Triangles -> "<<this->indexs_per_thread.at(iter_i)/3<<std::endl;
+        for(int iter_j = 0 ; iter_j * 3 < this->indexs_per_thread.at(iter_i) ; iter_j++){
+            std::cout<<"Triagnle"<<iter_j<<std::endl;
+            std::cout<<this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j]] 
+                << '\t'<<this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j] + 1]<<'\t'<<
+                this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j] + 2]<<std::endl;
+            std::cout<<this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j + 1]] 
+                << '\t'<<this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j + 1] + 1]<<'\t'<<
+                this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j + 1] + 2]<<std::endl;
+            std::cout<<this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j + 2]] 
+                << '\t'<<this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j + 2] + 1]<<'\t'<<
+                this->vertex_buffers_per_thread.at(iter_i)[3 * this->index_buffers_per_thread.at(iter_i)[3 * iter_j + 2] + 2]<<std::endl;
+                
+        }   
+    }
+}
+
 void Scene::worker_thread_update_state(int its_thread_id,const std::vector<float> &temp_vertex_buffer, const std::vector<unsigned int> &temp_index_buffer){
+    // this->vertx_indx_buffr_mtx.lock();
     if ( this->vertex_buffers_per_thread.at(its_thread_id) ) 
         delete[] this->vertex_buffers_per_thread.at(its_thread_id);
     
@@ -215,7 +259,6 @@ void Scene::worker_thread_update_state(int its_thread_id,const std::vector<float
     std::cout<<its_thread_id<<'\t'<<this->vertices_per_thread.at(its_thread_id)/3<<std::endl;
     this->vertex_buffers_per_thread.at(its_thread_id) = new float[temp_vertex_buffer.size()];
     std::copy( temp_vertex_buffer.data(), temp_vertex_buffer.data() + temp_vertex_buffer.size(), vertex_buffers_per_thread.at(its_thread_id) );
-
     if ( this->indexs_per_thread.at(its_thread_id) )
         delete[] this->index_buffers_per_thread.at(its_thread_id);
 
@@ -224,10 +267,73 @@ void Scene::worker_thread_update_state(int its_thread_id,const std::vector<float
     std::copy( temp_index_buffer.data(), temp_index_buffer.data() + temp_index_buffer.size(), this->index_buffers_per_thread.at(its_thread_id) );
 
     thread_done_status.at(its_thread_id) = true;
+    // this->vertx_indx_buffr_mtx.unlock();
 }
 
 
-// Values from http://paulbourke.net/geometry/polygonise/
+void Scene::render(glm::mat4 &mvp){
+    for(int iter_i = 0; iter_i < Scene::number_of_threads ; iter_i++){
+        VertexArray va;
+        VertexBuffer vb(this->vertex_buffers_per_thread.at(iter_i), vertices_per_thread.at(iter_i) * sizeof(float));
+        va.AddBuffer(vb,this->m_layout);
+        IndexBuffer ib(this->index_buffers_per_thread.at(iter_i), indexs_per_thread.at(iter_i));
+        Shader shader(Scene::vertex_shader , Scene::fragment_shader, 1);
+        shader.SetUniformMat4f("u_MVP", mvp);
+        va.Bind();
+        shader.Bind();
+        ib.Bind();
+        glDrawElements(GL_TRIANGLES, indexs_per_thread.at(iter_i) , GL_UNSIGNED_INT, nullptr);
+        return ;
+    }
+}
+
+void Scene::dump_obj(int thread_id, const char filename[]){
+   std::ofstream file(filename);
+    for(int iter_i = 0 ; 3 * iter_i < this->vertices_per_thread.at(thread_id) ; iter_i++)
+        file<<"v "<<this->vertex_buffers_per_thread.at(thread_id)[3 * iter_i] << " "<<this->vertex_buffers_per_thread.at(thread_id)[3 * iter_i + 1] << " "<<this->vertex_buffers_per_thread.at(thread_id)[3 * iter_i + 2] << "\n";
+    for(int iter_i = 0 ; 3 * iter_i < this->indexs_per_thread.at(thread_id) ; iter_i++)
+        file<<"f "<<this->index_buffers_per_thread.at(thread_id)[3 * iter_i]+1 << " "<<this->index_buffers_per_thread.at(thread_id)[3 * iter_i + 1]+1 << " "<<this->index_buffers_per_thread.at(thread_id)[3 * iter_i + 2]+1<< "\n";
+    file.close();
+}
+void Scene::dump_obj(const char *filename){
+    std::ofstream file(filename);
+    for(int thread_id = 0 ; thread_id < Scene::number_of_threads ;thread_id++){
+        std::cout<<" Vertex Writing Thread ID "<< thread_id<<std::endl;
+        for(int iter_i = 0 ; 3 * iter_i < this->vertices_per_thread.at(thread_id) ; iter_i++)
+            file<<"v "<<this->vertex_buffers_per_thread.at(thread_id)[3 * iter_i] << " "<<this->vertex_buffers_per_thread.at(thread_id)[3 * iter_i + 1] << " "<<this->vertex_buffers_per_thread.at(thread_id)[3 * iter_i + 2] << "\n";
+    }
+    int offset = 1 ;
+    for(int thread_id = 0 ; thread_id < Scene::number_of_threads ;thread_id++){
+        std::cout<<"Index Writing Thread ID "<<thread_id<<std::endl;
+        for(int iter_i = 0 ; 3 * iter_i < this->indexs_per_thread.at(thread_id) ; iter_i++)
+            file<<"f "<<offset + this->index_buffers_per_thread.at(thread_id)[3 * iter_i] << " "<<
+                        offset + this->index_buffers_per_thread.at(thread_id)[3 * iter_i + 1] << " "<<
+                        offset + this->index_buffers_per_thread.at(thread_id)[3 * iter_i + 2]<< "\n";
+        offset += this->vertices_per_thread.at(thread_id) / 3;
+    }
+    file.close();
+}
+
+
+const std::string Scene::vertex_shader = R"(
+#version 330 core
+
+layout(location = 0) in vec4 position;
+uniform mat4 u_MVP; 
+void main(){
+	gl_Position = u_MVP * position;
+    gl_Position.z = 0;
+    gl_Position.w = 0;
+};)";
+
+const std::string Scene::fragment_shader = R"(
+#version 330 core
+
+layout(location = 0) out vec4 color;
+
+void main(){
+	color = vec4(0.5, 0.5, 0.5, 0.5);
+})";
 
 const int Scene::edges_marching_cubes[256] = {
     0x0,
@@ -778,3 +884,4 @@ const int Scene::cornerIndexBFromEdge[12] = {
 };
 
 const int Scene::number_of_threads = std::thread::hardware_concurrency() ? std::thread::hardware_concurrency() : 1; //hardware_concurrency can fail and give 0
+// const int Scene::number_of_threads = 1; //hardware_concurrency can fail and give 0

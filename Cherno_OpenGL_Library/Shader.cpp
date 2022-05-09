@@ -49,6 +49,11 @@ m_RendererID(0) , m_filepathFragmentShader(filepathFragmentShader), m_filepathVe
     // std::cout<<fragmentShader<<std::endl;
     m_RendererID = CreateShader(vertexShader, fragmentShader);
 }
+Shader::Shader(const std::string& VertexShader, const std::string& FragmentShader, int some_number){
+	//the number is just an excuse to overload the constructor to allow shaders from raw c++ strings
+	m_RendererID = CreateShader(VertexShader, FragmentShader);
+}
+
 Shader::~Shader(){
     GLCall(glDeleteProgram(m_RendererID));
 }

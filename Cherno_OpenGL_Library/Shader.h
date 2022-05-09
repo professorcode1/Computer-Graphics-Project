@@ -13,6 +13,7 @@ private:
     std::unordered_map<std::string, int> m_UniformLocationCache;
 public:
     Shader(const std::string& filepathVertexShader, const std::string& filepathFragmentShader);
+    Shader(const std::string& VertexShader, const std::string& FragmentShader, int some_number);
     ~Shader();
     
     void Bind() const ;

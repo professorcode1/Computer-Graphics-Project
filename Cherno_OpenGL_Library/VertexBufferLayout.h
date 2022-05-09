@@ -1,8 +1,8 @@
 #pragma once
-
-#include "Renderer.h"
 #include <GL/gl.h>
 #include <bits/stdc++.h>
+#define ASSERT(x) if(!(x)) __builtin_trap();
+
 struct VertexBufferElement{
     unsigned int type;
     unsigned int count;

@@ -1,6 +1,9 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "IndexBuffer.h"
+#include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
+#include "VertexArray.h"
 #include <iostream>
 bool GLLogCall(const char *function, const char* file, int line){
     bool isErrorFree = true;
@@ -13,7 +16,7 @@ bool GLLogCall(const char *function, const char* file, int line){
 	return isErrorFree;
 }
 void GLClearError(){
-	while(glGetError() != GL_NO_ERROR)std::cout<<"The error buffer being cleared has an error"<<std::endl;
+	while(glGetError() != GL_NO_ERROR);
 }
 
 void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib,const Shader &shader) const {

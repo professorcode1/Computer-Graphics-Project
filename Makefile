@@ -1,10 +1,12 @@
 EXE = main
 IMGUI_DIR = imgui
+CHERNO_LIB = Cherno_OpenGL_Library
 SOURCES = main.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 SOURCES += Scene.cpp
-# SOURCES += Cherno_OpenGL_Library/*.cpp
+SOURCES += $(wildcard $(CHERNO_LIB)/*.cpp)
+
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS =  -lGL 
@@ -64,6 +66,10 @@ endif
 
 %.o:$(IMGUI_DIR)/backends/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(CHERNO_LIB)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
 
 all: $(EXE)
 	@echo Build complete for $(ECHO_MESSAGE)
