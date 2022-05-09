@@ -121,7 +121,7 @@ int main(void)
 
     std::cout<<glGetString(GL_VERSION) << std::endl;
 
-    Scene scene(0,500,0,500,
+    Scene scene(0,200,0,200,
     [](float a,float b , float x){
         float lambda = std::min(1.0f, std::max(0.0f, (x - b )/ (a - b)));
         return lambda * lambda * ( 3 - 2 * lambda );
