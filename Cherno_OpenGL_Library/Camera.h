@@ -23,6 +23,7 @@ public:
 	Camera(int width, int height, const glm::vec3 position, const glm::vec3 Orientation, const glm::vec3 Up);	
 
 
-	const std::tuple<glm::mat4, glm::vec4, glm::vec4, glm::vec4, glm::vec4> Matrix(float FOVdeg, float nearPlane, float farPlane);
+	const std::tuple<glm::mat4, float, float, float, float> Matrix(float FOVdeg, float nearPlane, float farPlane,
+	bool write_frustum_to_file = false, float padding = 0, const char* file_name = "viewing_Frustom.obj");
 
 };
