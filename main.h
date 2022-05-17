@@ -25,5 +25,9 @@
 #include "Cherno_OpenGL_Library/VertexBufferLayout.h"
 #include "Cherno_OpenGL_Library/Camera.h"
 #include "Cherno_OpenGL_Library/VertexBufferLayout.h"
+// #include <glad/glad.h>
+
 #include <GLFW/glfw3.h>
+#include "json.hpp"
+using json = nlohmann::json;
 

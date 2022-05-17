@@ -1,140 +1,103 @@
+
+
+
 #include "main.h"
-#include <iterator>
-using json = nlohmann::json;
+#include "Cherno_OpenGL_Library/IndexBuffer.h"
+#include <fstream>
+
+
+
+const unsigned int SCREEN_WIDTH = 1024;
+const unsigned int SCREEN_HEIGHT = 1024;
+
 const unsigned short OPENGL_MAJOR_VERSION = 4;
 const unsigned short OPENGL_MINOR_VERSION = 6;
 
-const char* screenVertexShaderSource = R"(
-#version 330 core
+bool vSync = true;
 
-layout(location = 0) in vec4 position;
-uniform mat4 MVP;
-void main(){
-	gl_Position = MVP * position;
-};)";
-
-const char* screenFragmentShaderSource = R"(
-#version 330 core
-
-layout(location = 0) out vec4 color;
-
-void main(){
-	color = vec4(1.0, 0.0, 0.0, 0.0);
-})";
-struct params_for_gpu{
-    int number_of_divs;
-    float min_x;
-    float max_x;
-    float min_z;
-    float max_z;
-    int ActiveWaveFreqsGround;
-    float rotation_Angle;
-    int number_of_threads_engaged;
+struct vertex_t{
+	float pos[4];
+	float nor[4];
 };
-struct shader_data_t{
-    float pos[4];
-    float nor[4];
+struct index_t{
+	int indices[6];
 };
-int main(){
-    GLFWwindow* window;
-    std::ifstream params("parameters.json");
-    json parameters;
-    params >> parameters;
-    if (!glfwInit())
-        return -1;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_MAJOR_VERSION);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR_VERSION);
-    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);    
-    const int width = parameters["screen width"], height = parameters["screen height"];
-    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        std::cout<<"Could not Create window"<<std::endl;
-        return -1;
-    }
+void write_to_file(GLuint VBO,GLuint EBO,int div, const char* file_name = "computeShaderResult.OBJ"){
+	vertex_t* data_buffer = new vertex_t[( div + 1 ) * ( div + 1 )];
+	index_t* indices_buffer = new index_t[ div * div ];
+	glGetNamedBufferSubData(VBO, 0, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t), data_buffer);
+	glGetNamedBufferSubData(EBO, 0, div * div * sizeof(struct index_t), indices_buffer);
+	std::ofstream file(file_name);
+	for(int iter_i = 0 ; iter_i < ( div + 1 ) * ( div + 1 ) ; iter_i++){
+		printf("%f \n", (float) iter_i * 50 / (( div + 1 ) * ( div + 1 )));
+		file<<"v "<<data_buffer[iter_i].pos[0]<<" "<<data_buffer[iter_i].pos[1]<<" "<<data_buffer[iter_i].pos[2]<<'\n';
+	}
+	for(int iter_i = 0 ; iter_i < div * div ; iter_i++){
+		printf("%f \n", 50 + 50 * (float) iter_i  / (div*div));
 
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+		file<<"f "<<indices_buffer[iter_i].indices[0] + 1 <<" "<<indices_buffer[iter_i].indices[1] + 1 <<" "<<indices_buffer[iter_i].indices[2] + 1 <<'\n';
+		file<<"f "<<indices_buffer[iter_i].indices[3] + 1 <<" "<<indices_buffer[iter_i].indices[4] + 1 <<" "<<indices_buffer[iter_i].indices[5] + 1 <<'\n';
+	}
+	file.close();
+}
 
-    if(glewInit() != GLEW_OK)
+int main()
+{
+	glfwInit();
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_MAJOR_VERSION);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR_VERSION);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Compute Shaders", NULL, NULL);
+	if (!window)
+	{
+		std::cout << "Failed to create the GLFW window\n";
+		glfwTerminate();
+	}
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(vSync);
+
+    if(glewInit() != GLEW_OK){
         std::cout<<"Error"<<std::endl;  
+	}
 
-    std::cout<<glGetString(GL_VERSION) << std::endl;
-    GLCall(glClearColor(0.5f, 0.6f, 0.7f, 0.0f));    
-    Camera camera(width, height, 
-        glm::vec3(parameters["camera position"][0], parameters["camera position"][1], parameters["camera position"][2]), 
-        glm::vec3(parameters["camera orientation"][0], parameters["camera orientation"][1], parameters["camera orientation"][2]), 
-        glm::vec3(parameters["camera up"][0], parameters["camera up"][1], parameters["camera up"][2]));
-    glm::mat4 matrix_transform;
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	std::ifstream parameter_file("parameters.json");
+	json parameter_json;
+	parameter_file >> parameter_json;
+
+	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, 
+        glm::vec3(parameter_json.at("camera position").at(0), parameter_json.at("camera position").at(1), 
+		parameter_json.at("camera position").at(2)), glm::vec3(parameter_json.at("camera orientation").at(0), 
+		parameter_json.at("camera orientation").at(1), parameter_json.at("camera orientation").at(2)), 
+        glm::vec3(parameter_json.at("camera up").at(0), parameter_json.at("camera up").at(1), parameter_json.at("camera up").at(2)));
+ 	glm::mat4 matrix_transform;
 	float min_x, max_x, min_z, max_z;
-    std::tie(matrix_transform, min_x, max_x, min_z, max_z) = camera.Matrix(parameters["field of view"], parameters["near plane"], parameters["far plane"], 
-    parameters["write frustum to file"], parameters["padding"]);
-    
-
-    glViewport(0, 0, width, height);
-    const int div = parameters["divisions"];
-    const int size_of_each_vertex_bytes = sizeof(shader_data_t); //2 vec4s of 4 byte floats
-	GLuint VAO, VBO, EBO, parametersIdGPU;
+    std::tie(matrix_transform, min_x, max_x, min_z, max_z) = camera.Matrix(parameter_json.at("field of view"), 
+	parameter_json.at("near plane"), parameter_json.at("far plane"), parameter_json.at("write frustum to file"), 
+	parameter_json.at("padding"));
+	std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
+	GLuint VAO, VBO, EBO;
 	glCreateVertexArrays(1, &VAO);
 	glCreateBuffers(1, &VBO);
 	glCreateBuffers(1, &EBO);
-	glCreateBuffers(1, &parametersIdGPU);
+	
+	int div = parameter_json["divisions"];
+	glNamedBufferData(VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW);
+	glNamedBufferData(EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW);
 
-	glNamedBufferData(VBO, ( div + 1 ) * ( div + 1 ) * size_of_each_vertex_bytes , NULL, GL_STATIC_DRAW);
-	glNamedBufferData(EBO, div * div * 6 * 4 , NULL, GL_STATIC_DRAW);
-    struct params_for_gpu params_for_gpu_;
-    params_for_gpu_.number_of_divs = div;
-    params_for_gpu_.ActiveWaveFreqsGround = 0;
-    for(int freq :parameters["wave numbers active"])
-        params_for_gpu_.ActiveWaveFreqsGround |= (1 << freq);
-    params_for_gpu_.max_x = max_x;
-    params_for_gpu_.min_x = min_x;
-    params_for_gpu_.max_z = max_z;
-    params_for_gpu_.min_z = min_z;
-    params_for_gpu_.rotation_Angle = parameters["rotation angle fractal ground"];
-    params_for_gpu_.number_of_threads_engaged = 0;
-    glNamedBufferData(parametersIdGPU,sizeof(struct params_for_gpu), &params_for_gpu_, GL_STATIC_DRAW);
-
-	glEnableVertexArrayAttrib(VAO, 0);
-	glVertexArrayAttribBinding(VAO, 0, 0);
-	glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
-
-	glEnableVertexArrayAttrib(VAO, 1);
-	glVertexArrayAttribBinding(VAO, 1, 0);
-	glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat));
-
-	glVertexArrayVertexBuffer(VAO, 0, VBO, 0, 6 * sizeof(GLfloat));
-	glVertexArrayElementBuffer(VAO, EBO);
-
-	GLuint screenVertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(screenVertexShader, 1, &screenVertexShaderSource, NULL);
-	glCompileShader(screenVertexShader);
-	GLuint screenFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(screenFragmentShader, 1, &screenFragmentShaderSource, NULL);
-	glCompileShader(screenFragmentShader);
-
-	GLuint screenShaderProgram = glCreateProgram();
-	glAttachShader(screenShaderProgram, screenVertexShader);
-	glAttachShader(screenShaderProgram, screenFragmentShader);
-	glLinkProgram(screenShaderProgram);
-
-	glDeleteShader(screenVertexShader);
-	glDeleteShader(screenFragmentShader);
-
-
-
-    std::ifstream computeShaderFile("shader_compute.glsl");
-
-    std::string computeShaderStr((std::istreambuf_iterator<char>(computeShaderFile)), std::istreambuf_iterator<char>());
-    const char* screenComputeShaderSource = computeShaderStr.c_str();
-    GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
+	GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
+	std::ifstream computeShaderFile("shader_compute.glsl");
+	
+	std::string computeShaderStr((std::istreambuf_iterator<char>(computeShaderFile)), std::istreambuf_iterator<char>());
+	const char * screenComputeShaderSource = computeShaderStr.c_str();
+	// std::cout<<screenComputeShaderSource<<std::endl;
 	glShaderSource(computeShader, 1, &screenComputeShaderSource, NULL);
 	glCompileShader(computeShader);
-
-    int result;
+  	int result;
 	glGetShaderiv(computeShader, GL_COMPILE_STATUS, &result);
 	if (result == GL_FALSE){
 			int length;
@@ -149,136 +112,76 @@ int main(){
 	GLuint computeProgram = glCreateProgram();
 	glAttachShader(computeProgram, computeShader);
 	glLinkProgram(computeProgram);
+	glUseProgram(computeProgram);
 
-	int work_grp_cnt[3];
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &work_grp_cnt[2]);
-	std::cout << "Max work groups per compute shader" << 
-		" x:" << work_grp_cnt[0] <<
-		" y:" << work_grp_cnt[1] <<
-		" z:" << work_grp_cnt[2] << "\n";
-
-	int work_grp_size[3];
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
-	std::cout << "Max work group sizes" <<
-		" x:" << work_grp_size[0] <<
-		" y:" << work_grp_size[1] <<
-		" z:" << work_grp_size[2] << "\n";
-
-	int work_grp_inv;
-	glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
-	std::cout << "Max invocations count per work group: " << work_grp_inv << "\n";
-
-    //attaching the PVM matrix
-    GLCall(glUseProgram(screenShaderProgram));
-    GLCall(int location = glGetUniformLocation(screenShaderProgram, "MVP"));
-    glUniformMatrix4fv(location,1,GL_FALSE, &matrix_transform[0][0]);
-    
-    
-    //reading result of compute shader
-    glUseProgram(computeShader);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, parametersIdGPU);
-    glDispatchCompute(ceil((float)(div+1) / 8), ceil((float)(div+1) / 4), 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, VBO);
-    // GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-    // struct shader_data_t shader_data[( div + 1 ) * ( div + 1 )];
-    // memcpy(p, &shader_data, ( div + 1 ) * ( div + 1 ) * size_of_each_vertex_bytes);
-    // glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    // for(int iter_i = 0 ; iter_i < ( div + 1 ) * ( div + 1 ) ; iter_i++){
-    //     std::cout<< iter_i<<std::endl;
-    //     std::cout<<shader_data[iter_i].pos[0]<<" "<<shader_data[iter_i].pos[1]<<" "<<shader_data[iter_i].pos[2]<<std::endl;
-    //     std::cout<<shader_data[iter_i].nor[0]<<" "<<shader_data[iter_i].nor[1]<<" "<<shader_data[iter_i].nor[2]<<std::endl;
-    // }
+	int number_of_divs_u_loc = glGetUniformLocation(computeProgram,"number_of_divs");
+	int min_x_u_loc = glGetUniformLocation(computeProgram,"min_x");
+	int max_x_u_loc = glGetUniformLocation(computeProgram,"max_x");
+	int min_z_u_loc = glGetUniformLocation(computeProgram,"min_z");
+	int max_z_u_loc = glGetUniformLocation(computeProgram,"max_z");
+	int ActiveWaveFreqsGround_u_loc = glGetUniformLocation(computeProgram,"ActiveWaveFreqsGround");
+	int rotation_Angle_u_loc = glGetUniformLocation(computeProgram,"rotation_Angle");
+	int output_increase_fctr_u_loc = glGetUniformLocation(computeProgram,"output_increase_fctr");
+	int input_shrink_fctr_u_loc = glGetUniformLocation(computeProgram,"input_shrink_fctr");
 
 
-    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, EBO);
-    // GLCall(GLvoid* p = glMapNamedBuffer(EBO, GL_READ_ONLY));
-    // std::cout<<p<<std::endl;
-    // int* shader_data = new int[div *div * 6];
-    // for(int iter_i = 0 ; iter_i < div * div ; iter_i++){
+	std::cout<<number_of_divs_u_loc<<std::endl;
+	std::cout<<min_x_u_loc<<std::endl;
+	std::cout<<max_x_u_loc<<std::endl;
+	std::cout<<min_z_u_loc<<std::endl;
+	std::cout<<max_z_u_loc<<std::endl;
+	std::cout<<ActiveWaveFreqsGround_u_loc<<std::endl;
+	std::cout<<rotation_Angle_u_loc<<std::endl;
 
-    //     shader_data[6 * iter_i + 0 ] = 6 * iter_i + 0   ;
-    //     shader_data[6 * iter_i + 1 ] = 6 * iter_i + 1   ;
-    //     shader_data[6 * iter_i + 2 ] = 6 * iter_i + 2   ;
-    //     shader_data[6 * iter_i + 3 ] = 6 * iter_i + 3   ;
-    //     shader_data[6 * iter_i + 4 ] = 6 * iter_i + 4   ;
-    //     shader_data[6 * iter_i + 5 ] = 6 * iter_i + 5   ;
+	glUniform1i(number_of_divs_u_loc, div);
+	glUniform1f(min_x_u_loc, min_x );
+	glUniform1f(max_x_u_loc, max_x );
+	glUniform1f(min_z_u_loc, min_z );
+	glUniform1f(max_z_u_loc, max_z );
+	int ActiveWaveFreqsGround = 0;
+    for(int freq :parameter_json["wave numbers active"])
+        ActiveWaveFreqsGround |= (1 << freq);
+	glUniform1i(ActiveWaveFreqsGround_u_loc, ActiveWaveFreqsGround);
+	float rotation_angle_fractal_ground = parameter_json.at("rotation angle fractal ground");
+	glUniform1f(rotation_Angle_u_loc, M_PI * rotation_angle_fractal_ground / 180.0f);
+	glUniform1f(output_increase_fctr_u_loc, parameter_json.at("output_increase_fctr_"));
+	glUniform1f(input_shrink_fctr_u_loc, parameter_json.at("input_shrink_fctr_"));
 
-    //     std::cout<<shader_data[6 * iter_i + 0 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 1 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 2 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 3 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 4 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 5 ]<<std::endl;
-    // }
-    // memcpy(shader_data,p, div *div * 6 * 4);
-    // glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    // std::cout<<"Post transfer"<<std::endl;
-    // for(int iter_i = 0 ; iter_i < div * div ; iter_i++){
-    //     std::cout<<shader_data[6 * iter_i + 0 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 1 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 2 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 3 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 4 ]<<std::endl;
-    //     std::cout<<shader_data[6 * iter_i + 5 ]<<std::endl;
-    // }
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
+	glDispatchCompute(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	
+	write_to_file(VBO,EBO,div);
+	std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
 
+	// for(int iter_i = 0 ; iter_i < parameter_json.at("iter_i_lim") ; iter_i ++){
+	// 	std::cout<<data_buffer[iter_i].pos[0]<<" "<<data_buffer[iter_i].pos[1]<<" "<<data_buffer[iter_i].pos[2]<<" "<<data_buffer[iter_i].pos[3]<<std::endl;
+	// 	std::cout<<data_buffer[iter_i].nor[0]<<" "<<data_buffer[iter_i].nor[1]<<" "<<data_buffer[iter_i].nor[2]<<" "<<data_buffer[iter_i].nor[3]<<std::endl;
+	// 	std::cout<<indices_buffer[iter_i].indices[0]<<" "<<indices_buffer[iter_i].indices[1]<<" "<<indices_buffer[iter_i].indices[2]<<" "<<indices_buffer[iter_i].indices[3]<<" "<<indices_buffer[iter_i].indices[4]<<" "<<indices_buffer[iter_i].indices[5]<<std::endl<<std::endl;
+	// }
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, parametersIdGPU);
-    GLCall(GLvoid* p = glMapNamedBuffer(parametersIdGPU, GL_READ_ONLY));
-    std::cout<<p<<std::endl;
-    // struct params_for_gpu* params_for_gpu__ = (struct params_for_gpu*) p; 
-    struct params_for_gpu params_for_gpu__;
-    memcpy(&params_for_gpu__, p, sizeof(struct params_for_gpu));
-    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    std::cout<<params_for_gpu__.ActiveWaveFreqsGround<<std::endl;
-    std::cout<<params_for_gpu__.min_x<<std::endl;
-    std::cout<<params_for_gpu__.max_x<<std::endl;
-    std::cout<<params_for_gpu__.min_z<<std::endl;
-    std::cout<<params_for_gpu__.max_z<<std::endl;
-    std::cout<<params_for_gpu__.number_of_divs<<std::endl;
-    std::cout<<params_for_gpu__.rotation_Angle<<std::endl;
-    std::cout<<params_for_gpu__.number_of_threads_engaged<<std::endl;
-    std::cout<<std::endl<<std::endl<<std::endl;
-    std::cout<<params_for_gpu_.ActiveWaveFreqsGround<<std::endl;
-    std::cout<<params_for_gpu_.min_x<<std::endl;
-    std::cout<<params_for_gpu_.max_x<<std::endl;
-    std::cout<<params_for_gpu_.min_z<<std::endl;
-    std::cout<<params_for_gpu_.max_z<<std::endl;
-    std::cout<<params_for_gpu_.number_of_divs<<std::endl;
-    std::cout<<params_for_gpu_.rotation_Angle<<std::endl;
-    std::cout<<params_for_gpu_.number_of_threads_engaged<<std::endl;
+	// while (!glfwWindowShouldClose(window))
+	// {
+	// 	glUseProgram(computeProgram);
+    //     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, params_ID);
+    //     int ans[2];
+    //     glGetNamedBufferSubData(params_ID,0,8,ans);
+    //     std::cout<<ans[0]<<" "<<ans[1]<<std::endl;
+	// 	glDispatchCompute(ceil(SCREEN_WIDTH / 8), ceil(SCREEN_HEIGHT / 4), 1);
+	// 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+	// 	glUseProgram(screenShaderProgram);
+	// 	glBindTextureUnit(0, screenTex);
+	// 	glUniform1i(glGetUniformLocation(screenShaderProgram, "screen"), 0);
+	// 	glBindVertexArray(VAO);
+	// 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+
+	// 	glfwSwapBuffers(window);
+	// 	glfwPollEvents();
+	// }
 
 
-
-    while(!glfwWindowShouldClose(window)){
-
-        GLCall(glClear(GL_COLOR_BUFFER_BIT));
-        glUseProgram(computeShader);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, parametersIdGPU);
-        glDispatchCompute(ceil((float)(div+1) / 8), ceil((float)(div+1) / 4), 1);
-        glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-
-        GLCall(glUseProgram(screenShaderProgram));
-        GLCall(glBindVertexArray(VAO));
-        GLCall(glDrawElements(GL_TRIANGLES, div * div, GL_UNSIGNED_INT, nullptr));
-
-        glfwSwapBuffers(window);
-
-        glfwPollEvents();
-
-    }
-
-    glfwTerminate();
-    return 0;
+	glfwDestroyWindow(window);
+	glfwTerminate();
 }

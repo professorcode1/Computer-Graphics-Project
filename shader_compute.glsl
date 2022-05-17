@@ -9,20 +9,19 @@ struct Vertex{
     vec4 nor;
 };
 
-struct Parameters{
-    int number_of_divs;
-    float min_x;
-    float max_x;
-    float min_z;
-    float max_z;
-    int ActiveWaveFreqsGround;
-    float rotation_Angle;
-    int number_of_threads_engaged;
-};
 
-layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; };
-layout ( std430, binding = 1 ) buffer Indices {int indices[][6] ;} ;
-layout ( std430, binding = 2 ) buffer Params { Parameters parameters;};
+uniform int number_of_divs;
+uniform float min_x;
+uniform float max_x;
+uniform float min_z;
+uniform float max_z;
+uniform int ActiveWaveFreqsGround;
+uniform float rotation_Angle;
+uniform float output_increase_fctr;
+uniform float input_shrink_fctr;
+
+layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } vertex_container_object;
+layout ( std430, binding = 1 ) buffer Indices {int indices[][6] ;} indices_container_object ;
 
 float smoothStep( float a, float b, float x ){
     float lambda = min( 1, max( 0, ( x - a ) / ( a - b ) ) );
@@ -41,69 +40,64 @@ void Noise(inout vec4 pos, inout vec4 nor, in float x, in float z ,in int iter_i
     float i,j;
     float frac_x = modf(x, i), frac_z = modf(z, j);
     float a = a_i_j(i    , j    );
-    float b = a_i_j(i + 1, j    );
-    float c = a_i_j(i    , j + 1);
+    float b = a_i_j(i + 0, j + 1);
+    float c = a_i_j(i + 1, j + 0);
     float d = a_i_j(i + 1, j + 1);
     
     float y_incr = a + ( b - a ) * smoothStep(0, 1, frac_x) + ( c - a ) * smoothStep(0, 1, frac_z) + ( a - b - c + d ) * smoothStep(0, 1, frac_z) * smoothStep(0, 1, frac_x);
     y_incr /= pow(2, iter_i);
+    y_incr *= output_increase_fctr;
     pos.y += y_incr;
     
-    float del_f_del_x = cos( parameters.rotation_Angle * iter_i ) * ( ( b - a ) + z * ( a - b - c + d ) ) + 
-                            sin( parameters.rotation_Angle * iter_i ) * ( ( c - a ) + x * ( a - b - c + d ) ) ;
-    float del_f_del_z = -1 * sin( parameters.rotation_Angle * iter_i ) * ( ( b - a ) + z * ( a - b - c + d ) ) + cos( parameters.rotation_Angle * iter_i ) * ( ( c - a ) + x * ( a - b - c + d ) ) ;
+    float del_f_del_x = cos( rotation_Angle * iter_i ) * ( ( b - a ) + z * ( a - b - c + d ) ) + 
+                            sin( rotation_Angle * iter_i ) * ( ( c - a ) + x * ( a - b - c + d ) ) ;
+    float del_f_del_z = -1 * sin( rotation_Angle * iter_i ) * ( ( b - a ) + z * ( a - b - c + d ) ) + cos( rotation_Angle * iter_i ) * ( ( c - a ) + x * ( a - b - c + d ) ) ;
     nor.x -= del_f_del_x;
     nor.z -= del_f_del_z;
 
 }
 
 void fractal_sum(inout vec4 pos, inout vec4 nor){
+    pos.y = pos.x + pos.z;
+    return;
     float x = pos.x;
     float z = pos.z;
     for(int iter_i = 0 ; iter_i < 32 ; iter_i++){
-        if( (parameters.ActiveWaveFreqsGround & (1 << iter_i)) != 0){
-            float hlpr_x = pow(2, iter_i) * ( cos( parameters.rotation_Angle * iter_i ) * x - sin( parameters.rotation_Angle * iter_i ) * z );
-            float hlpr_z = pow(2, iter_i) * ( sin( parameters.rotation_Angle * iter_i ) * x + cos( parameters.rotation_Angle * iter_i ) * z );
+        if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
+            float hlpr_x = pow(2, iter_i) * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
+            float hlpr_z = pow(2, iter_i) * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
             Noise(pos, nor, hlpr_x, hlpr_z, iter_i);
         }
     }
 }
-
-
+int row = int(gl_GlobalInvocationID.x);
+int col = int(gl_GlobalInvocationID.y);
+int index = row * ( number_of_divs + 1 ) + col;
+int indicesIndex = row * number_of_divs + col;
 void main(){
-    int row = int(gl_GlobalInvocationID.x);
-    int col = int(gl_GlobalInvocationID.y);
-    int index = row * ( parameters.number_of_divs + 1 ) + col ;
-    int indicesIndex = row * parameters.number_of_divs + col;
+    if(row <= number_of_divs && col <= number_of_divs){
+        vertex_container_object.vertices[index].pos.x = ( min_x + col * ( (max_x - min_x) / number_of_divs) ) / input_shrink_fctr;
+        vertex_container_object.vertices[index].pos.y = 0;
+        vertex_container_object.vertices[index].pos.z = ( min_z + row * ( (max_z - min_z) / number_of_divs) ) / input_shrink_fctr;
+        vertex_container_object.vertices[index].pos.w = 1;
 
-    atomicAdd(parameters.number_of_threads_engaged, 1);
-    if(row <= parameters.number_of_divs && col <= parameters.number_of_divs){
-        float delta_x = (parameters.max_x - parameters.min_x) / parameters.number_of_divs ;
-        float delta_z = (parameters.max_z - parameters.min_z) / parameters.number_of_divs ;
-        float x = parameters.min_x + delta_x * row ;
-        float z = parameters.min_z + delta_z * col ;
+        vertex_container_object.vertices[index].nor.x = 0;
+        vertex_container_object.vertices[index].nor.y = 0;
+        vertex_container_object.vertices[index].nor.z = 0;
+        vertex_container_object.vertices[index].nor.w = 1;
 
-        vertices[index].pos.x = x;
-        vertices[index].pos.y = 0;
-        vertices[index].pos.z = z;
-        vertices[index].pos.w = 1;
-
-        vertices[index].nor.x = 0;
-        vertices[index].nor.y = 0;
-        vertices[index].nor.z = 0;
-        vertices[index].nor.w = 1;
-
-        fractal_sum(vertices[index].pos, vertices[index].nor);
-    }
-    if(row < parameters.number_of_divs && col < parameters.number_of_divs){
-        indices[indicesIndex][0] = index;
-        indices[indicesIndex][1] = index + ( parameters.number_of_divs + 1 ) + 1;
-        indices[indicesIndex][2] = index + ( parameters.number_of_divs + 1 );
-
-        indices[indicesIndex][3] = index;
-        indices[indicesIndex][4] = index + 1;
-        indices[indicesIndex][5] = index + ( parameters.number_of_divs + 1 ) + 1;
-
+        fractal_sum(vertex_container_object.vertices[index].pos, vertex_container_object.vertices[index].nor);
     }
     
+    if(row < number_of_divs && col < number_of_divs){
+        
+        indices_container_object.indices[indicesIndex][0] = index;
+        indices_container_object.indices[indicesIndex][1] = index + ( number_of_divs + 1 ) + 1 ;
+        indices_container_object.indices[indicesIndex][2] = index + ( number_of_divs + 1 ) ;
+
+        indices_container_object.indices[indicesIndex][3] = index;
+        indices_container_object.indices[indicesIndex][4] = index + 1 ;
+        indices_container_object.indices[indicesIndex][5] = index + ( number_of_divs + 1 ) + 1 ;
+    }
+
 }

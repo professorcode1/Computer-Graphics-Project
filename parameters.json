@@ -2,14 +2,17 @@
     "screen width" : 1920,
     "screen height" : 1080,
     "camera position" : [0.0, 100.0, 0.0],
-    "camera orientation" : [40.0, -200.0, 17.0],
+    "camera orientation" : [40.0, -20.0, 40.0],
     "camera up" : [0.707 , 0.0 , 0.707 ],
     "field of view" : 45.0,
     "near plane" : 0.10,
-    "far plane" : 50,
-    "write frustum to file" : false,
+    "far plane" : 20,
+    "write frustum to file" : true,
     "padding" : 0.0,
-    "divisions" : 5,
+    "divisions" : 500,
     "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14],
-    "rotation angle fractal ground" : 36.87
+    "rotation angle fractal ground" : 36.87,
+    "iter_i_lim" : 5,
+    "output_increase_fctr_" : 1.0,
+    "input_shrink_fctr_": 1.0
 }

@@ -2,3 +2,4 @@ imgui
 glm
 *.OBJ
 *.obj
+*.o
