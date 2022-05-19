@@ -24,8 +24,9 @@ layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } vertex_con
 layout ( std430, binding = 1 ) buffer Indices {int indices[][6] ;} indices_container_object ;
 
 float smoothStep( float a, float b, float x ){
-    float lambda = min( 1, max( 0, ( x - a ) / ( a - b ) ) );
-    return lambda * lambda * ( 3 - 2 * lambda );
+    float lambda = min( 1, max( 0, ( x - a ) / ( b - a ) ) );
+    //return lambda * lambda * lambda * ( lambda * ( lambda * 6.0 - 15.0 ) + 10.0 );
+    return lambda * lambda * ( 3.0 - 2.0 * lambda );
 }
 
 float a_i_j(in float i, in float j){
@@ -37,14 +38,15 @@ float a_i_j(in float i, in float j){
 }
 
 void Noise(inout vec4 pos, inout vec4 nor, in float x, in float z ,in int iter_i){
-    float i,j;
-    float frac_x = modf(x, i), frac_z = modf(z, j);
-    float a = a_i_j(i    , j    );
-    float b = a_i_j(i + 0, j + 1);
-    float c = a_i_j(i + 1, j + 0);
-    float d = a_i_j(i + 1, j + 1);
+    float i, j;
+    //float frac_x = modf(x, i), frac_z = modf(z, j);
+    float frac_x = smoothStep(0, 1, modf(x, i)), frac_z = smoothStep(0, 1, modf(z, j));
     
-    float y_incr = a + ( b - a ) * smoothStep(0, 1, frac_x) + ( c - a ) * smoothStep(0, 1, frac_z) + ( a - b - c + d ) * smoothStep(0, 1, frac_z) * smoothStep(0, 1, frac_x);
+    float a = a_i_j(i    , j    );
+    float b = a_i_j(i + 1, j + 0);
+    float c = a_i_j(i + 0, j + 1);
+    float d = a_i_j(i + 1, j + 1);
+    float y_incr = a + ( b - a ) * frac_x + ( c - a ) * frac_z + ( a - b - c + d ) * frac_z * frac_x;
     y_incr /= pow(2, iter_i);
     y_incr *= output_increase_fctr;
     pos.y += y_incr;
@@ -58,14 +60,15 @@ void Noise(inout vec4 pos, inout vec4 nor, in float x, in float z ,in int iter_i
 }
 
 void fractal_sum(inout vec4 pos, inout vec4 nor){
-    pos.y = pos.x + pos.z;
-    return;
+    //pos.y = pos.x + pos.z;
+    //return;
     float x = pos.x;
     float z = pos.z;
     for(int iter_i = 0 ; iter_i < 32 ; iter_i++){
         if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
             float hlpr_x = pow(2, iter_i) * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
             float hlpr_z = pow(2, iter_i) * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
+            //pos.y += hlpr_x + hlpr_z;
             Noise(pos, nor, hlpr_x, hlpr_z, iter_i);
         }
     }

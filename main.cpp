@@ -79,7 +79,10 @@ int main()
     std::tie(matrix_transform, min_x, max_x, min_z, max_z) = camera.Matrix(parameter_json.at("field of view"), 
 	parameter_json.at("near plane"), parameter_json.at("far plane"), parameter_json.at("write frustum to file"), 
 	parameter_json.at("padding"));
-	std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
+	min_x = parameter_json.at("min_x");
+	max_x = parameter_json.at("max_x");
+	min_z = parameter_json.at("min_z");
+	max_z = parameter_json.at("max_z");
 	GLuint VAO, VBO, EBO;
 	glCreateVertexArrays(1, &VAO);
 	glCreateBuffers(1, &VBO);
