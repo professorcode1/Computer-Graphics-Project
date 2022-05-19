@@ -29,12 +29,19 @@ void write_to_file(GLuint VBO,GLuint EBO,int div, const char* file_name = "compu
 	glGetNamedBufferSubData(VBO, 0, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t), data_buffer);
 	glGetNamedBufferSubData(EBO, 0, div * div * sizeof(struct index_t), indices_buffer);
 	std::ofstream file(file_name);
+	int progress = -1;
 	for(int iter_i = 0 ; iter_i < ( div + 1 ) * ( div + 1 ) ; iter_i++){
-		printf("%f \n", (float) iter_i * 50 / (( div + 1 ) * ( div + 1 )));
+		if(ceil((float) iter_i * 50 / (( div + 1 ) * ( div + 1 ))) > progress){
+			progress++;
+			printf("%d \n", progress);
+		}
 		file<<"v "<<data_buffer[iter_i].pos[0]<<" "<<data_buffer[iter_i].pos[1]<<" "<<data_buffer[iter_i].pos[2]<<'\n';
 	}
 	for(int iter_i = 0 ; iter_i < div * div ; iter_i++){
-		printf("%f \n", 50 + 50 * (float) iter_i  / (div*div));
+		if(ceil(50 + 50 * (float) iter_i  / (div*div)) > progress){
+			progress++;
+			printf("%d \n", progress);
+		}
 
 		file<<"f "<<indices_buffer[iter_i].indices[0] + 1 <<" "<<indices_buffer[iter_i].indices[1] + 1 <<" "<<indices_buffer[iter_i].indices[2] + 1 <<'\n';
 		file<<"f "<<indices_buffer[iter_i].indices[3] + 1 <<" "<<indices_buffer[iter_i].indices[4] + 1 <<" "<<indices_buffer[iter_i].indices[5] + 1 <<'\n';
@@ -126,8 +133,10 @@ int main()
 	int rotation_Angle_u_loc = glGetUniformLocation(computeProgram,"rotation_Angle");
 	int output_increase_fctr_u_loc = glGetUniformLocation(computeProgram,"output_increase_fctr");
 	int input_shrink_fctr_u_loc = glGetUniformLocation(computeProgram,"input_shrink_fctr");
+	int lacunarity_u_loc = glGetUniformLocation(computeProgram, "lacunarity");
+	int persistance_u_loc = glGetUniformLocation(computeProgram, "persistance");
 
-
+	std::cout<<"Printing uniform Location"<<std::endl;
 	std::cout<<number_of_divs_u_loc<<std::endl;
 	std::cout<<min_x_u_loc<<std::endl;
 	std::cout<<max_x_u_loc<<std::endl;
@@ -135,6 +144,11 @@ int main()
 	std::cout<<max_z_u_loc<<std::endl;
 	std::cout<<ActiveWaveFreqsGround_u_loc<<std::endl;
 	std::cout<<rotation_Angle_u_loc<<std::endl;
+	std::cout<<output_increase_fctr_u_loc<<std::endl;
+	std::cout<<input_shrink_fctr_u_loc<<std::endl;
+	std::cout<<lacunarity_u_loc<<std::endl;
+	std::cout<<persistance_u_loc<<std::endl;
+	std::cout<<"Done"<<std::endl;
 
 	glUniform1i(number_of_divs_u_loc, div);
 	glUniform1f(min_x_u_loc, min_x );
@@ -144,12 +158,14 @@ int main()
 	int ActiveWaveFreqsGround = 0;
     for(int freq :parameter_json["wave numbers active"])
         ActiveWaveFreqsGround |= (1 << freq);
+	std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
 	glUniform1i(ActiveWaveFreqsGround_u_loc, ActiveWaveFreqsGround);
 	float rotation_angle_fractal_ground = parameter_json.at("rotation angle fractal ground");
 	glUniform1f(rotation_Angle_u_loc, M_PI * rotation_angle_fractal_ground / 180.0f);
 	glUniform1f(output_increase_fctr_u_loc, parameter_json.at("output_increase_fctr_"));
 	glUniform1f(input_shrink_fctr_u_loc, parameter_json.at("input_shrink_fctr_"));
-
+	glUniform1f(lacunarity_u_loc, parameter_json.at("lacunarity"));
+	glUniform1f(persistance_u_loc, parameter_json.at("persistance"));
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
 	glDispatchCompute(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);

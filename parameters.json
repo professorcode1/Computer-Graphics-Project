@@ -9,14 +9,16 @@
     "far plane" : 20,
     "write frustum to file" : true,
     "padding" : 0.0,
-    "divisions" : 1000,
-    "wave numbers active" : [0,1,2,3,4,5],
+    "divisions" : 500,
+    "wave numbers active" : [0,1,2,3,4],
     "rotation angle fractal ground" : 36.87,
     "iter_i_lim" : 5,
     "output_increase_fctr_" : 1.0,
-    "input_shrink_fctr_": 20.0,
+    "input_shrink_fctr_": 10.0,
     "min_x":0.0,
     "max_x":100.0,
     "min_z":0.0,
-    "max_z":100.0
+    "max_z":100.0,
+    "lacunarity" : 2.0,
+    "persistance" : 3.0
 }   
