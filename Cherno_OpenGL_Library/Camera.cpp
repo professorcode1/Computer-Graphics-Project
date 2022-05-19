@@ -1,62 +1,118 @@
 #include"Camera.h"
-#include "Renderer.h"
-#include <cassert>
-#include <glm/fwd.hpp>
-#include <glm/geometric.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <glm/trigonometric.hpp>
-#include <math.h>
-#include <numeric>
 
 
 
-Camera::Camera(int width, int height, const glm::vec3 position, const glm::vec3 Orientation,  glm::vec3 Up) : width(width), height(height) {	
-	this->Position = position;
-	this->Orientation = glm::normalize(Orientation);
-	this->Up = glm::normalize(Up);
+Camera::Camera(int width, int height, glm::vec3 position)
+{
+	Camera::width = width;
+	Camera::height = height;
+	Position = position;
 }
 
-const std::tuple<glm::mat4, float,  float,  float,  float> Camera::Matrix(float FOVdeg, float nearPlane, float farPlane
-,bool write_frustum_to_file, float padding,const char* file_name){
-	using std::cout, std::endl;
-	using glm::to_string, glm::mat4, glm::vec4,glm::vec3;
+void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform)
+{
+	// Initializes matrices since otherwise they will be the null matrix
+	glm::mat4 view = glm::mat4(1.0f);
+	glm::mat4 projection = glm::mat4(1.0f);
 
-	float mRatio = width / height;
-	glm::mat4 view = glm::lookAt(Position, Position + Orientation, Up);
-	glm::mat4 projection = glm::perspective(glm::radians(FOVdeg), width / height, nearPlane, farPlane);
-	float nearHeight = 2 * tan(glm::radians(FOVdeg) / 2) * nearPlane;
-	float nearWidth = nearHeight * mRatio;
-	float farHeight = 2 * tan(glm::radians(FOVdeg) / 2) * farPlane;
-	float farWidth = farHeight * mRatio;
-	glm::vec3 fc = Position + Orientation * farPlane;
-	glm::vec3 nc = Position + Orientation * nearPlane;
-	glm::vec3 frustumCorners[8];
-	glm::vec3 mRight = glm::normalize(glm::cross(Orientation, Up));
-	glm::vec3 mUp = glm::normalize(glm::cross(mRight, Orientation));
-	frustumCorners[0] = fc + ( mUp * (farHeight / 2.0f) )  - (mRight * (farWidth / 2.0f));   //up_left_front
-	frustumCorners[1] = fc + ( mUp * (farHeight / 2.0f) )  + (mRight * (farWidth / 2.0f));	//up_right_front
-	frustumCorners[2] = fc - ( mUp * (farHeight / 2.0f) )  - (mRight * (farWidth / 2.0f));	//down_left_front
-	frustumCorners[3] = fc - ( mUp * (farHeight / 2.0f) )  + (mRight * (farWidth / 2.0f));	//down_right_front
-	frustumCorners[4] = nc + ( mUp * (nearHeight / 2.0f) ) - (mRight *( nearWidth / 2.0f)); //up_left_back
-	frustumCorners[5] = nc + ( mUp * (nearHeight / 2.0f) ) + (mRight *( nearWidth / 2.0f)); //up_right_back
-	frustumCorners[6] = nc - ( mUp * (nearHeight / 2.0f) ) - (mRight *( nearWidth / 2.0f)); //down_left_back
-	frustumCorners[7] = nc - ( mUp * (nearHeight / 2.0f) ) + (mRight *( nearWidth / 2.0f)); //down_right_back
-	float min_x, max_x, min_z, max_z;
-	min_x = frustumCorners[0].x;
-	max_x = frustumCorners[0].x;
-	min_z = frustumCorners[0].z;
-	max_z = frustumCorners[0].z;
-	for(int iter_i = 0 ; iter_i < 8 ; iter_i ++){
-		min_x = std::min(min_x, frustumCorners[iter_i].x);
-		max_x = std::max(max_x, frustumCorners[iter_i].x);	
-		min_z = std::min(min_z, frustumCorners[iter_i].z);	
-		max_z = std::max(max_z, frustumCorners[iter_i].z);
+	// Makes camera look in the right direction from the right position
+	view = glm::lookAt(Position, Position + Orientation, Up);
+	// Adds perspective to the scene
+	projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+
+	// Exports the camera matrix to the Vertex Shader
+	glm::mat4 MVP = projection * view;
+	shader.SetUniformMat4f("MVP", MVP);
+}
+
+
+
+void Camera::Inputs(GLFWwindow* window)
+{
+	// Handles key inputs
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		Position += speed * Orientation;
 	}
-	min_x += -1 * padding;
-	max_x +=  1 * padding;
-	min_z += -1 * padding;
-	max_z +=  1 * padding;
-	return {projection * view, min_x, max_x, min_z, max_z};
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		Position += speed * -glm::normalize(glm::cross(Orientation, Up));
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		Position += speed * -Orientation;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		Position += speed * glm::normalize(glm::cross(Orientation, Up));
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		Position += speed * Up;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	{
+		Position += speed * -Up;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		speed = 0.4f;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+	{
+		speed = 0.1f;
+	}
+
+
+	// Handles mouse inputs
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		// Hides mouse cursor
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+		// Prevents camera from jumping on the first click
+		if (firstClick)
+		{
+			glfwSetCursorPos(window, (width / 2), (height / 2));
+			firstClick = false;
+		}
+
+		// Stores the coordinates of the cursor
+		double mouseX;
+		double mouseY;
+		// Fetches the coordinates of the cursor
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+
+		// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
+		// and then "transforms" them into degrees 
+		float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+		float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+
+		// Calculates upcoming vertical change in the Orientation
+		glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
+
+		// Decides whether or not the next vertical Orientation is legal or not
+		if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+		{
+			Orientation = newOrientation;
+		}
+
+		// Rotates the Orientation left and right
+		Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
+
+		// Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
+		glfwSetCursorPos(window, (width / 2), (height / 2));
+
+
+	}
+	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	{
+		// Unhides cursor since camera is not looking around anymore
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		// Makes sure the next time the camera looks around it doesn't jump
+		firstClick = true;
+	}
+	std::cout<<"Position :: "<<glm::to_string(Position)<<std::endl;
+	std::cout<<"Orientaation :: "<<glm::to_string(Orientation)<<std::endl;
 }

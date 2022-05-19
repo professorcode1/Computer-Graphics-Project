@@ -2,10 +2,16 @@
 
 
 #include "main.h"
+#include "Cherno_OpenGL_Library/Camera.h"
 #include "Cherno_OpenGL_Library/IndexBuffer.h"
 #include "Cherno_OpenGL_Library/Shader.h"
+#include "Cherno_OpenGL_Library/VertexArray.h"
 #include "Cherno_OpenGL_Library/VertexBuffer.h"
+#include "Cherno_OpenGL_Library/VertexBufferLayout.h"
 #include <fstream>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 
 
 
@@ -25,7 +31,7 @@ struct index_t{
 	int indices[6];
 };
 
-void write_to_file(GLuint VBO,GLuint EBO,int div, const char* file_name = "computeShaderResult.OBJ"){
+void write_to_file(GLuint VBO,GLuint EBO,int div, bool write_normals, const char* file_name = "computeShaderResult.OBJ"){
 	vertex_t* data_buffer = new vertex_t[( div + 1 ) * ( div + 1 )];
 	index_t* indices_buffer = new index_t[ div * div ];
 	glGetNamedBufferSubData(VBO, 0, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t), data_buffer);
@@ -39,8 +45,16 @@ void write_to_file(GLuint VBO,GLuint EBO,int div, const char* file_name = "compu
 		}
 		file<<"v "<<data_buffer[iter_i].pos[0]<<" "<<data_buffer[iter_i].pos[1]<<" "<<data_buffer[iter_i].pos[2]<<'\n';
 	}
+	for(int iter_i = 0 ; iter_i < ( div + 1 ) * ( div + 1 ) ; iter_i++){
+		if(ceil((float) 33.3 + iter_i * 50 / (( div + 1 ) * ( div + 1 ))) > progress){
+			progress++;
+			printf("%d \n", progress);
+		}
+		file<<"vn "<<data_buffer[iter_i].nor[0]<<" "<<data_buffer[iter_i].nor[1]<<" "<<data_buffer[iter_i].nor[2]<<'\n';
+	}
+
 	for(int iter_i = 0 ; iter_i < div * div ; iter_i++){
-		if(ceil(50 + 50 * (float) iter_i  / (div*div)) > progress){
+		if(ceil(66.6 + 33 * (float) iter_i  / (div*div)) > progress){
 			progress++;
 			printf("%d \n", progress);
 		}
@@ -77,17 +91,7 @@ int main()
 	std::ifstream parameter_file("parameters.json");
 	json parameter_json;
 	parameter_file >> parameter_json;
-
-	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, 
-        glm::vec3(parameter_json.at("camera position").at(0), parameter_json.at("camera position").at(1), 
-		parameter_json.at("camera position").at(2)), glm::vec3(parameter_json.at("camera orientation").at(0), 
-		parameter_json.at("camera orientation").at(1), parameter_json.at("camera orientation").at(2)), 
-        glm::vec3(parameter_json.at("camera up").at(0), parameter_json.at("camera up").at(1), parameter_json.at("camera up").at(2)));
- 	glm::mat4 matrix_transform;
 	float min_x, max_x, min_z, max_z;
-    std::tie(matrix_transform, min_x, max_x, min_z, max_z) = camera.Matrix(parameter_json.at("field of view"), 
-	parameter_json.at("near plane"), parameter_json.at("far plane"), parameter_json.at("write frustum to file"), 
-	parameter_json.at("padding"));
 	min_x = parameter_json.at("min_x");
 	max_x = parameter_json.at("max_x");
 	min_z = parameter_json.at("min_z");
@@ -102,9 +106,14 @@ int main()
 	glNamedBufferData(EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW);
 
 	ComputeShader comp_shader("shader_compute.glsl");
+	VertexArray vertex_array;
 	VertexBuffer vertex_buffer(VBO);
 	IndexBuffer index_buffer(EBO, div * div);
-	GLuint computeProgram = comp_shader.GetRenderedID();
+	VertexBufferLayout vertex_layout;
+	Shader shader("shader_vertex.glsl", "shader_fragment.glsl");
+	vertex_layout.Push<float>(4);
+	vertex_layout.Push<float>(4);
+	vertex_array.AddBuffer(vertex_buffer, vertex_layout);
 
 	comp_shader.SetUniform1i("number_of_divs", div);
 	comp_shader.SetUniform1f("min_x", min_x);
@@ -127,41 +136,98 @@ int main()
 	comp_shader.bindSSOBuffer(1, index_buffer.GetRenderedID());
 	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
 	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
-
 	comp_shader.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
-	// glDispatchCompute(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
-	// glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	
-	write_to_file(VBO,EBO,div);
+	shader.Bind();
+	vertex_array.Bind();
+	index_buffer.Bind();
+	// GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount(), GL_UNSIGNED_INT, nullptr));
+
+	write_to_file(VBO,EBO,div, true);
 	std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
-
-	// for(int iter_i = 0 ; iter_i < parameter_json.at("iter_i_lim") ; iter_i ++){
-	// 	std::cout<<data_buffer[iter_i].pos[0]<<" "<<data_buffer[iter_i].pos[1]<<" "<<data_buffer[iter_i].pos[2]<<" "<<data_buffer[iter_i].pos[3]<<std::endl;
-	// 	std::cout<<data_buffer[iter_i].nor[0]<<" "<<data_buffer[iter_i].nor[1]<<" "<<data_buffer[iter_i].nor[2]<<" "<<data_buffer[iter_i].nor[3]<<std::endl;
-	// 	std::cout<<indices_buffer[iter_i].indices[0]<<" "<<indices_buffer[iter_i].indices[1]<<" "<<indices_buffer[iter_i].indices[2]<<" "<<indices_buffer[iter_i].indices[3]<<" "<<indices_buffer[iter_i].indices[4]<<" "<<indices_buffer[iter_i].indices[5]<<std::endl<<std::endl;
-	// }
-
-	// while (!glfwWindowShouldClose(window))
-	// {
-	// 	glUseProgram(computeProgram);
-    //     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, params_ID);
-    //     int ans[2];
-    //     glGetNamedBufferSubData(params_ID,0,8,ans);
-    //     std::cout<<ans[0]<<" "<<ans[1]<<std::endl;
-	// 	glDispatchCompute(ceil(SCREEN_WIDTH / 8), ceil(SCREEN_HEIGHT / 4), 1);
-	// 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-	// 	glUseProgram(screenShaderProgram);
-	// 	glBindTextureUnit(0, screenTex);
-	// 	glUniform1i(glGetUniformLocation(screenShaderProgram, "screen"), 0);
-	// 	glBindVertexArray(VAO);
-	// 	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
-
-	// 	glfwSwapBuffers(window);
-	// 	glfwPollEvents();
-	// }
+	glfwSwapInterval(1);
+	// glm::vec3 position(19.5574,13.7825,23.9988), focal_point(5,-0.03651,5),view_up(-0.316333,0.854152,-0.412745);
+	glm::vec3 position (0,0.1716,0.5228);
+	glm::vec3 focal_point (5,-0.02399,5);
+	glm::vec3 view_up (-0.29207,0.897259,-0.331091);
+	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, position);
 
 
+
+
+	// const char* glsl_version = "#version 460";
+    // IMGUI_CHECKVERSION();
+    // ImGui::CreateContext();
+    // // ImGuiIO& io = ImGui::GetIO(); (void)io;
+    // //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    // //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // // Setup Dear ImGui style
+    // // ImGui::StyleColorsDark();
+    // ImGui::StyleColorsClassic();
+
+    // // Setup Platform/Renderer backends
+    // ImGui_ImplGlfw_InitForOpenGL(window, true);
+    // ImGui_ImplOpenGL3_Init(glsl_version);
+
+	while (!glfwWindowShouldClose(window))
+	{	
+		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		// Clean the back buffer and assign the new color to it
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// ImGui_ImplOpenGL3_NewFrame();
+        // ImGui_ImplGlfw_NewFrame();
+        // ImGui::NewFrame();
+
+
+
+
+
+		shader.Bind();
+
+		camera.Inputs(window);
+		// Updates and exports the camera matrix to the Vertex Shader
+		camera.Matrix(45.0f, 0.1f, 100.0f, shader, "camMatrix");
+
+		vertex_array.Bind();
+		index_buffer.Bind();
+		GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount(), GL_UNSIGNED_INT, nullptr));
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+		
+     	// {
+        //     ImGui::Begin("Hello, world!");   
+        //     // ImGui::SliderFloat3("Camera Position", &position.x, -100.0f, 100.0f);
+        //     // ImGui::SliderFloat3("Camera Orientation", &focal_point.x, -100.0f, 100.0f);
+        //     // ImGui::SliderFloat3("Camera Up", &view_up.x, -100.0f, 100.0f);
+		// 	ImGui::InputFloat("Camera Position X",&position.x, -100.0f, 100.0f, "%.3f");
+		// 	ImGui::InputFloat("Camera Position y",&position.y, -100.0f, 100.0f, "%.3f");
+		// 	ImGui::InputFloat("Camera Position z",&position.z, -100.0f, 100.0f, "%.3f");
+
+		// 	ImGui::InputFloat("Camera Orientation X",&focal_point.x, -100.0f, 100.0f, "%.3f");
+		// 	ImGui::InputFloat("Camera Orientation y",&focal_point.y, -100.0f, 100.0f, "%.3f");
+		// 	ImGui::InputFloat("Camera Orientation z",&focal_point.z, -100.0f, 100.0f, "%.3f");
+            
+		// 	ImGui::InputFloat("Camera Up X",&view_up.x, -100.0f, 100.0f, "%.3f");
+		// 	ImGui::InputFloat("Camera Up y",&view_up.y, -100.0f, 100.0f, "%.3f");
+		// 	ImGui::InputFloat("Camera Up z",&view_up.z, -100.0f, 100.0f, "%.3f");
+
+		// 	ImGui::Text("Application average %.3f ms/frame(%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        //     ImGui::End();
+        // }
+		// ImGui::Render();
+        // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+		// glm::normalize(focal_point);
+		// glm::normalize(view_up);
+		// std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	}
+
+	// ImGui_ImplOpenGL3_Shutdown();
+	// ImGui_ImplGlfw_Shutdown();
+	// ImGui::DestroyContext();
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
