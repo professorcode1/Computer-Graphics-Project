@@ -61,16 +61,11 @@ float cnoise(vec2 P){
   return 2.3 * n_xy;
 }
 
-uint hash(uint x) {
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = (x >> 16) ^ x;
-    return x;
-}
 
 void fractal_sum(inout vec4 pos, inout vec4 nor){
     //pos.y = pos.x + pos.z;
     //return;
+    double epsilon = 1 / (number_of_divs * input_shrink_fctr * 100);
     float x = pos.x;
     float z = pos.z;
     float offset = 0;
@@ -80,8 +75,12 @@ void fractal_sum(inout vec4 pos, inout vec4 nor){
             float amp = pow(persistance, iter_i);
             float hlpr_x = freq * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
             float hlpr_z = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
-            pos.y += output_increase_fctr * cnoise(vec2(hlpr_x, hlpr_z)) / amp;
-            offset += float(hash(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y + gl_GlobalInvocationID.z + iter_i));
+            float noise_ = cnoise(vec2(hlpr_x, hlpr_z));
+            pos.y += noise_ / amp;
+            double del_f_del_x = ( ( cnoise(vec2(hlpr_x + epsilon, hlpr_z)) / amp ) - noise_ ) / epsilon ;
+            double del_f_del_z = ( ( cnoise(vec2(hlpr_x, hlpr_z + epsilon)) / amp ) - noise_ ) / epsilon ;
+            nor.x -= float(del_f_del_x);
+            nor.z -= float(del_f_del_z);
         }
     }
 }
@@ -97,11 +96,13 @@ void main(){
         vertex_container_object.vertices[index].pos.w = 1;
 
         vertex_container_object.vertices[index].nor.x = 0;
-        vertex_container_object.vertices[index].nor.y = 0;
+        vertex_container_object.vertices[index].nor.y = 1;
         vertex_container_object.vertices[index].nor.z = 0;
         vertex_container_object.vertices[index].nor.w = 1;
 
         fractal_sum(vertex_container_object.vertices[index].pos, vertex_container_object.vertices[index].nor);
+
+        vertex_container_object.vertices[index].pos.y *= output_increase_fctr;
     }
     
     if(row < number_of_divs && col < number_of_divs){

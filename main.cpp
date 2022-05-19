@@ -3,6 +3,8 @@
 
 #include "main.h"
 #include "Cherno_OpenGL_Library/IndexBuffer.h"
+#include "Cherno_OpenGL_Library/Shader.h"
+#include "Cherno_OpenGL_Library/VertexBuffer.h"
 #include <fstream>
 
 
@@ -99,77 +101,36 @@ int main()
 	glNamedBufferData(VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW);
 	glNamedBufferData(EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW);
 
-	GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
-	std::ifstream computeShaderFile("shader_compute.glsl");
-	
-	std::string computeShaderStr((std::istreambuf_iterator<char>(computeShaderFile)), std::istreambuf_iterator<char>());
-	const char * screenComputeShaderSource = computeShaderStr.c_str();
-	// std::cout<<screenComputeShaderSource<<std::endl;
-	glShaderSource(computeShader, 1, &screenComputeShaderSource, NULL);
-	glCompileShader(computeShader);
-  	int result;
-	glGetShaderiv(computeShader, GL_COMPILE_STATUS, &result);
-	if (result == GL_FALSE){
-			int length;
-			glGetShaderiv(computeShader, GL_INFO_LOG_LENGTH, &length);
-			char* message = (char*)alloca(length * sizeof(char));
-			glGetShaderInfoLog(computeShader, length, &length, message);
-			std::cout<<"Failed to compile shader"<<std::endl;
-			std::cout<<message<<std::endl;
-			return 0;
-	}
+	ComputeShader comp_shader("shader_compute.glsl");
+	VertexBuffer vertex_buffer(VBO);
+	IndexBuffer index_buffer(EBO, div * div);
+	GLuint computeProgram = comp_shader.GetRenderedID();
 
-	GLuint computeProgram = glCreateProgram();
-	glAttachShader(computeProgram, computeShader);
-	glLinkProgram(computeProgram);
-	glUseProgram(computeProgram);
-
-	int number_of_divs_u_loc = glGetUniformLocation(computeProgram,"number_of_divs");
-	int min_x_u_loc = glGetUniformLocation(computeProgram,"min_x");
-	int max_x_u_loc = glGetUniformLocation(computeProgram,"max_x");
-	int min_z_u_loc = glGetUniformLocation(computeProgram,"min_z");
-	int max_z_u_loc = glGetUniformLocation(computeProgram,"max_z");
-	int ActiveWaveFreqsGround_u_loc = glGetUniformLocation(computeProgram,"ActiveWaveFreqsGround");
-	int rotation_Angle_u_loc = glGetUniformLocation(computeProgram,"rotation_Angle");
-	int output_increase_fctr_u_loc = glGetUniformLocation(computeProgram,"output_increase_fctr");
-	int input_shrink_fctr_u_loc = glGetUniformLocation(computeProgram,"input_shrink_fctr");
-	int lacunarity_u_loc = glGetUniformLocation(computeProgram, "lacunarity");
-	int persistance_u_loc = glGetUniformLocation(computeProgram, "persistance");
-
-	std::cout<<"Printing uniform Location"<<std::endl;
-	std::cout<<number_of_divs_u_loc<<std::endl;
-	std::cout<<min_x_u_loc<<std::endl;
-	std::cout<<max_x_u_loc<<std::endl;
-	std::cout<<min_z_u_loc<<std::endl;
-	std::cout<<max_z_u_loc<<std::endl;
-	std::cout<<ActiveWaveFreqsGround_u_loc<<std::endl;
-	std::cout<<rotation_Angle_u_loc<<std::endl;
-	std::cout<<output_increase_fctr_u_loc<<std::endl;
-	std::cout<<input_shrink_fctr_u_loc<<std::endl;
-	std::cout<<lacunarity_u_loc<<std::endl;
-	std::cout<<persistance_u_loc<<std::endl;
-	std::cout<<"Done"<<std::endl;
-
-	glUniform1i(number_of_divs_u_loc, div);
-	glUniform1f(min_x_u_loc, min_x );
-	glUniform1f(max_x_u_loc, max_x );
-	glUniform1f(min_z_u_loc, min_z );
-	glUniform1f(max_z_u_loc, max_z );
+	comp_shader.SetUniform1i("number_of_divs", div);
+	comp_shader.SetUniform1f("min_x", min_x);
+	comp_shader.SetUniform1f("max_x", max_x);
+	comp_shader.SetUniform1f("min_z", min_z);
+	comp_shader.SetUniform1f("max_z", max_z);
 	int ActiveWaveFreqsGround = 0;
     for(int freq :parameter_json["wave numbers active"])
         ActiveWaveFreqsGround |= (1 << freq);
 	std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
-	glUniform1i(ActiveWaveFreqsGround_u_loc, ActiveWaveFreqsGround);
+
+	comp_shader.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
 	float rotation_angle_fractal_ground = parameter_json.at("rotation angle fractal ground");
-	glUniform1f(rotation_Angle_u_loc, M_PI * rotation_angle_fractal_ground / 180.0f);
-	glUniform1f(output_increase_fctr_u_loc, parameter_json.at("output_increase_fctr_"));
-	glUniform1f(input_shrink_fctr_u_loc, parameter_json.at("input_shrink_fctr_"));
-	glUniform1f(lacunarity_u_loc, parameter_json.at("lacunarity"));
-	glUniform1f(persistance_u_loc, parameter_json.at("persistance"));
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
-	glDispatchCompute(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	comp_shader.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
+	comp_shader.SetUniform1f("output_increase_fctr", parameter_json.at("output_increase_fctr_"));
+	comp_shader.SetUniform1f("input_shrink_fctr", parameter_json.at("input_shrink_fctr_"));
+	comp_shader.SetUniform1f("lacunarity", parameter_json.at("lacunarity"));
+	comp_shader.SetUniform1f("persistance", parameter_json.at("persistance"));
+	comp_shader.bindSSOBuffer(0, vertex_buffer.GetRenderedID());
+	comp_shader.bindSSOBuffer(1, index_buffer.GetRenderedID());
+	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
+	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
+
+	comp_shader.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
+	// glDispatchCompute(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
+	// glMemoryBarrier(GL_ALL_BARRIER_BITS);
 	
 	write_to_file(VBO,EBO,div);
 	std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;

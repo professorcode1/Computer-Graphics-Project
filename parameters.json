@@ -1,7 +1,7 @@
 {
     "screen width" : 1920,
     "screen height" : 1080,
-    "camera position" : [0.0, 100.0, 0.0],
+    "camera position" : [-2.0, 3.0, -2.0],
     "camera orientation" : [40.0, -20.0, 40.0],
     "camera up" : [0.707 , 0.0 , 0.707 ],
     "field of view" : 45.0,
@@ -20,5 +20,5 @@
     "min_z":0.0,
     "max_z":100.0,
     "lacunarity" : 2.0,
-    "persistance" : 3.0
+    "persistance" : 3.2
 }   

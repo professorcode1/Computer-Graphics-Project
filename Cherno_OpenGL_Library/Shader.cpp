@@ -84,3 +84,118 @@ void Shader::SetUniform1i(const std::string &name,int v0){
 void Shader::SetUniformMat4f(const std::string &name, const glm::mat4& matrix){
 	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
 }
+
+
+
+
+
+
+
+
+unsigned int ComputeShader::CompileShader(const std::string& source){
+    GLCall(unsigned int id = glCreateShader(GL_COMPUTE_SHADER));
+	const char* src = source.c_str();
+	GLCall(glShaderSource(id, 1, &src, nullptr));
+	GLCall(glCompileShader(id));
+	
+	//error handeling
+	int result;
+	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE){
+			int length;
+			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+			char* message = (char*)alloca(length * sizeof(char));
+			glGetShaderInfoLog(id, length, &length, message);
+			std::cout<<"Failed to compile Compute shader"<<std::endl;
+			std::cout<<message<<std::endl;
+			return 0;
+	}
+	return id;
+}
+
+unsigned int ComputeShader::CreateShader(const std::string& computeShader){
+	GLCall(unsigned int program = glCreateProgram());
+	GLCall(unsigned int cs = CompileShader(computeShader));
+	
+	GLCall(glAttachShader(program, cs));
+	GLCall(glLinkProgram(program));
+	GLCall(glValidateProgram(program));
+	
+	GLCall(glDeleteShader(cs));
+	return program;
+}
+
+ComputeShader::ComputeShader(const std::string& filepathComputeShader):
+m_RendererID(0) , m_filepathComputeShader(filepathComputeShader) {
+    std::ifstream computeShaderFile(filepathComputeShader);
+    std::string computeShaderStr((std::istreambuf_iterator<char>(computeShaderFile)), std::istreambuf_iterator<char>());
+    // std::cout<<vertexShader<<std::endl;
+    // std::cout<<fragmentShader<<std::endl;
+	GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
+	
+	const char * screenComputeShaderSource = computeShaderStr.c_str();
+	// std::cout<<screenComputeShaderSource<<std::endl;
+	glShaderSource(computeShader, 1, &screenComputeShaderSource, NULL);
+	glCompileShader(computeShader);
+  	int result;
+	glGetShaderiv(computeShader, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE){
+			int length;
+			glGetShaderiv(computeShader, GL_INFO_LOG_LENGTH, &length);
+			char* message = (char*)alloca(length * sizeof(char));
+			glGetShaderInfoLog(computeShader, length, &length, message);
+			std::cout<<"Failed to compile shader"<<std::endl;
+			std::cout<<message<<std::endl;
+			__builtin_trap();
+	}
+
+	GLuint computeProgram = glCreateProgram();
+	glAttachShader(computeProgram, computeShader);
+	glLinkProgram(computeProgram);
+	glUseProgram(computeProgram);
+	m_RendererID = computeProgram;
+}
+ComputeShader::~ComputeShader(){
+    GLCall(glDeleteProgram(m_RendererID));
+}
+
+void ComputeShader::Bind() const{
+    GLCall(glUseProgram(m_RendererID));
+}
+void ComputeShader::Unbind() const {
+    GLCall(glUseProgram(0));
+}
+void ComputeShader::SetUniform4f(const std::string &name,float v0, float v1, float v2, float v3){
+    GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
+}
+int ComputeShader::GetUniformLocation(const std::string &name){
+    // std::cout<<m_RendererID<<std::endl;
+	if(m_UniformLocationCache.find(name) != m_UniformLocationCache.end()){
+		return m_UniformLocationCache[name];
+	}
+    GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
+    if(location == -1)
+        std::cout<<"Warning : uniform '" << name<< "' doesn't exist"<<std::endl;
+    m_UniformLocationCache[name] = location;
+	return location;
+}
+void ComputeShader::SetUniform1i(const std::string &name,int v0){
+    GLCall(glUniform1i(GetUniformLocation(name), v0));
+}
+void ComputeShader::SetUniform1f(const std::string &name,float v0){
+    GLCall(glUniform1f(GetUniformLocation(name), v0));
+}
+void ComputeShader::SetUniformMat4f(const std::string &name, const glm::mat4& matrix){
+	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
+}
+
+
+void ComputeShader::bindSSOBuffer(const int binding_point, const unsigned int buffer_ID){
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_point, buffer_ID);
+}
+
+void ComputeShader::launch_and_Sync(unsigned int x, unsigned int y, unsigned int z){
+	this->Bind();
+	glDispatchCompute(x,y,z);
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+}
