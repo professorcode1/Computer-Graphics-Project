@@ -65,6 +65,7 @@ void write_to_file(GLuint VBO,GLuint EBO,int div, bool write_normals, const char
 	file.close();
 }
 
+
 int main()
 {
 	glfwInit();
@@ -121,8 +122,9 @@ int main()
 	comp_shader.SetUniform1f("min_z", min_z);
 	comp_shader.SetUniform1f("max_z", max_z);
 	int ActiveWaveFreqsGround = 0;
-    for(int freq :parameter_json["wave numbers active"])
+    for(int freq :parameter_json["wave numbers active"]){
         ActiveWaveFreqsGround |= (1 << freq);
+	}
 	std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
 
 	comp_shader.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
@@ -154,39 +156,17 @@ int main()
 
 
 
-	// const char* glsl_version = "#version 460";
-    // IMGUI_CHECKVERSION();
-    // ImGui::CreateContext();
-    // // ImGuiIO& io = ImGui::GetIO(); (void)io;
-    // //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    // //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // // Setup Dear ImGui style
-    // // ImGui::StyleColorsDark();
-    // ImGui::StyleColorsClassic();
-
-    // // Setup Platform/Renderer backends
-    // ImGui_ImplGlfw_InitForOpenGL(window, true);
-    // ImGui_ImplOpenGL3_Init(glsl_version);
-
 	glClearColor(135.0f / 225.0f, 206.0f / 225.0f, 235.0f / 225.0f, 1.0f);
+		comp_shader.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
 	while (!glfwWindowShouldClose(window))
 	{	
-		// Clean the back buffer and assign the new color to it
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// ImGui_ImplOpenGL3_NewFrame();
-        // ImGui_ImplGlfw_NewFrame();
-        // ImGui::NewFrame();
-
-
-
-
 
 		shader.Bind();
 
 		camera.Inputs(window);
-		// Updates and exports the camera matrix to the Vertex Shader
+
 		camera.Matrix(45.0f, 0.1f, 100.0f, shader, "camMatrix");
 
 		vertex_array.Bind();
@@ -195,39 +175,9 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		
-     	// {
-        //     ImGui::Begin("Hello, world!");   
-        //     // ImGui::SliderFloat3("Camera Position", &position.x, -100.0f, 100.0f);
-        //     // ImGui::SliderFloat3("Camera Orientation", &focal_point.x, -100.0f, 100.0f);
-        //     // ImGui::SliderFloat3("Camera Up", &view_up.x, -100.0f, 100.0f);
-		// 	ImGui::InputFloat("Camera Position X",&position.x, -100.0f, 100.0f, "%.3f");
-		// 	ImGui::InputFloat("Camera Position y",&position.y, -100.0f, 100.0f, "%.3f");
-		// 	ImGui::InputFloat("Camera Position z",&position.z, -100.0f, 100.0f, "%.3f");
-
-		// 	ImGui::InputFloat("Camera Orientation X",&focal_point.x, -100.0f, 100.0f, "%.3f");
-		// 	ImGui::InputFloat("Camera Orientation y",&focal_point.y, -100.0f, 100.0f, "%.3f");
-		// 	ImGui::InputFloat("Camera Orientation z",&focal_point.z, -100.0f, 100.0f, "%.3f");
-            
-		// 	ImGui::InputFloat("Camera Up X",&view_up.x, -100.0f, 100.0f, "%.3f");
-		// 	ImGui::InputFloat("Camera Up y",&view_up.y, -100.0f, 100.0f, "%.3f");
-		// 	ImGui::InputFloat("Camera Up z",&view_up.z, -100.0f, 100.0f, "%.3f");
-
-		// 	ImGui::Text("Application average %.3f ms/frame(%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        //     ImGui::End();
-        // }
-		// ImGui::Render();
-        // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
-		// glm::normalize(focal_point);
-		// glm::normalize(view_up);
-		// std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	}
 
-	// ImGui_ImplOpenGL3_Shutdown();
-	// ImGui_ImplGlfw_Shutdown();
-	// ImGui::DestroyContext();
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }

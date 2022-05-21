@@ -4,14 +4,14 @@
     "camera position" : [-10.0, 10.0, -10.0],
     "camera orientation" : [40.0, -20.0, 40.0],
     "camera up" : [0.707 , 0.0 , 0.707 ],
-    "field of view" : 45.0,
+    "field of view" : 70.0,
     "near plane" : 0.10,
     "far plane" : 1000,
     "write frustum to file" : true,
     "padding" : 0.0,
-    "divisions" : 1000,
+    "divisions" : 3000,
     "wave numbers active no" : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],
-    "wave numbers active" : [0,5,6,7],
+    "wave numbers active" : [0],
     "rotation angle fractal ground" : 36.87,
     "iter_i_lim" : 5,
     "output_increase_fctr_" : 1.0,
@@ -23,5 +23,5 @@
     "lacunarity" : 2.0,
     "persistance" : 2.5,
     "write normals" : true,
-    "write to file" : true
+    "write to file" : false
 }   
