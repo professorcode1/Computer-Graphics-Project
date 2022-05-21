@@ -73,12 +73,21 @@ void fractal_sum(inout vec4 pos, inout vec4 nor){
         if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
             float freq = pow(lacunarity, iter_i);
             float amp = pow(persistance, iter_i);
-            float hlpr_x = freq * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
-            float hlpr_z = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
-            float noise_ = cnoise(vec2(hlpr_x, hlpr_z));
+            float u = freq * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
+            float v = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
+            float noise_ = cnoise(vec2(u, v));
             pos.y += noise_ / amp;
-            double del_f_del_x = ( ( cnoise(vec2(hlpr_x + epsilon, hlpr_z)) / amp ) - noise_ ) / epsilon ;
-            double del_f_del_z = ( ( cnoise(vec2(hlpr_x, hlpr_z + epsilon)) / amp ) - noise_ ) / epsilon ;
+            //let f = sum i [ {1 / amp ^ i}  * noise(v,u) ] 
+            //del f / del x = del f / dev v * del v / dex + delf / del u * del u / delx  
+            
+            double del_f_del_u = ( (cnoise(vec2(u + epsilon, v)) - noise_ ) / amp ) / epsilon ;
+            double del_f_del_v = ( (cnoise(vec2(u, v + epsilon)) - noise_ ) / amp )/ epsilon ;
+            double del_u_del_x = freq * cos( rotation_Angle * iter_i );
+            double del_v_del_x = freq * sin( rotation_Angle * iter_i );
+            double del_u_del_z = -1 * freq * sin( rotation_Angle * iter_i );
+            double del_v_del_z =  1 * freq * cos( rotation_Angle * iter_i );
+            double del_f_del_x = del_f_del_u * del_u_del_x + del_f_del_v * del_v_del_x; 
+            double del_f_del_z = del_f_del_u * del_u_del_z + del_f_del_v * del_v_del_z; 
             nor.x -= float(del_f_del_x);
             nor.z -= float(del_f_del_z);
         }

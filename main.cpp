@@ -39,14 +39,14 @@ void write_to_file(GLuint VBO,GLuint EBO,int div, bool write_normals, const char
 	std::ofstream file(file_name);
 	int progress = -1;
 	for(int iter_i = 0 ; iter_i < ( div + 1 ) * ( div + 1 ) ; iter_i++){
-		if(ceil((float) iter_i * 50 / (( div + 1 ) * ( div + 1 ))) > progress){
+		if(ceil((float) iter_i * 33.3f / (( div + 1 ) * ( div + 1 ))) > progress){
 			progress++;
 			printf("%d \n", progress);
 		}
 		file<<"v "<<data_buffer[iter_i].pos[0]<<" "<<data_buffer[iter_i].pos[1]<<" "<<data_buffer[iter_i].pos[2]<<'\n';
 	}
-	for(int iter_i = 0 ; iter_i < ( div + 1 ) * ( div + 1 ) ; iter_i++){
-		if(ceil((float) 33.3 + iter_i * 50 / (( div + 1 ) * ( div + 1 ))) > progress){
+	for(int iter_i = 0 ; iter_i < ( div + 1 ) * ( div + 1 ) * write_normals ; iter_i++){
+		if(ceil(33.3f + (float)iter_i * 33.3f / (( div + 1 ) * ( div + 1 ))) > progress){
 			progress++;
 			printf("%d \n", progress);
 		}
@@ -108,7 +108,7 @@ int main()
 	ComputeShader comp_shader("shader_compute.glsl");
 	VertexArray vertex_array;
 	VertexBuffer vertex_buffer(VBO);
-	IndexBuffer index_buffer(EBO, div * div);
+	IndexBuffer index_buffer(EBO, div * div * 6);
 	VertexBufferLayout vertex_layout;
 	Shader shader("shader_vertex.glsl", "shader_fragment.glsl");
 	vertex_layout.Push<float>(4);
@@ -141,8 +141,8 @@ int main()
 	vertex_array.Bind();
 	index_buffer.Bind();
 	// GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount(), GL_UNSIGNED_INT, nullptr));
-
-	write_to_file(VBO,EBO,div, true);
+	if(parameter_json.at("write to file"))
+		write_to_file(VBO,EBO,div, parameter_json.at("write normals"));
 	std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
 	glfwSwapInterval(1);
 	// glm::vec3 position(19.5574,13.7825,23.9988), focal_point(5,-0.03651,5),view_up(-0.316333,0.854152,-0.412745);
@@ -169,9 +169,9 @@ int main()
     // ImGui_ImplGlfw_InitForOpenGL(window, true);
     // ImGui_ImplOpenGL3_Init(glsl_version);
 
+	glClearColor(135.0f / 225.0f, 206.0f / 225.0f, 235.0f / 225.0f, 1.0f);
 	while (!glfwWindowShouldClose(window))
 	{	
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and assign the new color to it
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -191,7 +191,7 @@ int main()
 
 		vertex_array.Bind();
 		index_buffer.Bind();
-		GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount(), GL_UNSIGNED_INT, nullptr));
+		GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount() , GL_UNSIGNED_INT, nullptr));
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		

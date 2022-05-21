@@ -113,6 +113,6 @@ void Camera::Inputs(GLFWwindow* window)
 		// Makes sure the next time the camera looks around it doesn't jump
 		firstClick = true;
 	}
-	std::cout<<"Position :: "<<glm::to_string(Position)<<std::endl;
-	std::cout<<"Orientaation :: "<<glm::to_string(Orientation)<<std::endl;
+	// std::cout<<"Position :: "<<glm::to_string(Position)<<std::endl;
+	// std::cout<<"Orientaation :: "<<glm::to_string(Orientation)<<std::endl;
 }

@@ -6,11 +6,11 @@ const vec3  kSunDir = vec3(-0.624695,0.468521,-0.624695);
 
 uniform mat4 MVP;
 
-flat out float intensity;
+out float intensity;
 
 void main(){
 	gl_Position = MVP * position;
 	vec3 normal_ = vec3(normal.xyz);
-	intensity = dot(normal_, kSunDir) / length(normal);
+	intensity = (0, dot(normal_, kSunDir) / (length(normal) * length(kSunDir)));
 	//intensity = 1;
 }
