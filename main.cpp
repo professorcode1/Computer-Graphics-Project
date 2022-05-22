@@ -98,7 +98,7 @@ int main()
 	glNamedBufferData(VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW);
 	glNamedBufferData(EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW);
 
-	ComputeShader comp_shader("shader_compute.glsl");
+	ComputeShader basic_scene_generator("shader_compute.glsl");
 	VertexArray vertex_array;
 	VertexBuffer vertex_buffer(VBO);
 	IndexBuffer index_buffer(EBO, div * div * 6);
@@ -117,30 +117,30 @@ int main()
 	vertex_layout.Push<float>(1);
 	vertex_array.AddBuffer(vertex_buffer, vertex_layout);
 
-	comp_shader.Bind();
-	comp_shader.SetUniform1i("number_of_divs", div);
-	comp_shader.SetUniform1f("min_x", min_x);
-	comp_shader.SetUniform1f("max_x", max_x);
-	comp_shader.SetUniform1f("min_z", min_z);
-	comp_shader.SetUniform1f("max_z", max_z);
+	basic_scene_generator.Bind();
+	basic_scene_generator.SetUniform1i("number_of_divs", div);
+	basic_scene_generator.SetUniform1f("min_x", min_x);
+	basic_scene_generator.SetUniform1f("max_x", max_x);
+	basic_scene_generator.SetUniform1f("min_z", min_z);
+	basic_scene_generator.SetUniform1f("max_z", max_z);
 	int ActiveWaveFreqsGround = 0;
     for(int freq :parameter_json["wave numbers active"]){
         ActiveWaveFreqsGround |= (1 << freq);
 	}
 	std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
 
-	comp_shader.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
+	basic_scene_generator.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
 	float rotation_angle_fractal_ground = parameter_json.at("rotation angle fractal ground");
-	comp_shader.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
-	comp_shader.SetUniform1f("output_increase_fctr", parameter_json.at("output_increase_fctr_"));
-	comp_shader.SetUniform1f("input_shrink_fctr", parameter_json.at("input_shrink_fctr_"));
-	comp_shader.SetUniform1f("lacunarity", parameter_json.at("lacunarity"));
-	comp_shader.SetUniform1f("persistance", parameter_json.at("persistance"));
-	comp_shader.bindSSOBuffer(0, vertex_buffer.GetRenderedID());
-	comp_shader.bindSSOBuffer(1, index_buffer.GetRenderedID());
+	basic_scene_generator.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
+	basic_scene_generator.SetUniform1f("output_increase_fctr", parameter_json.at("output_increase_fctr_"));
+	basic_scene_generator.SetUniform1f("input_shrink_fctr", parameter_json.at("input_shrink_fctr_"));
+	basic_scene_generator.SetUniform1f("lacunarity", parameter_json.at("lacunarity"));
+	basic_scene_generator.SetUniform1f("persistance", parameter_json.at("persistance"));
+	basic_scene_generator.bindSSOBuffer(0, vertex_buffer.GetRenderedID());
+	basic_scene_generator.bindSSOBuffer(1, index_buffer.GetRenderedID());
 	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
 	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
-	comp_shader.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
+	basic_scene_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
 	vertex_array.Bind();
 	index_buffer.Bind();
 	// GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount(), GL_UNSIGNED_INT, nullptr));
@@ -160,7 +160,7 @@ int main()
 	//glClearColor(135.0f / 225.0f, 206.0f / 225.0f, 235.0f / 225.0f, 1.0f);
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-	comp_shader.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
+	basic_scene_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
 	while (!glfwWindowShouldClose(window))
 	{	
 
