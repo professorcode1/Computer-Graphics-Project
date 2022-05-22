@@ -71,6 +71,7 @@ void fractal_sum(inout vec3 pos, inout vec3 nor){
     double epsilon = 1 / (number_of_divs * input_shrink_fctr * 100);
     float x = pos.x;
     float z = pos.z;
+    bool made_normal = false;
     for(int iter_i = 0 ; iter_i < 32 ; iter_i++){
         if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
             float freq = pow(lacunarity, iter_i);
@@ -79,9 +80,11 @@ void fractal_sum(inout vec3 pos, inout vec3 nor){
             float v = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
             float noise_ = cnoise(vec2(u, v));
             pos.y += noise_ / amp;
-            
-            nor.x += ( (cnoise(vec2(u + freq * cos( rotation_Angle * iter_i ) * epsilon, v + freq * sin( rotation_Angle * iter_i ) * epsilon)) - noise_ ) / amp );
-            nor.z += ( (cnoise(vec2(u - freq * sin( rotation_Angle * iter_i ) * epsilon, v + freq * cos( rotation_Angle * iter_i ) * epsilon)) - noise_ ) / amp );
+            if (! made_normal){
+                nor.x += ( (cnoise(vec2(u + freq * cos( rotation_Angle * iter_i ) * epsilon, v + freq * sin( rotation_Angle * iter_i ) * epsilon)) - noise_ ) / amp );
+                nor.z += ( (cnoise(vec2(u - freq * sin( rotation_Angle * iter_i ) * epsilon, v + freq * cos( rotation_Angle * iter_i ) * epsilon)) - noise_ ) / amp );
+                made_normal = true;
+            }
         }
     }
     nor.x /= float(epsilon);

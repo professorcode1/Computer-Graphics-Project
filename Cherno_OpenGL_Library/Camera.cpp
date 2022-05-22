@@ -10,7 +10,7 @@ Camera::Camera(int width, int height, glm::vec3 position)
 	Position = position;
 }
 
-void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform)
+std::tuple<glm::mat4, glm::vec3> Camera::Matrix(float FOVdeg, float nearPlane, float farPlane)
 {
 	// Initializes matrices since otherwise they will be the null matrix
 	glm::mat4 view = glm::mat4(1.0f);
@@ -23,7 +23,7 @@ void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shade
 
 	// Exports the camera matrix to the Vertex Shader
 	glm::mat4 MVP = projection * view;
-	shader.SetUniformMat4f("MVP", MVP);
+	return {MVP, Position};
 }
 
 

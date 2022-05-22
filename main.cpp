@@ -74,7 +74,8 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(vSync);
-
+	// GLCall(glEnable(GL_BLEND));
+	// GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     if(glewInit() != GLEW_OK){
         std::cout<<"Error"<<std::endl;  
 	}
@@ -104,10 +105,12 @@ int main()
 	VertexBufferLayout vertex_layout;
 	Shader shader("shader_vertex.glsl", "shader_fragment.glsl");
 	shader.Bind();
-	Texture tex("assets/grass.jpg");
+	Texture tex(parameter_json.at("noise texture file"));
 	tex.Bind();
 	shader.SetUniform1i("u_Texture", 0);
-	std::cout<<"here"<<std::endl;
+	shader.SetUniform1f("atmosphere_light_damping_constant", parameter_json.at("atmosphere light damping constant")); 
+	shader.SetUniform1f("atmosphere_light_damping_constant", parameter_json.at("atmosphere light damping constant")); 
+	shader.SetUniform4f("atmosphere_light_damping_RGB_Weight", parameter_json.at("atmosphere red"), parameter_json.at("atmosphere green"), parameter_json.at("atmosphere blue"), 1.0); 
 	vertex_layout.Push<float>(3);
 	vertex_layout.Push<float>(1);
 	vertex_layout.Push<float>(3);
@@ -116,7 +119,6 @@ int main()
 
 	comp_shader.Bind();
 	comp_shader.SetUniform1i("number_of_divs", div);
-	std::cout<<"here"<<std::endl;
 	comp_shader.SetUniform1f("min_x", min_x);
 	comp_shader.SetUniform1f("max_x", max_x);
 	comp_shader.SetUniform1f("min_z", min_z);
@@ -155,8 +157,10 @@ int main()
 
 
 
-	glClearColor(135.0f / 225.0f, 206.0f / 225.0f, 235.0f / 225.0f, 1.0f);
-		comp_shader.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
+	//glClearColor(135.0f / 225.0f, 206.0f / 225.0f, 235.0f / 225.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+
+	comp_shader.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
 	while (!glfwWindowShouldClose(window))
 	{	
 
@@ -165,8 +169,11 @@ int main()
 		shader.Bind();
 
 		camera.Inputs(window);
-
-		camera.Matrix(45.0f, 0.1f, 100.0f, shader, "camMatrix");
+		glm::mat4 MVP;
+		glm::vec3 camera_pos;
+		std::tie(MVP, camera_pos) = camera.Matrix(45.0f, 0.1f, 100.0f);
+		shader.SetUniformMat4f("MVP", MVP);
+		shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
 
 		vertex_array.Bind();
 		index_buffer.Bind();
