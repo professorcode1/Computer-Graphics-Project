@@ -6,3 +6,7 @@ Here's the heatmap of the procedurally generated terrain with a filthy texture
 <br><br>
 Here's the same terrain with global illumination from the sun
 <img alt="preview" src="ScreenShots/Global Lighting.png" >
+
+Here's the same terrain with colorful texture from the sun
+<img alt="preview" src="ScreenShots/Colorful_heatmap.png" >
+

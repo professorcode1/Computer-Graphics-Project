@@ -5,6 +5,7 @@
 #include "Cherno_OpenGL_Library/Camera.h"
 #include "Cherno_OpenGL_Library/IndexBuffer.h"
 #include "Cherno_OpenGL_Library/Shader.h"
+#include "Cherno_OpenGL_Library/Texture.h"
 #include "Cherno_OpenGL_Library/VertexArray.h"
 #include "Cherno_OpenGL_Library/VertexBuffer.h"
 #include "Cherno_OpenGL_Library/VertexBufferLayout.h"
@@ -24,8 +25,10 @@ const unsigned short OPENGL_MINOR_VERSION = 6;
 bool vSync = true;
 
 struct vertex_t{
-	float pos[4];
-	float nor[4];
+	float pos[3];
+	float u;
+	float nor[3];
+	float v;
 };
 struct index_t{
 	int indices[6];
@@ -112,6 +115,8 @@ int main()
 	IndexBuffer index_buffer(EBO, div * div * 6);
 	VertexBufferLayout vertex_layout;
 	Shader shader("shader_vertex.glsl", "shader_fragment.glsl");
+	Texture tex("assets/grass.jpg");
+	tex.Bind();
 	vertex_layout.Push<float>(3);
 	vertex_layout.Push<float>(1);
 	vertex_layout.Push<float>(3);

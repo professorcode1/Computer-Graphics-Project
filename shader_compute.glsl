@@ -6,9 +6,9 @@ layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
 struct Vertex{
     vec3 pos;
-    float ya;
+    float u;
     vec3 nor;
-    float ha;
+    float v;
 };
 
 
@@ -93,17 +93,23 @@ int index = row * ( number_of_divs + 1 ) + col;
 int indicesIndex = row * number_of_divs + col;
 void main(){
     if(row <= number_of_divs && col <= number_of_divs){
-        vertex_container_object.vertices[index].pos.x = ( min_x + col * ( (max_x - min_x) / number_of_divs) ) / input_shrink_fctr;
-        vertex_container_object.vertices[index].pos.y = 0;
-        vertex_container_object.vertices[index].pos.z = ( min_z + row * ( (max_z - min_z) / number_of_divs) ) / input_shrink_fctr;
+        float x = ( min_x + col * ( (max_x - min_x) / number_of_divs) ) / input_shrink_fctr;
+        float z = ( min_z + row * ( (max_z - min_z) / number_of_divs) ) / input_shrink_fctr;
+        vertex_container_object.vertices[index].pos.x = x ;
+        vertex_container_object.vertices[index].pos.y = 0 ;
+        vertex_container_object.vertices[index].pos.z = z ;
 
-        vertex_container_object.vertices[index].nor.x = 0;
-        vertex_container_object.vertices[index].nor.y = 1;
-        vertex_container_object.vertices[index].nor.z = 0;
+        vertex_container_object.vertices[index].nor.x = 0 ;
+        vertex_container_object.vertices[index].nor.y = 1 ;
+        vertex_container_object.vertices[index].nor.z = 0 ;
 
         fractal_sum(vertex_container_object.vertices[index].pos, vertex_container_object.vertices[index].nor);
 
         vertex_container_object.vertices[index].pos.y *= output_increase_fctr;
+
+        vertex_container_object.vertices[index].u = fract(x);
+        vertex_container_object.vertices[index].v = fract(z);
+        
     }
     
     if(row < number_of_divs && col < number_of_divs){
