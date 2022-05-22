@@ -11,6 +11,6 @@ out float intensity;
 void main(){
 	gl_Position = MVP * position;
 	vec3 normal_ = vec3(normal.xyz);
-	intensity = (0, dot(normal_, kSunDir) / (length(normal) * length(kSunDir)));
+	intensity = max(0, dot(normal_, kSunDir) / (length(normal) * length(kSunDir)));
 	//intensity = 1;
 }
