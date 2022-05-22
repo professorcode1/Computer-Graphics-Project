@@ -1,7 +1,7 @@
 #version 460 core
 
 layout(location = 0) in vec4 position;
-layout(location = 1) in vec4 normal;
+layout(location = 2) in vec4 normal;
 const vec3  kSunDir = vec3(-0.624695,0.468521,-0.624695);
 
 uniform mat4 MVP;

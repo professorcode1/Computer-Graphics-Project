@@ -112,8 +112,10 @@ int main()
 	IndexBuffer index_buffer(EBO, div * div * 6);
 	VertexBufferLayout vertex_layout;
 	Shader shader("shader_vertex.glsl", "shader_fragment.glsl");
-	vertex_layout.Push<float>(4);
-	vertex_layout.Push<float>(4);
+	vertex_layout.Push<float>(3);
+	vertex_layout.Push<float>(1);
+	vertex_layout.Push<float>(3);
+	vertex_layout.Push<float>(1);
 	vertex_array.AddBuffer(vertex_buffer, vertex_layout);
 
 	comp_shader.SetUniform1i("number_of_divs", div);

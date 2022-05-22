@@ -5,8 +5,10 @@ layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 #define M_PI 3.14159265358979323846264338327950288
 
 struct Vertex{
-    vec4 pos;
-    vec4 nor;
+    vec3 pos;
+    float ya;
+    vec3 nor;
+    float ha;
 };
 
 
@@ -21,7 +23,8 @@ uniform float output_increase_fctr;
 uniform float input_shrink_fctr;
 uniform float lacunarity;
 uniform float persistance;
-
+uniform vec3 camera_loc;
+uniform vec3 sun_light_dir;
 layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } vertex_container_object;
 layout ( std430, binding = 1 ) buffer Indices {int indices[][6] ;} indices_container_object ;
 
@@ -62,13 +65,12 @@ float cnoise(vec2 P){
 }
 
 
-void fractal_sum(inout vec4 pos, inout vec4 nor){
+void fractal_sum(inout vec3 pos, inout vec3 nor){
     //pos.y = pos.x + pos.z;
     //return;
     double epsilon = 1 / (number_of_divs * input_shrink_fctr * 100);
     float x = pos.x;
     float z = pos.z;
-    float offset = 0;
     for(int iter_i = 0 ; iter_i < 32 ; iter_i++){
         if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
             float freq = pow(lacunarity, iter_i);
@@ -77,17 +79,13 @@ void fractal_sum(inout vec4 pos, inout vec4 nor){
             float v = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
             float noise_ = cnoise(vec2(u, v));
             pos.y += noise_ / amp;
-            //let f = sum i [ {1 / amp ^ i}  * noise(v,u) ] 
-            //del f / del x = del f / dev v * del v / dex + delf / del u * del u / delx  
-
-            vec2 normal;
-            normal.x = float(( (cnoise(vec2(u + epsilon, v)) - noise_ ) / amp ) / epsilon );
-            normal.y = float(( (cnoise(vec2(u, v + epsilon)) - noise_ ) / amp ) / epsilon );
-            normal = normalize(normal);
-            nor.x -= normal.x / amp;
-            nor.z -= normal.y / amp;
+            
+            nor.x += ( (cnoise(vec2(u + freq * cos( rotation_Angle * iter_i ) * epsilon, v + freq * sin( rotation_Angle * iter_i ) * epsilon)) - noise_ ) / amp );
+            nor.z += ( (cnoise(vec2(u - freq * sin( rotation_Angle * iter_i ) * epsilon, v + freq * cos( rotation_Angle * iter_i ) * epsilon)) - noise_ ) / amp );
         }
     }
+    nor.x /= float(epsilon);
+    nor.z /= float(epsilon);
 }
 int row = int(gl_GlobalInvocationID.x);
 int col = int(gl_GlobalInvocationID.y);
@@ -98,12 +96,10 @@ void main(){
         vertex_container_object.vertices[index].pos.x = ( min_x + col * ( (max_x - min_x) / number_of_divs) ) / input_shrink_fctr;
         vertex_container_object.vertices[index].pos.y = 0;
         vertex_container_object.vertices[index].pos.z = ( min_z + row * ( (max_z - min_z) / number_of_divs) ) / input_shrink_fctr;
-        vertex_container_object.vertices[index].pos.w = 1;
 
         vertex_container_object.vertices[index].nor.x = 0;
         vertex_container_object.vertices[index].nor.y = 1;
         vertex_container_object.vertices[index].nor.z = 0;
-        vertex_container_object.vertices[index].nor.w = 1;
 
         fractal_sum(vertex_container_object.vertices[index].pos, vertex_container_object.vertices[index].nor);
 

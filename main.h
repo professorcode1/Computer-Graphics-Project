@@ -5,17 +5,11 @@
 #include <fstream>
 #include <iostream>
 
-#include "stb_image.cpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/trigonometric.hpp>
 #include "json.hpp"
 
-// #include "imgui.h"
-// #include "imgui_impl_glfw.h"
-// #include "imgui_impl_opengl3.h"
-
-// #include "Scene.h"
 
 #include "Cherno_OpenGL_Library/Renderer.h"
 #include "Cherno_OpenGL_Library/Shader.h"
