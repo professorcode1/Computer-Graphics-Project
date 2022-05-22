@@ -19,6 +19,8 @@
 #include "Cherno_OpenGL_Library/VertexBufferLayout.h"
 #include "Cherno_OpenGL_Library/Camera.h"
 #include "Cherno_OpenGL_Library/VertexBufferLayout.h"
+#include "Cherno_OpenGL_Library/Texture.h"
+
 // #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>

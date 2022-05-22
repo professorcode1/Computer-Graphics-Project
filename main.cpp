@@ -2,18 +2,6 @@
 
 
 #include "main.h"
-#include "Cherno_OpenGL_Library/Camera.h"
-#include "Cherno_OpenGL_Library/IndexBuffer.h"
-#include "Cherno_OpenGL_Library/Shader.h"
-#include "Cherno_OpenGL_Library/Texture.h"
-#include "Cherno_OpenGL_Library/VertexArray.h"
-#include "Cherno_OpenGL_Library/VertexBuffer.h"
-#include "Cherno_OpenGL_Library/VertexBufferLayout.h"
-#include <fstream>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
-#include <glm/geometric.hpp>
-
 
 
 const unsigned int SCREEN_WIDTH = 1024;
@@ -115,15 +103,20 @@ int main()
 	IndexBuffer index_buffer(EBO, div * div * 6);
 	VertexBufferLayout vertex_layout;
 	Shader shader("shader_vertex.glsl", "shader_fragment.glsl");
+	shader.Bind();
 	Texture tex("assets/grass.jpg");
 	tex.Bind();
+	shader.SetUniform1i("u_Texture", 0);
+	std::cout<<"here"<<std::endl;
 	vertex_layout.Push<float>(3);
 	vertex_layout.Push<float>(1);
 	vertex_layout.Push<float>(3);
 	vertex_layout.Push<float>(1);
 	vertex_array.AddBuffer(vertex_buffer, vertex_layout);
 
+	comp_shader.Bind();
 	comp_shader.SetUniform1i("number_of_divs", div);
+	std::cout<<"here"<<std::endl;
 	comp_shader.SetUniform1f("min_x", min_x);
 	comp_shader.SetUniform1f("max_x", max_x);
 	comp_shader.SetUniform1f("min_z", min_z);
@@ -146,7 +139,6 @@ int main()
 	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
 	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
 	comp_shader.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
-	shader.Bind();
 	vertex_array.Bind();
 	index_buffer.Bind();
 	// GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount(), GL_UNSIGNED_INT, nullptr));
