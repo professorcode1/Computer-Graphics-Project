@@ -17,6 +17,7 @@ const unsigned int SCREEN_HEIGHT = 1024;
 
 const unsigned short OPENGL_MAJOR_VERSION = 4;
 const unsigned short OPENGL_MINOR_VERSION = 6;
+const unsigned int VERTICES_IN_PLANE = 5001;
 
 bool vSync = true;
 
@@ -25,6 +26,7 @@ struct vertex_t{
 	float u;
 	float nor[3];
 	float v;
+	float lol[4];
 };
 struct index_t{
 	int indices[6];
@@ -70,6 +72,9 @@ void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &
 			split.push_back(line);
 			std::vector<std::string> split_split;
 			vertex_t hlpr_ver;
+			hlpr_ver.lol[0] = 10.0f;
+			hlpr_ver.lol[1] = 10.0f;
+			hlpr_ver.lol[2] = 10.0f;
 			// std::cout<<"line\t"<<line<<std::endl;
 			// std::cout<<split[1]<<'\t' <<split[2]<<'\t'<<split[3]<<'\t'<<std::endl;
 			string_split(split[1], split_split, "/");
@@ -188,6 +193,19 @@ int main()
 	}
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+	VertexBufferLayout vertex_layout;
+	vertex_layout.Push<float>(3);
+	vertex_layout.Push<float>(1);
+	vertex_layout.Push<float>(3);
+	vertex_layout.Push<float>(1);
+	vertex_layout.Push<float>(4);
+	
+
+	std::vector<vertex_t> vertices_plane;
+	std::vector<unsigned int> index_buffer_plane; 
+	parse_simple_wavefront("assets/LowPolyPlane01/LowPolyPlane01.obj", vertices_plane, index_buffer_plane);
+	
 	std::ifstream parameter_file("parameters.json");
 	json parameter_json;
 	parameter_file >> parameter_json;
@@ -202,26 +220,27 @@ int main()
 	glCreateBuffers(1, &EBO);
 	
 	int div = parameter_json["divisions"];
-	glNamedBufferData(VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW);
-	glNamedBufferData(EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW);
-
+	std::cout<<"Here"<<std::endl;
+	vertices_plane.resize(( div + 1 ) * ( div + 1 ) + VERTICES_IN_PLANE);
+	index_buffer_plane.resize((div * div * 6 + VERTICES_IN_PLANE));
+	GLCall(glNamedBufferData(VBO, (( div + 1 ) * ( div + 1 ) + VERTICES_IN_PLANE) * sizeof(struct vertex_t) , vertices_plane.data(), GL_STATIC_DRAW));
+	GLCall(glNamedBufferData(EBO, (div * div * 6 + VERTICES_IN_PLANE) * 4, index_buffer_plane.data(), GL_STATIC_DRAW));	
+	std::cout<<"Here"<<std::endl;
 	ComputeShader basic_scene_generator("shader_compute.glsl");
 	VertexArray vertex_array;
 	VertexBuffer vertex_buffer(VBO);
 	IndexBuffer index_buffer(EBO, div * div * 6);
-	VertexBufferLayout vertex_layout;
 	Shader shader("shader_vertex.glsl", "shader_fragment.glsl");
 	shader.Bind();
-	Texture tex(parameter_json.at("noise texture file"));
-	tex.Bind();
-	shader.SetUniform1i("u_Texture", 0);
+	Texture mountain_tex(parameter_json.at("noise texture file"));
+	Texture plane_tex("assets/low-poly-plane/textures/Plane_diffuse.png");
+	mountain_tex.Bind(0);
+	plane_tex.Bind(1);
+	shader.SetUniform1i("mountain_tex", 0);
+	shader.SetUniform1i("plane_tex", 1);
 	shader.SetUniform1f("atmosphere_light_damping_constant", parameter_json.at("atmosphere light damping constant")); 
 	shader.SetUniform1f("atmosphere_light_damping_constant", parameter_json.at("atmosphere light damping constant")); 
 	shader.SetUniform4f("atmosphere_light_damping_RGB_Weight", parameter_json.at("atmosphere red"), parameter_json.at("atmosphere green"), parameter_json.at("atmosphere blue"), 1.0); 
-	vertex_layout.Push<float>(3);
-	vertex_layout.Push<float>(1);
-	vertex_layout.Push<float>(3);
-	vertex_layout.Push<float>(1);
 	vertex_array.AddBuffer(vertex_buffer, vertex_layout);
 
 	basic_scene_generator.Bind();
@@ -237,6 +256,7 @@ int main()
 	std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
 
 	basic_scene_generator.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
+	basic_scene_generator.SetUniform1i("VERTICES_IN_PLANE", VERTICES_IN_PLANE);
 	float rotation_angle_fractal_ground = parameter_json.at("rotation angle fractal ground");
 	basic_scene_generator.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
 	basic_scene_generator.SetUniform1f("output_increase_fctr", parameter_json.at("output_increase_fctr_"));
@@ -247,10 +267,8 @@ int main()
 	basic_scene_generator.bindSSOBuffer(1, index_buffer.GetRenderedID());
 	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, VBO);
 	// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, EBO);
-	basic_scene_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
 	vertex_array.Bind();
 	index_buffer.Bind();
-	// GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount(), GL_UNSIGNED_INT, nullptr));
 	if(parameter_json.at("write to file"))
 		write_to_file(VBO,EBO,div, parameter_json.at("write normals"));
 	std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
@@ -259,7 +277,7 @@ int main()
 	glm::vec3 position (0,0.1716,0.5228);
 	glm::vec3 focal_point (5,-0.02399,5);
 	glm::vec3 view_up (-0.29207,0.897259,-0.331091);
-	glm::vec3 plane_Position(3,3,3);
+	glm::vec3 plane_Position(parameter_json.at("plane position").at(0),parameter_json.at("plane position").at(1),parameter_json.at("plane position").at(2) );
 	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, position, plane_Position);
 
 
@@ -268,20 +286,9 @@ int main()
 	//glClearColor(135.0f / 225.0f, 206.0f / 225.0f, 235.0f / 225.0f, 1.0f);
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-	basic_scene_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
-	std::vector<vertex_t> vertices_plane;
-	std::vector<unsigned int> index_buffer_plane; 
-	parse_simple_wavefront("assets/LowPolyPlane01/LowPolyPlane01.obj", vertices_plane, index_buffer_plane);
-	VertexArray plane_vao;
-	VertexBuffer plane_vbo(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
-	IndexBuffer plane_EBO(index_buffer_plane.data(), index_buffer_plane.size());
-	plane_vao.AddBuffer(plane_vbo, vertex_layout);
-	Shader plane_shader("shader_vertex_plane.glsl", "shader_fragment_plane.glsl");
-	plane_shader.Bind();
-	Texture plane_tex("assets/low-poly-plane/textures/Plane_diffuse.png");
-	plane_tex.Bind(1);
-	plane_shader.SetUniform1i("u_Texture", 1);
+
 	
+	basic_scene_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
 	while (!glfwWindowShouldClose(window))
 	{	
 
@@ -292,18 +299,19 @@ int main()
 		glm::vec3 camera_pos;
 		std::tie(MVP, camera_pos, MVP_plane) = camera.Matrix(45.0f, 0.1f, 100.0f);
 		
-		plane_shader.Bind();
-		plane_shader.SetUniformMat4f("MVP", MVP_plane);
-		plane_vbo.Bind(); 
-		plane_EBO.Bind();
-		GLCall(glDrawElements(GL_TRIANGLES, plane_EBO.GetCount() , GL_UNSIGNED_INT, nullptr));
+		// plane_shader.Bind();
+		// plane_shader.SetUniformMat4f("MVP", MVP_plane);
+		// plane_vbo.Bind(); 
+		// plane_EBO.Bind();
+		// GLCall(glDrawElements(GL_TRIANGLES, plane_EBO.GetCount() , GL_UNSIGNED_INT, nullptr));
 
-		// shader.Bind();
-		// shader.SetUniformMat4f("MVP",MVP);
-		// shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
-		// vertex_array.Bind();
-		// index_buffer.Bind();
-
+		shader.Bind();
+		shader.SetUniformMat4f("MVP",MVP);
+		shader.SetUniformMat4f("MVP_plane",MVP_plane);
+		shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
+		vertex_array.Bind();
+		index_buffer.Bind();
+// 
 		GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount() , GL_UNSIGNED_INT, nullptr));
 
 

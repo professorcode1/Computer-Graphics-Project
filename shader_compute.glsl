@@ -21,12 +21,13 @@ uniform vec3 sun_light_dir;
 uniform float sun_height;
 shared float hops_along_x;
 shared float hops_along_z;
-
+uniform int VERTICES_IN_PLANE;
 struct Vertex{
     vec3 pos;
     float u;
     vec3 nor;
     float v;
+    vec4 lol;
 };
 
 layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } vertex_container_object;
@@ -113,9 +114,9 @@ float fractal_sum(in vec2 pos){
 }
 int row = int(gl_GlobalInvocationID.x);
 int col = int(gl_GlobalInvocationID.y);
-int index = row * ( number_of_divs + 1 ) + col;
-int indicesIndex = row * number_of_divs + col;
 void main(){
+    int index = VERTICES_IN_PLANE + row * ( number_of_divs + 1 ) + col;
+    int indicesIndex = VERTICES_IN_PLANE + row * number_of_divs + col;
     float del_x = ( max_x - min_x ) / ( number_of_divs * input_shrink_fctr );
     float del_z = ( max_z - min_z ) / ( number_of_divs * input_shrink_fctr );
     float x = min_x / input_shrink_fctr + row * del_x ;
@@ -139,6 +140,8 @@ void main(){
 
         vertex_container_object.vertices[index].u = fract(x);
         vertex_container_object.vertices[index].v = fract(z);
+
+        vertex_container_object.vertices[index].lol = vec4(0,0,0,0);
     }
     //memoryBarrier();
     //barrier();
@@ -152,13 +155,12 @@ void main(){
 
     if(row < number_of_divs && col < number_of_divs){
         
-        indices_container_object.indices[indicesIndex][0] = index;
-        indices_container_object.indices[indicesIndex][1] = index + ( number_of_divs + 1 ) + 1 ;
-        indices_container_object.indices[indicesIndex][2] = index + ( number_of_divs + 1 ) ;
-
-        indices_container_object.indices[indicesIndex][3] = index;
-        indices_container_object.indices[indicesIndex][4] = index + 1 ;
-        indices_container_object.indices[indicesIndex][5] = index + ( number_of_divs + 1 ) + 1 ;
+        indices_container_object.indices[indicesIndex][0] = VERTICES_IN_PLANE + index;
+        indices_container_object.indices[indicesIndex][1] = VERTICES_IN_PLANE + index + ( number_of_divs + 1 ) + 1 ;
+        indices_container_object.indices[indicesIndex][2] = VERTICES_IN_PLANE + index + ( number_of_divs + 1 ) ;
+        indices_container_object.indices[indicesIndex][3] = VERTICES_IN_PLANE + index;
+        indices_container_object.indices[indicesIndex][4] = VERTICES_IN_PLANE + index + 1 ;
+        indices_container_object.indices[indicesIndex][5] = VERTICES_IN_PLANE + index + ( number_of_divs + 1 ) + 1 ;
     }
 
 }
