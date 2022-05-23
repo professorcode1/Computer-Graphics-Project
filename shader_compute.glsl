@@ -90,14 +90,37 @@ void fractal_sum(inout vec3 pos, inout vec3 nor){
     nor.x /= float(epsilon);
     nor.z /= float(epsilon);
 }
+float fractal_sum(in vec2 pos){
+    double epsilon = 1 / (number_of_divs * input_shrink_fctr * 100);
+    float x = pos.x;
+    float z = pos.y;
+    float ans = 0;
+    for(int iter_i = 0 ; iter_i < 32 ; iter_i++){
+        if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
+            float freq = pow(lacunarity, iter_i);
+            float amp = pow(persistance, iter_i);
+            float u = freq * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
+            float v = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
+            float noise_ = cnoise(vec2(u, v));
+            ans += noise_ / amp;
+        }
+    }
+    return ans;
+}
 int row = int(gl_GlobalInvocationID.x);
 int col = int(gl_GlobalInvocationID.y);
 int index = row * ( number_of_divs + 1 ) + col;
 int indicesIndex = row * number_of_divs + col;
 void main(){
+    float del_x = ( max_x - min_x ) / ( number_of_divs * input_shrink_fctr );
+    float del_z = ( max_z - min_z ) / ( number_of_divs * input_shrink_fctr );
+    float x = min_x / input_shrink_fctr + row * del_x ;
+    float z = min_z / input_shrink_fctr + col * del_z;
     if(row <= number_of_divs && col <= number_of_divs){
-        float x = ( min_x + col * ( (max_x - min_x) / number_of_divs) ) / input_shrink_fctr;
-        float z = ( min_z + row * ( (max_z - min_z) / number_of_divs) ) / input_shrink_fctr;
+        float del_x = ( max_x - min_x ) / ( number_of_divs * input_shrink_fctr );
+        float del_z = ( max_z - min_z ) / ( number_of_divs * input_shrink_fctr );
+        float x = min_x / input_shrink_fctr + row * del_x ;
+        float z = min_z / input_shrink_fctr + col * del_z;
         vertex_container_object.vertices[index].pos.x = x ;
         vertex_container_object.vertices[index].pos.y = 0 ;
         vertex_container_object.vertices[index].pos.z = z ;
@@ -109,6 +132,62 @@ void main(){
         fractal_sum(vertex_container_object.vertices[index].pos, vertex_container_object.vertices[index].nor);
 
         vertex_container_object.vertices[index].pos.y *= output_increase_fctr;
+    }
+    
+    memoryBarrier();
+    barrier();
+    
+    if(row <= number_of_divs && col <= number_of_divs){   
+        mat4 matrix;
+        
+        matrix[0] = pow( vec4( x - del_x, x, x + del_x, x + 2 * del_x ), vec4(3.0, 3.0, 3.0, 3.0) );
+        matrix[1] = pow( vec4( x - del_x, x, x + del_x, x + 2 * del_x ), vec4(2.0, 2.0, 2.0, 2.0) );
+        matrix[2] = pow( vec4( x - del_x, x, x + del_x, x + 2 * del_x ), vec4(1.0, 1.0, 1.0, 1.0) );
+        matrix[3] = vec4(1.0, 1.0, 1.0, 1.0);
+        
+        vec4 ys;
+        if( row > 0 )
+            ys.x = vertex_container_object.vertices[ index - 1 * (number_of_divs + 1 ) ].pos.y;
+        else
+            ys.x = fractal_sum(vec2(x - del_x, z));
+        
+        ys.y = vertex_container_object.vertices[index].pos.y;
+        
+        if(row < number_of_divs)
+            ys.z = vertex_container_object.vertices[ index + 1 * (number_of_divs + 1 ) ].pos.y;
+        else
+            ys.z = fractal_sum(vec2(x + del_x, z));
+
+        if(row < number_of_divs - 1)
+            ys.w = vertex_container_object.vertices[ index + 2 * (number_of_divs + 1 ) ].pos.y;
+        else
+            ys.w = fractal_sum(vec2(x + 2 * del_x, z)); 
+
+        vertex_container_object.vertices[index].nor.x = dot(vec4(3 * x * x, 2 * x, 1, 0) , inverse(matrix) * ys);
+
+        matrix[0] = pow(vec4(z - del_z, z, z + del_z, z + 2 * del_z), vec4(3.0, 3.0, 3.0, 3.0) );
+        matrix[1] = pow(vec4(z - del_z, z, z + del_z, z + 2 * del_z), vec4(2.0, 2.0, 2.0, 2.0) );
+        matrix[2] = pow(vec4(z - del_z, z, z + del_z, z + 2 * del_z), vec4(1.0, 1.0, 1.0, 1.0) );
+        matrix[3] = vec4(1.0, 1.0, 1.0, 1.0);
+
+        if( col > 0 )
+            ys.x = vertex_container_object.vertices[ index  - 1 ].pos.y;
+        else
+            ys.x = fractal_sum(vec2(x, z - del_z));
+        
+        ys.y = vertex_container_object.vertices[index].pos.y;
+        
+        if(col < number_of_divs)
+            ys.z = vertex_container_object.vertices[ index + 1 ].pos.y;
+        else
+            ys.z = fractal_sum(vec2(x, z + del_z));
+
+        if(col < number_of_divs - 1)
+            ys.w = vertex_container_object.vertices[ index + 2 ].pos.y;
+        else
+            ys.w = fractal_sum(vec2(x, z + 2 * del_z)); 
+
+        vertex_container_object.vertices[index].nor.z = dot(vec4(3 * z * z, 2 * z, 1, 0), inverse(matrix) * ys);
 
         vertex_container_object.vertices[index].u = fract(x);
         vertex_container_object.vertices[index].v = fract(z);
