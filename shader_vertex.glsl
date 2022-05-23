@@ -8,8 +8,7 @@ layout(location = 4) in vec4 lol;
 
 const vec3  kSunDir = vec3(-0.624695,0.468521,-0.624695);
 
-uniform mat4 MVP;
-uniform mat4 MVP_plane;
+uniform mat4 MVP_mountain;
 uniform vec3 camera_loc;
 
 
@@ -20,11 +19,7 @@ out float camera_dist;
 out vec4 is_mountain_tex;
 
 void main(){
-	if (lol.x > 5){
-		gl_Position = MVP_plane * position;
-	}else{
-		gl_Position = MVP * position;
-	}
+	gl_Position = MVP_mountain * position;
 	intensity = dot(normalize(kSunDir), normalize(normal)) ;
 	v_TexCoord = vec2(texture_u, texture_v);
 	camera_dist = length(position.xyz - camera_loc);

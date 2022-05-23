@@ -27,7 +27,6 @@ struct Vertex{
     float u;
     vec3 nor;
     float v;
-    vec4 lol;
 };
 
 layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } vertex_container_object;
@@ -141,7 +140,6 @@ void main(){
         vertex_container_object.vertices[index].u = fract(x);
         vertex_container_object.vertices[index].v = fract(z);
 
-        vertex_container_object.vertices[index].lol = vec4(0,0,0,0);
     }
     //memoryBarrier();
     //barrier();
