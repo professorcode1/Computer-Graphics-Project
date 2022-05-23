@@ -4,13 +4,6 @@ layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
 #define M_PI 3.14159265358979323846264338327950288
 
-struct Vertex{
-    vec3 pos;
-    float u;
-    vec3 nor;
-    float v;
-};
-
 
 uniform int number_of_divs;
 uniform float min_x;
@@ -25,6 +18,17 @@ uniform float lacunarity;
 uniform float persistance;
 uniform vec3 camera_loc;
 uniform vec3 sun_light_dir;
+uniform float sun_height;
+shared float hops_along_x;
+shared float hops_along_z;
+
+struct Vertex{
+    vec3 pos;
+    float u;
+    vec3 nor;
+    float v;
+};
+
 layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } vertex_container_object;
 layout ( std430, binding = 1 ) buffer Indices {int indices[][6] ;} indices_container_object ;
 
@@ -132,68 +136,20 @@ void main(){
         fractal_sum(vertex_container_object.vertices[index].pos, vertex_container_object.vertices[index].nor);
 
         vertex_container_object.vertices[index].pos.y *= output_increase_fctr;
-    }
-    
-    memoryBarrier();
-    barrier();
-    
-    if(row <= number_of_divs && col <= number_of_divs){   
-        mat4 matrix;
-        
-        matrix[0] = pow( vec4( x - del_x, x, x + del_x, x + 2 * del_x ), vec4(3.0, 3.0, 3.0, 3.0) );
-        matrix[1] = pow( vec4( x - del_x, x, x + del_x, x + 2 * del_x ), vec4(2.0, 2.0, 2.0, 2.0) );
-        matrix[2] = pow( vec4( x - del_x, x, x + del_x, x + 2 * del_x ), vec4(1.0, 1.0, 1.0, 1.0) );
-        matrix[3] = vec4(1.0, 1.0, 1.0, 1.0);
-        
-        vec4 ys;
-        if( row > 0 )
-            ys.x = vertex_container_object.vertices[ index - 1 * (number_of_divs + 1 ) ].pos.y;
-        else
-            ys.x = fractal_sum(vec2(x - del_x, z));
-        
-        ys.y = vertex_container_object.vertices[index].pos.y;
-        
-        if(row < number_of_divs)
-            ys.z = vertex_container_object.vertices[ index + 1 * (number_of_divs + 1 ) ].pos.y;
-        else
-            ys.z = fractal_sum(vec2(x + del_x, z));
-
-        if(row < number_of_divs - 1)
-            ys.w = vertex_container_object.vertices[ index + 2 * (number_of_divs + 1 ) ].pos.y;
-        else
-            ys.w = fractal_sum(vec2(x + 2 * del_x, z)); 
-
-        vertex_container_object.vertices[index].nor.x = dot(vec4(3 * x * x, 2 * x, 1, 0) , inverse(matrix) * ys);
-
-        matrix[0] = pow(vec4(z - del_z, z, z + del_z, z + 2 * del_z), vec4(3.0, 3.0, 3.0, 3.0) );
-        matrix[1] = pow(vec4(z - del_z, z, z + del_z, z + 2 * del_z), vec4(2.0, 2.0, 2.0, 2.0) );
-        matrix[2] = pow(vec4(z - del_z, z, z + del_z, z + 2 * del_z), vec4(1.0, 1.0, 1.0, 1.0) );
-        matrix[3] = vec4(1.0, 1.0, 1.0, 1.0);
-
-        if( col > 0 )
-            ys.x = vertex_container_object.vertices[ index  - 1 ].pos.y;
-        else
-            ys.x = fractal_sum(vec2(x, z - del_z));
-        
-        ys.y = vertex_container_object.vertices[index].pos.y;
-        
-        if(col < number_of_divs)
-            ys.z = vertex_container_object.vertices[ index + 1 ].pos.y;
-        else
-            ys.z = fractal_sum(vec2(x, z + del_z));
-
-        if(col < number_of_divs - 1)
-            ys.w = vertex_container_object.vertices[ index + 2 ].pos.y;
-        else
-            ys.w = fractal_sum(vec2(x, z + 2 * del_z)); 
-
-        vertex_container_object.vertices[index].nor.z = dot(vec4(3 * z * z, 2 * z, 1, 0), inverse(matrix) * ys);
 
         vertex_container_object.vertices[index].u = fract(x);
         vertex_container_object.vertices[index].v = fract(z);
-        
     }
-    
+    //memoryBarrier();
+    //barrier();
+//
+    //if(index == 0){
+    //    float max_hops = sun_height / sun_light_dir.y;
+    //    if(sun_light_dir.x < 0){
+    //        
+    //    }
+    //}
+
     if(row < number_of_divs && col < number_of_divs){
         
         indices_container_object.indices[indicesIndex][0] = index;

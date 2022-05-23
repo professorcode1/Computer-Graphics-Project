@@ -19,5 +19,5 @@
     "atmosphere red": 1,
     "atmosphere green": 2,
     "atmosphere blue": 4,
-    "noise texture file" : "assets/dirtAndGrass.jpg"
+    "noise texture file" : "assets/grass.jpg"
 }   
