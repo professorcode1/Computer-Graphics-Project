@@ -2,6 +2,7 @@
 #include "Cherno_OpenGL_Library/VertexArray.h"
 #include "Cherno_OpenGL_Library/VertexBufferLayout.h"
 #include <cstdio>
+#include <glm/common.hpp>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -108,9 +109,14 @@ void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &
 }
 
 std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane, float aspect){
-	glm::vec3 orientation_xz( sin(glm::radians(yay_degree)), 0, cos(glm::radians(yay_degree)));
-	glm::vec3 camera_dir_vec = camera_up_distance * Up * -1.0f + camera_behind_distant * orientation_xz;
-	glm::vec3 camera_pos = position - camera_dir_vec;
+	glm::vec3 orientation( cos(glm::radians(pitch_degree)) * sin(glm::radians(yay_degree)), 
+	sin(glm::radians(pitch_degree)) ,
+	 cos(glm::radians(pitch_degree)) * cos(glm::radians(yay_degree)));
+	
+	glm::vec3 view_position = camera_ViewPoint_distance * orientation + position;
+	glm::vec3 camera_pos = position +  camera_behind_distant * orientation * -1.0f + 
+		glm::normalize(glm::cross(glm::cross(orientation, Up), orientation)) * camera_up_distance;
+	glm::vec3 camera_dir_vec = glm::normalize(view_position - camera_pos);
 	// Initializes matrices since otherwise they will be the null matrix
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
@@ -146,22 +152,26 @@ void Plane::catchInputs(GLFWwindow* window){
 	 cos(glm::radians(pitch_degree)) * cos(glm::radians(yay_degree)));
 	bool roll_was_changed = false;
 	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-		pitch_degree += rotation_angle_per_frame_deg;
+		pitch_degree = std::min(pitch_degree+rotation_angle_per_frame_deg, 60.0f);
+
     }
     if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-		pitch_degree -= rotation_angle_per_frame_deg;
+		pitch_degree = std::max(pitch_degree - rotation_angle_per_frame_deg, -60.0f);
     }
     if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
 		roll_was_changed = true;
-		roll_degree += rotation_angle_per_frame_deg; 
+		roll_degree -= rotation_angle_per_frame_deg; 
 		yay_degree += rotation_angle_per_frame_deg;
     }
     if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
 		roll_was_changed = true;
-		roll_degree -= rotation_angle_per_frame_deg; 
+		roll_degree += rotation_angle_per_frame_deg; 
 		yay_degree -= rotation_angle_per_frame_deg;
     }
     position += speed * orientation;
+	if(! roll_was_changed && roll_was_changed > 360.0f){
+		roll_degree = glm::mod(roll_degree, 360.0f);
+	}
 	if(! roll_was_changed  && roll_degree >= 1.0f){
 			roll_degree -= rotation_angle_per_frame_deg;
 	}
