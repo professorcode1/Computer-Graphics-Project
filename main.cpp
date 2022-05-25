@@ -159,7 +159,8 @@ int main()
 
 	Plane plane("shader_collition.glsl", "shader_vertex_plane.glsl", "shader_fragment_plane.glsl", parameter_json.at("Plane OBJ file"),
 	parameter_json.at("Plane Texuture file"), 1, parameter_json.at("Camera Beind Distance"),
-	 parameter_json.at("Camera Up Distance"), parameter_json.at("Plane Scale"), vertex_layout);
+	 parameter_json.at("Camera Up Distance"), parameter_json.at("Camera ViewPoint Distance"),
+	  parameter_json.at("Plane Scale"), vertex_layout);
 	
 	while (!glfwWindowShouldClose(window))
 	{	
@@ -172,7 +173,8 @@ int main()
 		parameter_json.at("Far Plane"), (float)SCREEN_WIDTH / SCREEN_HEIGHT);
 		
 		shader.Bind();
-		glm::mat4  mountain_model(glm::scale(glm::mat4(1.0f), glm::vec3(10,10,10)));
+		float Mountain_Scale_Factor = parameter_json.at("Mountain Scale Factor");
+		glm::mat4  mountain_model(glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor)));
 		shader.SetUniformMat4f("MVP_mountain",VP * mountain_model);
 		tex.Bind();
 		shader.SetUniform1i("mountain_tex", 0);

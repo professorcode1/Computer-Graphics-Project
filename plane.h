@@ -32,7 +32,7 @@ class Plane{
         std::tuple<glm::mat4,glm::vec3> get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane ,float aspect);
         
         Plane(const std::string& computeFile, const std::string& vertexFile, const std::string& fragFile, const std::string& modelObjFile,
-         const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance, float scaling_factor, const VertexBufferLayout &vertex_layout, 
+         const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance, float camera_ViewPoint_distance,float scaling_factor, const VertexBufferLayout &vertex_layout, 
          const std::string MVP_uniform_name = "MVP_plane", const std::string &texture_UniformName = "plane_texture");
     
     private:
@@ -48,12 +48,14 @@ class Plane{
         glm::vec3 Up = glm::vec3(0,1,0);
         float yay_degree = 0;
         float pitch_degree = 0;
+        float roll_degree = 0;
         std::string MVP_uniform_name;
         std::string texture_UniformName;
-        float speed = 0.05f;
+        float speed = 0.10f;
         const float rotation_angle_per_frame_deg = 1.5f;
         float camera_behind_distant;
         float camera_up_distance;
+        float camera_ViewPoint_distance;
 
 };
 

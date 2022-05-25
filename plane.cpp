@@ -108,7 +108,8 @@ void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &
 }
 
 std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane, float aspect){
-	glm::vec3 camera_dir_vec(0, -camera_up_distance, camera_behind_distant);
+	glm::vec3 orientation_xz( sin(glm::radians(yay_degree)), 0, cos(glm::radians(yay_degree)));
+	glm::vec3 camera_dir_vec = camera_up_distance * Up * -1.0f + camera_behind_distant * orientation_xz;
 	glm::vec3 camera_pos = position - camera_dir_vec;
 	// Initializes matrices since otherwise they will be the null matrix
 	glm::mat4 view = glm::mat4(1.0f);
@@ -134,6 +135,7 @@ void Plane::render(glm::mat4 viewAndProjection){
     glm::mat4 model = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(scaling_factor, scaling_factor, scaling_factor)), this->position);
 	model = glm::rotate(model, glm::radians(yay_degree  ), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(pitch_degree), glm::vec3(-1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(roll_degree  ), glm::vec3(0.0f, 0.0f, 1.0f));
     shader.SetUniformMat4f(this->MVP_uniform_name, viewAndProjection * model);
     GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
 }
@@ -142,6 +144,7 @@ void Plane::catchInputs(GLFWwindow* window){
     glm::vec3 orientation( cos(glm::radians(pitch_degree)) * sin(glm::radians(yay_degree)), 
 	sin(glm::radians(pitch_degree)) ,
 	 cos(glm::radians(pitch_degree)) * cos(glm::radians(yay_degree)));
+	bool roll_was_changed = false;
 	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
 		pitch_degree += rotation_angle_per_frame_deg;
     }
@@ -149,19 +152,30 @@ void Plane::catchInputs(GLFWwindow* window){
 		pitch_degree -= rotation_angle_per_frame_deg;
     }
     if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+		roll_was_changed = true;
+		roll_degree += rotation_angle_per_frame_deg; 
 		yay_degree += rotation_angle_per_frame_deg;
     }
     if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+		roll_was_changed = true;
+		roll_degree -= rotation_angle_per_frame_deg; 
 		yay_degree -= rotation_angle_per_frame_deg;
     }
     position += speed * orientation;
+	if(! roll_was_changed  && roll_degree >= 1.0f){
+			roll_degree -= rotation_angle_per_frame_deg;
+	}
+
+	if(! roll_was_changed  && roll_degree <= -1.0f){
+			roll_degree += rotation_angle_per_frame_deg;
+	}
 	// printf("%s \n", glm::to_string(position).c_str());
 }
 
 Plane::Plane(const std::string& computeFile, const std::string& vertexFile, const std::string& fragFile, const std::string& modelObjFile,
-	const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance,float scaling_factor, const VertexBufferLayout &vertex_layout, const std::string MVP_uniform_name, const std::string &texture_UniformName):
+	const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance, float camera_ViewPoint_distance,float scaling_factor, const VertexBufferLayout &vertex_layout, const std::string MVP_uniform_name, const std::string &texture_UniformName):
 vbo(nullptr), ibo(nullptr), collition_detection(computeFile), shader(vertexFile,
-fragFile),camera_behind_distant(camera_behind_distant) ,camera_up_distance( camera_up_distance),  tex(texFile),MVP_uniform_name(MVP_uniform_name),  texture_UniformName(texture_UniformName),scaling_factor(scaling_factor) {
+fragFile),camera_behind_distant(camera_behind_distant) ,camera_up_distance( camera_up_distance),camera_ViewPoint_distance(camera_ViewPoint_distance),  tex(texFile),MVP_uniform_name(MVP_uniform_name),  texture_UniformName(texture_UniformName),scaling_factor(scaling_factor) {
 	std::vector<vertex_t> vertices_plane;
 	std::vector<unsigned int> index_buffer_plane; 
 	parse_simple_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
