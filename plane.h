@@ -15,12 +15,8 @@
 
 void string_split( std::string &line, std::vector<std::string> &split, std::string delimiter );
 void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &vertices, std::vector< unsigned int> &index_buffer);
-
 class Plane{
     public:
-        void set_scale(glm::vec3 scale){
-            this->scale = scale;
-        }
 
         void set_position(glm::vec3 position){
             this->position = position;
@@ -32,10 +28,13 @@ class Plane{
         void render(glm::mat4 viewAndProjection);
 
         void catchInputs(GLFWwindow* window);
-
+        
+        std::tuple<glm::mat4,glm::vec3> get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane ,float aspect);
+        
         Plane(const std::string& computeFile, const std::string& vertexFile, const std::string& fragFile, const std::string& modelObjFile,
-         const std::string &texFile, int binding_Pnt, const VertexBufferLayout &vertex_layout, const std::string MVP_uniform_name = "MVP_plane", 
-         const std::string &texture_UniformName = "plane_texture");
+         const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance, float scaling_factor, const VertexBufferLayout &vertex_layout, 
+         const std::string MVP_uniform_name = "MVP_plane", const std::string &texture_UniformName = "plane_texture");
+    
     private:
         VertexArray vao;
         VertexBuffer*  vbo;
@@ -44,14 +43,17 @@ class Plane{
         Shader shader;
         Texture tex;
         int texture_BindSlot;
-        glm::vec3 scale = glm::vec3(0.8, 0.8, 0.8);
+        float scaling_factor;
         glm::vec3 position = glm::vec3(3,3,3);
+        glm::vec3 Up = glm::vec3(0,1,0);
         float yay_degree = 0;
         float pitch_degree = 0;
         std::string MVP_uniform_name;
         std::string texture_UniformName;
         float speed = 0.05f;
-        float rotation_angle_per_frame_deg = 3.0f;
+        const float rotation_angle_per_frame_deg = 1.5f;
+        float camera_behind_distant;
+        float camera_up_distance;
 
 };
 

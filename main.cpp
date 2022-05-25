@@ -150,7 +150,6 @@ int main()
 	glm::vec3 focal_point (5,-0.02399,5);
 	glm::vec3 view_up (-0.29207,0.897259,-0.331091);
 	glm::vec3 plane_Position(3,3,3);
-	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, position, plane_Position);
 
 
 
@@ -159,20 +158,22 @@ int main()
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
 	Plane plane("shader_collition.glsl", "shader_vertex_plane.glsl", "shader_fragment_plane.glsl", parameter_json.at("Plane OBJ file"),
-	parameter_json.at("Plane Texuture file"), 1, vertex_layout);
+	parameter_json.at("Plane Texuture file"), 1, parameter_json.at("Camera Beind Distance"),
+	 parameter_json.at("Camera Up Distance"), parameter_json.at("Plane Scale"), vertex_layout);
 	
 	while (!glfwWindowShouldClose(window))
 	{	
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		camera.Inputs(window);
-		glm::mat4 MVP, MVP_plane;
+		glm::mat4 VP, MVP_plane;
 		glm::vec3 camera_pos;
-		std::tie(MVP, camera_pos, MVP_plane) = camera.Matrix(45.0f, 0.1f, 100.0f);
+		std::tie(VP, camera_pos) = plane.get_MVP_Matrix(parameter_json.at("FOV"), parameter_json.at("Near Plane"), 
+		parameter_json.at("Far Plane"), (float)SCREEN_WIDTH / SCREEN_HEIGHT);
 		
 		shader.Bind();
-		shader.SetUniformMat4f("MVP_mountain",MVP);
+		glm::mat4  mountain_model(glm::scale(glm::mat4(1.0f), glm::vec3(10,10,10)));
+		shader.SetUniformMat4f("MVP_mountain",VP * mountain_model);
 		tex.Bind();
 		shader.SetUniform1i("mountain_tex", 0);
 	
@@ -183,7 +184,7 @@ int main()
 		GLCall(glDrawElements(GL_TRIANGLES, index_buffer.GetCount() , GL_UNSIGNED_INT, nullptr));
 
 		plane.catchInputs(window);
-		plane.render(MVP);
+		plane.render(VP);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -2,6 +2,7 @@
 #include "Cherno_OpenGL_Library/VertexArray.h"
 #include "Cherno_OpenGL_Library/VertexBufferLayout.h"
 #include <cstdio>
+#include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -14,6 +15,7 @@ void string_split( std::string &line, std::vector<std::string> &split, std::stri
         line.erase(0, pos + delimiter.length());
     }
 }
+
 void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &vertices, std::vector< unsigned int> &index_buffer){
 	std::vector<float> vertex_buffer;
 	std::vector<float> texture_buffer;
@@ -105,13 +107,31 @@ void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &
 
 }
 
+std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane, float aspect){
+	glm::vec3 camera_dir_vec(0, -camera_up_distance, camera_behind_distant);
+	glm::vec3 camera_pos = position - camera_dir_vec;
+	// Initializes matrices since otherwise they will be the null matrix
+	glm::mat4 view = glm::mat4(1.0f);
+	glm::mat4 projection = glm::mat4(1.0f);
+
+	// Makes camera look in the right direction from the right position
+	view = glm::lookAt(camera_pos, camera_pos + glm::normalize(camera_dir_vec), Up);
+	// Adds perspective to the scene
+	projection = glm::perspective(glm::radians(FOVdeg), aspect, nearPlane, farPlane);
+
+	// Exports the camera matrix to the Vertex Shader
+	glm::mat4 VP = projection * view;
+	// printf("Camera %s \n", glm::to_string(camera_pos).c_str());
+	// printf("Plane %s \n", glm::to_string(position).c_str());
+	return {VP, camera_pos};	
+}
 
 void Plane::render(glm::mat4 viewAndProjection){
     vao.Bind();
     ibo->Bind();
     shader.Bind();
     shader.SetUniform1i(this->texture_UniformName, texture_BindSlot);
-    glm::mat4 model = glm::translate(glm::scale(glm::mat4(1.0f), this->scale), this->position);
+    glm::mat4 model = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(scaling_factor, scaling_factor, scaling_factor)), this->position);
 	model = glm::rotate(model, glm::radians(yay_degree  ), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(pitch_degree), glm::vec3(-1.0f, 0.0f, 0.0f));
     shader.SetUniformMat4f(this->MVP_uniform_name, viewAndProjection * model);
@@ -139,9 +159,9 @@ void Plane::catchInputs(GLFWwindow* window){
 }
 
 Plane::Plane(const std::string& computeFile, const std::string& vertexFile, const std::string& fragFile, const std::string& modelObjFile,
-	const std::string &texFile, int binding_Pnt, const VertexBufferLayout &vertex_layout, const std::string MVP_uniform_name, const std::string &texture_UniformName):
+	const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance,float scaling_factor, const VertexBufferLayout &vertex_layout, const std::string MVP_uniform_name, const std::string &texture_UniformName):
 vbo(nullptr), ibo(nullptr), collition_detection(computeFile), shader(vertexFile,
-fragFile), tex(texFile),MVP_uniform_name(MVP_uniform_name),  texture_UniformName(texture_UniformName){
+fragFile),camera_behind_distant(camera_behind_distant) ,camera_up_distance( camera_up_distance),  tex(texFile),MVP_uniform_name(MVP_uniform_name),  texture_UniformName(texture_UniformName),scaling_factor(scaling_factor) {
 	std::vector<vertex_t> vertices_plane;
 	std::vector<unsigned int> index_buffer_plane; 
 	parse_simple_wavefront(modelObjFile, vertices_plane, index_buffer_plane);

@@ -5,18 +5,16 @@
 
 
 
-Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 plane_Position)
+Camera::Camera(int width, int height, glm::vec3 position)
 {
 	Camera::width = width;
 	Camera::height = height;
 	Position = position;
-	this->plane_Position = plane_Position;
 }
 
-std::tuple<glm::mat4, glm::vec3, glm::mat4> Camera::Matrix(float FOVdeg, float nearPlane, float farPlane)
+std::tuple<glm::mat4, glm::vec3> Camera::Matrix(float FOVdeg, float nearPlane, float farPlane)
 {
 	// Initializes matrices since otherwise they will be the null matrix
-	glm::mat4 model_plane = glm::scale(glm::translate(glm::mat4(1.0f), plane_Position), glm::vec3(1.5, 1.5, 1.5));
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 
@@ -27,7 +25,7 @@ std::tuple<glm::mat4, glm::vec3, glm::mat4> Camera::Matrix(float FOVdeg, float n
 
 	// Exports the camera matrix to the Vertex Shader
 	glm::mat4 MVP = projection * view;
-	return {MVP, Position, projection * view * model_plane};
+	return {MVP, Position};
 }
 
 

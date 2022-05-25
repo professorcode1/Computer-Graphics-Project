@@ -1,7 +1,7 @@
 {
     "screen width" : 1920,
     "screen height" : 1080,
-    "divisions" : 700,
+    "divisions" : 2000,
     "wave numbers active" : [0,7,8,9,10],
     "wave numbers active no" : [0],
     "rotation angle fractal ground" : 36.87,
@@ -20,7 +20,13 @@
     "atmosphere green": 2,
     "atmosphere blue": 4,
     "noise texture file" : "assets/grass.jpg",
-    "plane position" : [1,5 ,1],
+    "plane position" : [10,50 ,10],
     "Plane Texuture file" : "assets/PlaneTexture.png",
-    "Plane OBJ file" : "assets/LowPolyPlane01.obj"
+    "Plane OBJ file" : "assets/LowPolyPlane01.obj",
+    "Plane Scale" : 1,
+    "FOV": 45.0,
+    "Near Plane" : 0.1,
+    "Far Plane" : 1000.0,
+    "Camera Beind Distance" : 35.0,
+    "Camera Up Distance" : 35.0
 }   

@@ -16,7 +16,7 @@ in vec4 is_mountain_tex;
 void main(){
 	vec4 texColor = texture(mountain_tex, v_TexCoord);
 	
-	//texColor = texColor * intensity;
+	texColor = texColor * intensity;
 	vec4 lambda = exp( atmosphere_light_damping_RGB_Weight * atmosphere_light_damping_constant * camera_dist );
 	texColor = texColor * lambda + (1 - lambda) * grey; 
 	color = texColor;
