@@ -20,5 +20,7 @@
     "atmosphere green": 2,
     "atmosphere blue": 4,
     "noise texture file" : "assets/grass.jpg",
-    "plane position" : [1,5 ,1]
+    "plane position" : [1,5 ,1],
+    "Plane Texuture file" : "assets/PlaneTexture.png",
+    "Plane OBJ file" : "assets/LowPolyPlane01.obj"
 }   

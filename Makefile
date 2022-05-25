@@ -2,6 +2,7 @@ EXE = main
 CHERNO_LIB = Cherno_OpenGL_Library
 SOURCES = main.cpp
 SOURCES += $(wildcard $(CHERNO_LIB)/*.cpp)
+SOURCES += plane.cpp
 
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
