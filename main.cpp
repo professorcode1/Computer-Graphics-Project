@@ -12,7 +12,7 @@
 #include <string>
 
 
-const unsigned int SCREEN_WIDTH = 1024;
+const unsigned int SCREEN_WIDTH = 1920;
 const unsigned int SCREEN_HEIGHT = 1024;
 
 const unsigned short OPENGL_MAJOR_VERSION = 4;
@@ -160,7 +160,7 @@ int main()
 	Plane plane("shader_collition.glsl", "shader_vertex_plane.glsl", "shader_fragment_plane.glsl", parameter_json.at("Plane OBJ file"),
 	parameter_json.at("Plane Texuture file"), 1, parameter_json.at("Camera Beind Distance"),
 	 parameter_json.at("Camera Up Distance"), parameter_json.at("Camera ViewPoint Distance"),
-	  parameter_json.at("Plane Scale"), vertex_layout);
+	  parameter_json.at("Plane Scale"), parameter_json.at("Plane Speed"),vertex_layout);
 	
 	while (!glfwWindowShouldClose(window))
 	{	

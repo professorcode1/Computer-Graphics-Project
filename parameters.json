@@ -1,7 +1,7 @@
 {
     "screen width" : 1920,
     "screen height" : 1080,
-    "divisions" : 700,
+    "divisions" : 1000,
     "wave numbers active" : [0,10],
     "wave numbers active no" : [0],
     "rotation angle fractal ground" : 36.87,
@@ -19,16 +19,17 @@
     "atmosphere red": 1,
     "atmosphere green": 2,
     "atmosphere blue": 4,
-    "noise texture file" : "assets/desset_mountain.jpg",
+    "noise texture file" : "assets/grass.jpg",
     "plane position" : [10,50 ,10],
     "Plane Texuture file" : "assets/PlaneTexture.png",
     "Plane OBJ file" : "assets/LowPolyPlane01.obj",
     "Plane Scale" : 1,
+    "Plane Speed" : 1.5,
     "FOV": 45.0,
     "Near Plane" : 0.1,
-    "Far Plane" : 1000.0,
+    "Far Plane" : 5000.0,
     "Camera Beind Distance" : 35.0,
     "Camera Up Distance" : 35.0,
     "Camera ViewPoint Distance" : 10,
-    "Mountain Scale Factor" : 15
+    "Mountain Scale Factor" : 200
 }   

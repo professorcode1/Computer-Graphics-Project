@@ -183,9 +183,11 @@ void Plane::catchInputs(GLFWwindow* window){
 }
 
 Plane::Plane(const std::string& computeFile, const std::string& vertexFile, const std::string& fragFile, const std::string& modelObjFile,
-	const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance, float camera_ViewPoint_distance,float scaling_factor, const VertexBufferLayout &vertex_layout, const std::string MVP_uniform_name, const std::string &texture_UniformName):
-vbo(nullptr), ibo(nullptr), collition_detection(computeFile), shader(vertexFile,
-fragFile),camera_behind_distant(camera_behind_distant) ,camera_up_distance( camera_up_distance),camera_ViewPoint_distance(camera_ViewPoint_distance),  tex(texFile),MVP_uniform_name(MVP_uniform_name),  texture_UniformName(texture_UniformName),scaling_factor(scaling_factor) {
+	const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance, float camera_ViewPoint_distance,float scaling_factor,float speed
+	, const VertexBufferLayout &vertex_layout, const std::string MVP_uniform_name, const std::string &texture_UniformName):
+vbo(nullptr), ibo(nullptr), collition_detection(computeFile), shader(vertexFile,fragFile),
+camera_behind_distant(camera_behind_distant) ,camera_up_distance( camera_up_distance),camera_ViewPoint_distance(camera_ViewPoint_distance),  tex(texFile),
+MVP_uniform_name(MVP_uniform_name),  texture_UniformName(texture_UniformName),scaling_factor(scaling_factor), speed(speed) {
 	std::vector<vertex_t> vertices_plane;
 	std::vector<unsigned int> index_buffer_plane; 
 	parse_simple_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
