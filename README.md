@@ -4,6 +4,6 @@ This is my project for my Computer Graphics Course. It uses a compute shader to 
 <img alt="preview" src="ScreenShots/Global Lighting.png" >
 
 Here's what it looks like playing.
-<img alt="preview" src="ScreenShots/ZhQkAae.jpeg" >
+<img alt="preview" src="ScreenShots/Play.jpeg" >
 
 To use, git pull this project. In the project folder download and put the glm source code folder as well. Then use the make command. 
