@@ -1,5 +1,5 @@
 #pragma once
-#include "Cherno_OpenGL_Library/VertexBufferLayout.h"
+#include "OpenGL/VertexBufferLayout.h"
 struct vertex_t{
 	float pos[3];
 	float u;

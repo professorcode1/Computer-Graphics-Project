@@ -2,14 +2,7 @@
 
 
 #include "main.h"
-#include "Cherno_OpenGL_Library/IndexBuffer.h"
-#include "Cherno_OpenGL_Library/VertexArray.h"
-#include "Cherno_OpenGL_Library/VertexBuffer.h"
-#include "Cherno_OpenGL_Library/VertexBufferLayout.h"
-#include <fstream>
-#include <glm/ext/matrix_transform.hpp>
-#include <ostream>
-#include <string>
+
 
 
 const unsigned int SCREEN_WIDTH = 1920;

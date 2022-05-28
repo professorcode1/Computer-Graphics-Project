@@ -1,9 +1,9 @@
-#include "Cherno_OpenGL_Library/IndexBuffer.h"
-#include "Cherno_OpenGL_Library/Shader.h"
-#include "Cherno_OpenGL_Library/VertexArray.h"
-#include "Cherno_OpenGL_Library/VertexBuffer.h"
-#include "Cherno_OpenGL_Library/Texture.h"
-#include "Cherno_OpenGL_Library/VertexBufferLayout.h"
+#include "OpenGL/IndexBuffer.h"
+#include "OpenGL/Shader.h"
+#include "OpenGL/VertexArray.h"
+#include "OpenGL/VertexBuffer.h"
+#include "OpenGL/Texture.h"
+#include "OpenGL/VertexBufferLayout.h"
 #include "vertex_index_layout.h"
 #include <cstddef>
 #include <glm/ext/matrix_transform.hpp>
@@ -12,6 +12,14 @@
 #include <glm/geometric.hpp>
 #include <glm/trigonometric.hpp>
 #include<glm/gtx/rotate_vector.hpp>
+#include <cstdio>
+#include <glm/common.hpp>
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/trigonometric.hpp>
+
 
 void string_split( std::string &line, std::vector<std::string> &split, std::string delimiter );
 void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &vertices, std::vector< unsigned int> &index_buffer);

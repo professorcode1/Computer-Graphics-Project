@@ -1,13 +1,4 @@
 #include "plane.h"
-#include "Cherno_OpenGL_Library/VertexArray.h"
-#include "Cherno_OpenGL_Library/VertexBufferLayout.h"
-#include <cstdio>
-#include <glm/common.hpp>
-#include <glm/fwd.hpp>
-#include <glm/geometric.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/trigonometric.hpp>
 
 void string_split( std::string &line, std::vector<std::string> &split, std::string delimiter ){
 	size_t pos = 0;

@@ -1,5 +1,5 @@
 EXE = main
-CHERNO_LIB = Cherno_OpenGL_Library
+CHERNO_LIB = OpenGL
 SOURCES = main.cpp
 SOURCES += $(wildcard $(CHERNO_LIB)/*.cpp)
 SOURCES += plane.cpp

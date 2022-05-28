@@ -11,15 +11,15 @@
 #include "json.hpp"
 
 
-#include "Cherno_OpenGL_Library/Renderer.h"
-#include "Cherno_OpenGL_Library/Shader.h"
-#include "Cherno_OpenGL_Library/VertexBuffer.h"
-#include "Cherno_OpenGL_Library/IndexBuffer.h"
-#include "Cherno_OpenGL_Library/VertexArray.h"
-#include "Cherno_OpenGL_Library/VertexBufferLayout.h"
-#include "Cherno_OpenGL_Library/Camera.h"
-#include "Cherno_OpenGL_Library/VertexBufferLayout.h"
-#include "Cherno_OpenGL_Library/Texture.h"
+#include "OpenGL/Renderer.h"
+#include "OpenGL/Shader.h"
+#include "OpenGL/VertexBuffer.h"
+#include "OpenGL/IndexBuffer.h"
+#include "OpenGL/VertexArray.h"
+#include "OpenGL/VertexBufferLayout.h"
+#include "OpenGL/Camera.h"
+#include "OpenGL/VertexBufferLayout.h"
+#include "OpenGL/Texture.h"
 
 // #include <glad/glad.h>
 
