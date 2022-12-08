@@ -19,5 +19,6 @@ void main(){
 	//texColor = texColor * intensity;
 	vec4 lambda = exp( atmosphere_light_damping_RGB_Weight * atmosphere_light_damping_constant * camera_dist );
 	texColor = texColor * lambda + (1 - lambda) * grey; 
+	texColor.w = 1;
 	color = texColor;
 }

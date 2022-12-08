@@ -103,7 +103,7 @@ std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPl
 	glm::vec3 orientation( cos(glm::radians(pitch_degree)) * sin(glm::radians(yay_degree)), 
 	sin(glm::radians(pitch_degree)) ,
 	 cos(glm::radians(pitch_degree)) * cos(glm::radians(yay_degree)));
-	
+	// std::cout<<"Orientation ::\t"<< glm::to_string(orientation)<<std::endl ;
 	glm::vec3 view_position = camera_ViewPoint_distance * orientation + position;
 	glm::vec3 camera_pos = position +  camera_behind_distant * orientation * -1.0f + 
 		glm::normalize(glm::cross(glm::cross(orientation, Up), orientation)) * camera_up_distance;
@@ -119,7 +119,7 @@ std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPl
 
 	// Exports the camera matrix to the Vertex Shader
 	glm::mat4 VP = projection * view;
-	// printf("Camera %s \n", glm::to_string(camera_pos).c_str());
+	printf("Camera %s \n", glm::to_string(camera_pos).c_str());
 	// printf("Plane %s \n", glm::to_string(position).c_str());
 	return {VP, camera_pos};	
 }

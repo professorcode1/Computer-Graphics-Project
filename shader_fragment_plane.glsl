@@ -8,5 +8,6 @@ in vec2 v_TexCoord;
 
 void main(){
 	vec4 texColor = texture(plane_texture, v_TexCoord);
+	texColor.w = 1;
 	color = texColor;
 }

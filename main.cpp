@@ -5,7 +5,7 @@
 
 
 
-const unsigned int SCREEN_WIDTH = 1920;
+const unsigned int SCREEN_WIDTH = 1920 ;
 const unsigned int SCREEN_HEIGHT = 1024;
 
 const unsigned short OPENGL_MAJOR_VERSION = 4;
@@ -67,7 +67,6 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(vSync);
-	// GLCall(glEnable(GL_BLEND));
 	// GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     if(glewInit() != GLEW_OK){
         std::cout<<"Error"<<std::endl;  
@@ -146,9 +145,41 @@ int main()
 
 
 
+	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
 
-	//glClearColor(135.0f / 225.0f, 206.0f / 225.0f, 235.0f / 225.0f, 1.0f);
-	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+	glEnable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
+	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
+	glEnable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
+	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	// glEnable(GL_BLEND);
+	// glDisable(GL_CULL_FACE);
+	// glEnable(GL_DEPTH_TEST);
+
+	// glDisable(GL_BLEND);
+	// glEnable(GL_CULL_FACE);
+	// glEnable(GL_DEPTH_TEST);
+
+	// glEnable(GL_BLEND);
+	// glEnable(GL_CULL_FACE);
+	// glEnable(GL_DEPTH_TEST);
+
+
+	glClearColor(185.0f / 225.0f, 235.0f / 225.0f, 255.0f / 225.0f, 1.0f);
+	// glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
 	Plane plane("shader_collition.glsl", "shader_vertex_plane.glsl", "shader_fragment_plane.glsl", parameter_json.at("Plane OBJ file"),
 	parameter_json.at("Plane Texuture file"), 1, parameter_json.at("Camera Beind Distance"),

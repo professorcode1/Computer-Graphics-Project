@@ -31,95 +31,31 @@ struct Vertex{
 
 layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } vertex_container_object;
 layout ( std430, binding = 1 ) buffer Indices {int indices[][6] ;} indices_container_object ;
-
-vec2 fade(vec2 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
-vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
-
-float cnoise(vec2 P){
-  vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);
-  vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);
-  Pi = mod(Pi, 289.0); // To avoid truncation effects in permutation
-  vec4 ix = Pi.xzxz;
-  vec4 iy = Pi.yyww;
-  vec4 fx = Pf.xzxz;
-  vec4 fy = Pf.yyww;
-  vec4 i = permute(permute(ix) + iy);
-  vec4 gx = 2.0 * fract(i * 0.0243902439) - 1.0; // 1/41 = 0.024...
-  vec4 gy = abs(gx) - 0.5;
-  vec4 tx = floor(gx + 0.5);
-  gx = gx - tx;
-  vec2 g00 = vec2(gx.x,gy.x);
-  vec2 g10 = vec2(gx.y,gy.y);
-  vec2 g01 = vec2(gx.z,gy.z);
-  vec2 g11 = vec2(gx.w,gy.w);
-  vec4 norm = 1.79284291400159 - 0.85373472095314 * 
-    vec4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11));
-  g00 *= norm.x;
-  g01 *= norm.y;
-  g10 *= norm.z;
-  g11 *= norm.w;
-  float n00 = dot(g00, vec2(fx.x, fy.x));
-  float n10 = dot(g10, vec2(fx.y, fy.y));
-  float n01 = dot(g01, vec2(fx.z, fy.z));
-  float n11 = dot(g11, vec2(fx.w, fy.w));
-  vec2 fade_xy = fade(Pf.xy);
-  vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
-  float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
-  return 2.3 * n_xy;
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453);
 }
 
+float noise( vec3 x )
+{
+    // The noise function returns a value in the range -1.0f -> 1.0f
 
-void fractal_sum(inout vec3 pos, inout vec3 nor){
-    //pos.y = pos.x + pos.z;
-    //return;
-    double epsilon = 1 / (number_of_divs * input_shrink_fctr * 100);
-    float x = pos.x;
-    float z = pos.z;
-    bool made_normal = false;
-    for(int iter_i = 0 ; iter_i < 32 ; iter_i++){
-        if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
-            float freq = pow(lacunarity, iter_i);
-            float amp = pow(persistance, iter_i);
-            float u = freq * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
-            float v = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
-            float noise_ = cnoise(vec2(u, v));
-            pos.y += noise_ / amp;
-            if (! made_normal){
-                nor.x += ( (cnoise(vec2(u + freq * cos( rotation_Angle * iter_i ) * epsilon, v + freq * sin( rotation_Angle * iter_i ) * epsilon)) - noise_ ) / amp );
-                nor.z += ( (cnoise(vec2(u - freq * sin( rotation_Angle * iter_i ) * epsilon, v + freq * cos( rotation_Angle * iter_i ) * epsilon)) - noise_ ) / amp );
-                made_normal = true;
-            }
-        }
-    }
-    nor.x /= float(epsilon);
-    nor.z /= float(epsilon);
-}
-float fractal_sum(in vec2 pos){
-    double epsilon = 1 / (number_of_divs * input_shrink_fctr * 100);
-    float x = pos.x;
-    float z = pos.y;
-    float ans = 0;
-    for(int iter_i = 0 ; iter_i < 32 ; iter_i++){
-        if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
-            float freq = pow(lacunarity, iter_i);
-            float amp = pow(persistance, iter_i);
-            float u = freq * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
-            float v = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
-            float noise_ = cnoise(vec2(u, v));
-            ans += noise_ / amp;
-        }
-    }
-    return ans;
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+
+    f       = f*f*(3.0-2.0*f);
+    float n = p.x + p.y*57.0 + 113.0*p.z;
+
+    return mix(mix(mix( hash(n+0.0), hash(n+1.0),f.x),
+                   mix( hash(n+57.0), hash(n+58.0),f.x),f.y),
+               mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                   mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
 }
 int row = int(gl_GlobalInvocationID.x);
 int col = int(gl_GlobalInvocationID.y);
 void main(){
     int index = VERTICES_IN_PLANE + row * ( number_of_divs + 1 ) + col;
     int indicesIndex = VERTICES_IN_PLANE + row * number_of_divs + col;
-    float del_x = ( max_x - min_x ) / ( number_of_divs * input_shrink_fctr );
-    float del_z = ( max_z - min_z ) / ( number_of_divs * input_shrink_fctr );
-    float x = min_x / input_shrink_fctr + row * del_x ;
-    float z = min_z / input_shrink_fctr + col * del_z;
     if(row <= number_of_divs && col <= number_of_divs){
         float del_x = ( max_x - min_x ) / ( number_of_divs * input_shrink_fctr );
         float del_z = ( max_z - min_z ) / ( number_of_divs * input_shrink_fctr );
@@ -133,23 +69,14 @@ void main(){
         vertex_container_object.vertices[index].nor.y = 1 ;
         vertex_container_object.vertices[index].nor.z = 0 ;
 
-        fractal_sum(vertex_container_object.vertices[index].pos, vertex_container_object.vertices[index].nor);
-
-        vertex_container_object.vertices[index].pos.y *= output_increase_fctr;
+        vertex_container_object.vertices[index].pos.y = noise(vertex_container_object.vertices[index].pos);
+     
+        // vertex_container_object.vertices[index].pos.y *= output_increase_fctr;
 
         vertex_container_object.vertices[index].u = fract(x);
         vertex_container_object.vertices[index].v = fract(z);
 
     }
-    //memoryBarrier();
-    //barrier();
-//
-    //if(index == 0){
-    //    float max_hops = sun_height / sun_light_dir.y;
-    //    if(sun_light_dir.x < 0){
-    //        
-    //    }
-    //}
 
     if(row < number_of_divs && col < number_of_divs){
         

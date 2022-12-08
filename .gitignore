@@ -3,3 +3,5 @@ glm
 *.OBJ
 *.obj
 *.o
+stuff/*
+assets/Me.jpg

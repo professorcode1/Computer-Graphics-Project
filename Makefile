@@ -10,7 +10,7 @@ LINUX_GL_LIBS =  -lGL
 
 CXXFLAGS = -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
 CXXFLAGS += -g -Wall -Wformat
-LIBS =-lGLEW -lglfw
+LIBS =-lGLEW 
 
 ##---------------------------------------------------------------------
 ## OPENGL ES
