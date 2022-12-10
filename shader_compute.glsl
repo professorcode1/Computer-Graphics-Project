@@ -73,8 +73,8 @@ void main(){
      
         // vertex_container_object.vertices[index].pos.y *= output_increase_fctr;
 
-        vertex_container_object.vertices[index].u = fract(x);
-        vertex_container_object.vertices[index].v = fract(z);
+        vertex_container_object.vertices[index].u = fract( ( float( row ) * 100.5 ) / number_of_divs );
+        vertex_container_object.vertices[index].v = fract( ( float( col ) * 100.5 ) / number_of_divs );
 
     }
 

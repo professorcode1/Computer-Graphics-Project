@@ -1,8 +1,9 @@
 EXE = main
 CHERNO_LIB = OpenGL
+MY_CODE = Source
 SOURCES = main.cpp
 SOURCES += $(wildcard $(CHERNO_LIB)/*.cpp)
-SOURCES += plane.cpp
+SOURCES += $(wildcard $(MY_CODE)/*.cpp)
 
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
@@ -65,6 +66,9 @@ endif
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(CHERNO_LIB)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(MY_CODE)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 

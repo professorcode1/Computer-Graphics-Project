@@ -1,10 +1,13 @@
-#include "OpenGL/IndexBuffer.h"
-#include "OpenGL/Shader.h"
-#include "OpenGL/VertexArray.h"
-#include "OpenGL/VertexBuffer.h"
-#include "OpenGL/Texture.h"
-#include "OpenGL/VertexBufferLayout.h"
+#pragma once
+
+#include "../OpenGL/IndexBuffer.h"
+#include "../OpenGL/Shader.h"
+#include "../OpenGL/VertexArray.h"
+#include "../OpenGL/VertexBuffer.h"
+#include "../OpenGL/Texture.h"
+#include "../OpenGL/VertexBufferLayout.h"
 #include "vertex_index_layout.h"
+#include "waveFrontFileApi.h"
 #include <cstddef>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
@@ -21,8 +24,6 @@
 #include <glm/trigonometric.hpp>
 
 
-void string_split( std::string &line, std::vector<std::string> &split, std::string delimiter );
-void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &vertices, std::vector< unsigned int> &index_buffer);
 class Plane{
     public:
 

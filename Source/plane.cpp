@@ -1,103 +1,7 @@
 #include "plane.h"
-
-void string_split( std::string &line, std::vector<std::string> &split, std::string delimiter ){
-	size_t pos = 0;
-    while ((pos = line.find(delimiter)) != std::string::npos) {
-        split.push_back(line.substr(0, pos));
-        line.erase(0, pos + delimiter.length());
-    }
-}
-
-void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &vertices, std::vector< unsigned int> &index_buffer){
-	std::vector<float> vertex_buffer;
-	std::vector<float> texture_buffer;
-	std::vector<float> normal_buffer;
-	std::string line;
-	std::ifstream file(filename);
-	std::vector<std::string> split;
-	unsigned int index_count = 0;
-	while (getline (file, line)) {
-		// std::cout<<line<<std::endl;
-		split.clear();
-		if(line.size() < 2)
-			continue;
-		string_split(line, split," ");
-		if(split[0] == "v"){
-			split.push_back(line);
-			vertex_buffer.push_back(std::stof(split[1]));
-			vertex_buffer.push_back(std::stof(split[2]));
-			vertex_buffer.push_back(std::stof(split[3]));
-		}else if(split[0] == "vn"){
-			split.push_back(line);
-			normal_buffer.push_back(std::stof(split[1]));
-			normal_buffer.push_back(std::stof(split[2]));
-			normal_buffer.push_back(std::stof(split[3]));
-		}else if(split[0] == "vt"){
-			split.push_back(line);
-			texture_buffer.push_back(std::stof(split[1]));
-			texture_buffer.push_back(std::stof(split[2]));
-		}else if(split[0] == "f"){
-			split.push_back(line);
-			std::vector<std::string> split_split;
-			vertex_t hlpr_ver;
-			// std::cout<<"line\t"<<line<<std::endl;
-			// std::cout<<split[1]<<'\t' <<split[2]<<'\t'<<split[3]<<'\t'<<std::endl;
-			string_split(split[1], split_split, "/");
-			split_split.push_back(split[1]);
-			hlpr_ver.pos[0] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 0);
-			hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
-			hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
-			
-			hlpr_ver.u = texture_buffer.at(2 * (std::stoi(split_split[1]) - 1) + 0);
-			hlpr_ver.v = texture_buffer.at(2 * (std::stoi(split_split[1]) - 1) + 1);
-			
-			hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
-			hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
-			hlpr_ver.nor[2] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 2);
-			vertices.push_back(hlpr_ver);
-			index_buffer.push_back(index_count);
-			index_count++;
-			split_split.clear();
-			
-			string_split(split[2], split_split, "/");
-			split_split.push_back(split[2]);
-			hlpr_ver.pos[0] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 0);
-			hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
-			hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
-			
-			hlpr_ver.u = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 0);
-			hlpr_ver.v = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 1);
-			
-			hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
-			hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
-			hlpr_ver.nor[2] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 2);
-			vertices.push_back(hlpr_ver);
-			index_buffer.push_back(index_count);
-			index_count++;
-			split_split.clear();
+#include "waveFrontFileApi.h"
 
 
-			string_split(split[3], split_split, "/");
-			split_split.push_back(split[3]);
-
-			hlpr_ver.pos[0] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 0);
-			hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
-			hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
-			
-			hlpr_ver.u = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 0);
-			hlpr_ver.v = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 1);
-			
-			hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
-			hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
-			hlpr_ver.nor[2] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 2);
-			vertices.push_back(hlpr_ver);
-			index_buffer.push_back(index_count);
-			index_count++;
-		}
-	}
-	file.close();
-
-}
 
 std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane, float aspect){
 	glm::vec3 orientation( cos(glm::radians(pitch_degree)) * sin(glm::radians(yay_degree)), 
@@ -119,7 +23,7 @@ std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPl
 
 	// Exports the camera matrix to the Vertex Shader
 	glm::mat4 VP = projection * view;
-	printf("Camera %s \n", glm::to_string(camera_pos).c_str());
+	// printf("Camera %s \n", glm::to_string(camera_pos).c_str());
 	// printf("Plane %s \n", glm::to_string(position).c_str());
 	return {VP, camera_pos};	
 }
