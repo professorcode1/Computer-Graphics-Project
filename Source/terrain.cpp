@@ -18,41 +18,39 @@ Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::stri
     glNamedBufferData(this->VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW);
 	glNamedBufferData(this->EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW);
 
-	ComputeShader terrain_generator("shader_compute.glsl");
 	this->vertex_buffer = new VertexBuffer(this->VBO);
 	this->index_buffer = new IndexBuffer(this->EBO, div * div * 6);
-	Shader shader("shader_vertex.glsl", "shader_fragment.glsl");
-	shader.Bind();
+	this->shader.Bind();
 	Texture tex(terrainTextureFile);
 	tex.Bind();
-	shader.SetUniform1i("mountain_tex", 0); 
-	shader.SetUniform1f("atmosphere_light_damping_constant", atmosphere_light_damping_constant); 
-	shader.SetUniform4f("atmosphere_light_damping_RGB_Weight", atmosphere_damping_red_weight, atmosphere_damping_green_weight, atmosphere_damping_blue_weight, 1.0); 
-	shader.SetUniform1i("mountain_tex", 0);
+	this->shader.SetUniform1i("mountain_tex", 0); 
+	this->shader.SetUniform1f("atmosphere_light_damping_constant", atmosphere_light_damping_constant); 
+	this->shader.SetUniform4f("atmosphere_light_damping_RGB_Weight", atmosphere_damping_red_weight, atmosphere_damping_green_weight, atmosphere_damping_blue_weight, 1.0); 
+	this->shader.SetUniform1i("mountain_tex", 0);
 	
 	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout);
 
-	terrain_generator.Bind();
-	terrain_generator.SetUniform1i("number_of_divs", div);
-	terrain_generator.SetUniform1f("min_x", min_x);
-	terrain_generator.SetUniform1f("max_x", max_x);
-	terrain_generator.SetUniform1f("min_z", min_z);
-	terrain_generator.SetUniform1f("max_z", max_z);
+	this->terrain_generator.Bind();
+	this->terrain_generator.SetUniform1i("number_of_divs", div);
+	this->terrain_generator.SetUniform1f("min_x", min_x);
+	this->terrain_generator.SetUniform1f("max_x", max_x);
+	this->terrain_generator.SetUniform1f("min_z", min_z);
+	this->terrain_generator.SetUniform1f("max_z", max_z);
 	int ActiveWaveFreqsGround = 0;
     for(int freq : ActiveWaveNumber){
         ActiveWaveFreqsGround |= (1 << freq);
 	}
 	// std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
 
-	terrain_generator.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
-	terrain_generator.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
-	terrain_generator.SetUniform1f("output_increase_fctr", output_increase_fctr_);
-	terrain_generator.SetUniform1f("input_shrink_fctr", input_shrink_fctr_);
-	terrain_generator.SetUniform1f("lacunarity", lacunarity);
-	terrain_generator.SetUniform1f("persistance", persistance);
-	terrain_generator.bindSSOBuffer(0, vertex_buffer->GetRenderedID());
-	terrain_generator.bindSSOBuffer(1, index_buffer->GetRenderedID());
-	terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
+	this->terrain_generator.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
+	this->terrain_generator.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
+	this->terrain_generator.SetUniform1f("output_increase_fctr", output_increase_fctr_);
+	this->terrain_generator.SetUniform1f("input_shrink_fctr", input_shrink_fctr_);
+	this->terrain_generator.SetUniform1f("lacunarity", lacunarity);
+	this->terrain_generator.SetUniform1f("persistance", persistance);
+	this->terrain_generator.bindSSOBuffer(0, vertex_buffer->GetRenderedID());
+	this->terrain_generator.bindSSOBuffer(1, index_buffer->GetRenderedID());
+	this->terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
 	this->mountain_model = glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor));
 		
 	if(writeToFile)
@@ -61,13 +59,13 @@ Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::stri
 }
 
 void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
-		shader.Bind();
-		tex.Bind();
-		shader.SetUniformMat4f("MVP_mountain", ViewProjection * mountain_model);
-		shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
-		vertex_array.Bind();
-		index_buffer->Bind();
+		this->shader.Bind();
+		this->tex.Bind();
+		this->shader.SetUniformMat4f("MVP_mountain", ViewProjection * mountain_model);
+		this->shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
+		this->vertex_array.Bind();
+		this->index_buffer->Bind();
 
-		GLCall(glDrawElements(GL_TRIANGLES, index_buffer->GetCount() , GL_UNSIGNED_INT, nullptr));
+		GLCall(glDrawElements(GL_TRIANGLES, this->index_buffer->GetCount() , GL_UNSIGNED_INT, nullptr));
 
 }

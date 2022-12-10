@@ -138,7 +138,7 @@ ComputeShader::ComputeShader(const std::string& filepathComputeShader):
 m_RendererID(0) , m_filepathComputeShader(filepathComputeShader) {
     std::ifstream computeShaderFile(filepathComputeShader);
     std::string computeShaderStr((std::istreambuf_iterator<char>(computeShaderFile)), std::istreambuf_iterator<char>());
-    // std::cout<<vertexShader<<std::endl;
+    // std::cout<<computeShaderStr<<std::endl;
     // std::cout<<fragmentShader<<std::endl;
 	GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
 	

@@ -53,6 +53,7 @@ float noise( vec3 x )
 }
 int row = int(gl_GlobalInvocationID.x);
 int col = int(gl_GlobalInvocationID.y);
+float epsilon = 0.001;
 void main(){
     int index = VERTICES_IN_PLANE + row * ( number_of_divs + 1 ) + col;
     int indicesIndex = VERTICES_IN_PLANE + row * number_of_divs + col;
@@ -61,17 +62,25 @@ void main(){
         float del_z = ( max_z - min_z ) / ( number_of_divs * input_shrink_fctr );
         float x = min_x / input_shrink_fctr + row * del_x ;
         float z = min_z / input_shrink_fctr + col * del_z;
+        float epsilon_del_x = epsilon * del_x;
+        float epsilon_del_z = epsilon * del_z;
+
         vertex_container_object.vertices[index].pos.x = x ;
         vertex_container_object.vertices[index].pos.y = 0 ;
         vertex_container_object.vertices[index].pos.z = z ;
 
-        vertex_container_object.vertices[index].nor.x = 0 ;
-        vertex_container_object.vertices[index].nor.y = 1 ;
-        vertex_container_object.vertices[index].nor.z = 0 ;
+        vec3 input_ = vertex_container_object.vertices[index].pos;
+        float noise_output = noise(input_);
+        vertex_container_object.vertices[index].pos.y = noise_output ;
+        
+        vertex_container_object.vertices[index].nor.x = ( noise_output - noise( input_ + vec3( 0 , 0 , epsilon_del_z ) ) ) / epsilon_del_z ;
+        vertex_container_object.vertices[index].nor.y = -1 ;
+        vertex_container_object.vertices[index].nor.z = ( noise_output - noise( input_ + vec3( epsilon_del_x , 0 , 0 ) ) ) / epsilon_del_x ;
 
-        vertex_container_object.vertices[index].pos.y = noise(vertex_container_object.vertices[index].pos);
-     
-        // vertex_container_object.vertices[index].pos.y *= output_increase_fctr;
+
+        normalize(vertex_container_object.vertices[index].nor);
+
+        vertex_container_object.vertices[index].nor = -1 * vertex_container_object.vertices[index].nor;
 
         vertex_container_object.vertices[index].u = fract( ( float( row ) * 100.5 ) / number_of_divs );
         vertex_container_object.vertices[index].v = fract( ( float( col ) * 100.5 ) / number_of_divs );

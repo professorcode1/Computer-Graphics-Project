@@ -44,11 +44,13 @@ int main()
 
 	VertexBufferLayout vertex_layout;
 	CREATE_VERTEX_LAYOUT(vertex_layout);
-	Terrain terain("shader_compute.glsl", "shader_vertex.glsl", "shader_fragment.glsl",vertex_layout, terrainParam.at("noise texture file"), terrainParam.at("atmosphere light damping constant"),
+	Terrain terain("shaders/terrain/generate.glsl", "shaders/terrain/vertex.glsl", "shaders/terrain/fragment.glsl",
+		vertex_layout, terrainParam.at("noise texture file"), terrainParam.at("atmosphere light damping constant"),
 		terrainParam.at("atmosphere red"), terrainParam.at("atmosphere green"), terrainParam.at("atmosphere blue"),terrainParam["wave numbers active"], 
-		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), terrainParam.at("lacunarity"), 
-		terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), terrainParam.at("min_x"), terrainParam.at("max_x"), 
-		terrainParam.at("min_z"), terrainParam.at("max_z"), terrainParam.at("Mountain Scale Factor")
+		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
+		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), 
+		terrainParam.at("min_x"), terrainParam.at("max_x"), terrainParam.at("min_z"), terrainParam.at("max_z"), 
+		terrainParam.at("Mountain Scale Factor")
 		);
 
 	glfwSwapInterval(1);
@@ -68,11 +70,10 @@ int main()
 	glClearColor(185.0f / 225.0f, 235.0f / 225.0f, 255.0f / 225.0f, 1.0f);
 	// glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-	Plane plane("shader_collition.glsl", "shader_vertex_plane.glsl", "shader_fragment_plane.glsl", planeParam.at("Plane OBJ file"),
-	planeParam.at("Plane Texuture file"), 1, planeParam.at("Camera Beind Distance"),
-	 planeParam.at("Camera Up Distance"), planeParam.at("Camera ViewPoint Distance"),
-	  planeParam.at("Plane Scale"), planeParam.at("Plane Speed"),vertex_layout);
-	
+	Plane plane("shaders/plane/collition.glsl", "shaders/plane/vertex.glsl", "shaders/plane/fragment.glsl", 
+	planeParam.at("Plane OBJ file"), planeParam.at("Plane Texuture file"), 1, planeParam.at("Camera Beind Distance"),
+	planeParam.at("Camera Up Distance"), planeParam.at("Camera ViewPoint Distance"), planeParam.at("Plane Scale"), 
+	planeParam.at("Plane Speed"), vertex_layout);
 	float 
 		FOV = parameter_json.at("FOV"), 
 		NearPlane = parameter_json.at("Near Plane"), 
