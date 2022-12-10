@@ -75,9 +75,9 @@ int main()
 	planeParam.at("Camera Up Distance"), planeParam.at("Camera ViewPoint Distance"), planeParam.at("Plane Scale"), 
 	planeParam.at("Plane Speed"), vertex_layout);
 	float 
-		FOV = parameter_json.at("FOV"), 
-		NearPlane = parameter_json.at("Near Plane"), 
-		FarPlane = parameter_json.at("Far Plane"),
+		FOV = parameter_json.at("camera").at("FOV"), 
+		NearPlane = parameter_json.at("camera").at("Near Plane"), 
+		FarPlane = parameter_json.at("camera").at("Far Plane"),
 		screenRatio = (float)SCREEN_WIDTH / SCREEN_HEIGHT
 		;
 

@@ -1,9 +1,8 @@
 #version 460 core
 
 layout(location = 0) in vec4 position;
-layout(location = 1) in float texture_u;
-layout(location = 2) in vec3 normal;
-layout(location = 3) in float texture_v;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 texture_uv;
 
 const vec3  kSunDir = vec3(-0.624695,0.468521,-0.624695);
 
@@ -19,6 +18,8 @@ out float camera_dist;
 void main(){
 	gl_Position = MVP_mountain * position;
 	intensity = dot(normalize(kSunDir), normal) ;
-	v_TexCoord = vec2(texture_u, texture_v);
+	intensity = max(0.2, intensity); //ambient light
+
+	v_TexCoord = texture_uv;
 	camera_dist = length(position.xyz - camera_loc);
 }

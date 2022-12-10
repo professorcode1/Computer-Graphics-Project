@@ -23,10 +23,9 @@ shared float hops_along_x;
 shared float hops_along_z;
 uniform int VERTICES_IN_PLANE;
 struct Vertex{
-    vec3 pos;
-    float u;
-    vec3 nor;
-    float v;
+    float posx,posy,posz;
+    float norx, nory,norz;
+    float u,v;
 };
 
 layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } vertex_container_object;
@@ -58,29 +57,32 @@ void main(){
     int index = VERTICES_IN_PLANE + row * ( number_of_divs + 1 ) + col;
     int indicesIndex = VERTICES_IN_PLANE + row * number_of_divs + col;
     if(row <= number_of_divs && col <= number_of_divs){
-        float del_x = ( max_x - min_x ) / ( number_of_divs * input_shrink_fctr );
-        float del_z = ( max_z - min_z ) / ( number_of_divs * input_shrink_fctr );
-        float x = min_x / input_shrink_fctr + row * del_x ;
-        float z = min_z / input_shrink_fctr + col * del_z;
+        float del_x = ( max_x - min_x ) / ( number_of_divs  );
+        float del_z = ( max_z - min_z ) / ( number_of_divs  );
+        float x = min_x  + row * del_x ;
+        float z = min_z  + col * del_z;
         float epsilon_del_x = epsilon * del_x;
         float epsilon_del_z = epsilon * del_z;
 
-        vertex_container_object.vertices[index].pos.x = x ;
-        vertex_container_object.vertices[index].pos.y = 0 ;
-        vertex_container_object.vertices[index].pos.z = z ;
+        vertex_container_object.vertices[index].posx = x ;
+        vertex_container_object.vertices[index].posy = 0 ;
+        vertex_container_object.vertices[index].posz = z ;
 
-        vec3 input_ = vertex_container_object.vertices[index].pos;
+        vec3 input_ = vec3(vertex_container_object.vertices[index].posx, vertex_container_object.vertices[index].posy, vertex_container_object.vertices[index].posz) / input_shrink_fctr;
         float noise_output = noise(input_);
-        vertex_container_object.vertices[index].pos.y = noise_output ;
+        vertex_container_object.vertices[index].posy = noise_output * output_increase_fctr ;
         
-        vertex_container_object.vertices[index].nor.x = ( noise_output - noise( input_ + vec3( 0 , 0 , epsilon_del_z ) ) ) / epsilon_del_z ;
-        vertex_container_object.vertices[index].nor.y = -1 ;
-        vertex_container_object.vertices[index].nor.z = ( noise_output - noise( input_ + vec3( epsilon_del_x , 0 , 0 ) ) ) / epsilon_del_x ;
+        vec3 normal;
 
+        normal.x = ( noise( input_ + vec3( 0 , 0 , epsilon_del_z ) ) - noise_output ) / epsilon_del_z ;
+        normal.y = 1 ;
+        normal.z = ( noise( input_ + vec3( epsilon_del_x , 0 , 0 ) ) - noise_output ) / epsilon_del_x ;
 
-        normalize(vertex_container_object.vertices[index].nor);
+        normalize(normal);
 
-        vertex_container_object.vertices[index].nor = -1 * vertex_container_object.vertices[index].nor;
+        vertex_container_object.vertices[index].norx = normal.x;
+        vertex_container_object.vertices[index].nory = normal.y;
+        vertex_container_object.vertices[index].norz = normal.z;
 
         vertex_container_object.vertices[index].u = fract( ( float( row ) * 100.5 ) / number_of_divs );
         vertex_container_object.vertices[index].v = fract( ( float( col ) * 100.5 ) / number_of_divs );

@@ -89,8 +89,8 @@ void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &
 			hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
 			hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
 			
-			hlpr_ver.u = texture_buffer.at(2 * (std::stoi(split_split[1]) - 1) + 0);
-			hlpr_ver.v = texture_buffer.at(2 * (std::stoi(split_split[1]) - 1) + 1);
+			hlpr_ver.uv[0] = texture_buffer.at(2 * (std::stoi(split_split[1]) - 1) + 0);
+			hlpr_ver.uv[1] = texture_buffer.at(2 * (std::stoi(split_split[1]) - 1) + 1);
 			
 			hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
 			hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
@@ -106,8 +106,8 @@ void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &
 			hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
 			hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
 			
-			hlpr_ver.u = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 0);
-			hlpr_ver.v = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 1);
+			hlpr_ver.uv[0] = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 0);
+			hlpr_ver.uv[1] = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 1);
 			
 			hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
 			hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
@@ -125,8 +125,8 @@ void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &
 			hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
 			hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
 			
-			hlpr_ver.u = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 0);
-			hlpr_ver.v = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 1);
+			hlpr_ver.uv[0] = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 0);
+			hlpr_ver.uv[1] = texture_buffer.at(2 * (std::stoi(split_split[1])- 1) + 1);
 			
 			hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
 			hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
