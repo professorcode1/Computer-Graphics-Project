@@ -1,6 +1,7 @@
 {
     "screen width" : 1920,
     "screen height" : 1080,
+    "sky color RGB" : [135,206,235],
     "terrain parameters":{
         "divisions" : 1000,
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
@@ -15,7 +16,7 @@
         "persistance" : 1.1,
         "write normals" : false,
         "write to file" : false,
-        "atmosphere light damping constant" : 0.00005,
+        "atmosphere light damping constant" : 0.000,
         "atmosphere red": 1,
         "atmosphere green": 1,
         "atmosphere blue": 1,
@@ -29,8 +30,8 @@
         "Camera Beind Distance" : 35.0,
         "Camera Up Distance" : 35.0,
         "Camera ViewPoint Distance" : 10,
-        "Plane Scale" : 1,
-        "Plane Speed" : 1.5    
+        "Plane Scale" : 0.3 ,
+        "Plane Speed" : 1      
     },
     "camera":{
         "FOV": 45.0,
@@ -38,7 +39,7 @@
         "Far Plane" : 5000.0
     },
     "cloud":{
-        
+        "height" : 100
     }
 
 

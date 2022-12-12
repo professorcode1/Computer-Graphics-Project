@@ -21,7 +21,6 @@ uniform vec3 sun_light_dir;
 uniform float sun_height;
 shared float hops_along_x;
 shared float hops_along_z;
-uniform int VERTICES_IN_PLANE;
 struct Vertex{
     float posx,posy,posz;
     float norx, nory,norz;
@@ -38,7 +37,7 @@ float hash( float n )
 float noise( vec3 x )
 {
     // The noise function returns a value in the range -1.0f -> 1.0f
-
+    // return 0;
     vec3 p = floor(x);
     vec3 f = fract(x);
 
@@ -54,8 +53,8 @@ int row = int(gl_GlobalInvocationID.x);
 int col = int(gl_GlobalInvocationID.y);
 float epsilon = 0.001;
 void main(){
-    int index = VERTICES_IN_PLANE + row * ( number_of_divs + 1 ) + col;
-    int indicesIndex = VERTICES_IN_PLANE + row * number_of_divs + col;
+    int index = row * ( number_of_divs + 1 ) + col;
+    int indicesIndex = row * number_of_divs + col;
     if(row <= number_of_divs && col <= number_of_divs){
         float del_x = ( max_x - min_x ) / ( number_of_divs  );
         float del_z = ( max_z - min_z ) / ( number_of_divs  );
@@ -84,19 +83,21 @@ void main(){
         vertex_container_object.vertices[index].nory = normal.y;
         vertex_container_object.vertices[index].norz = normal.z;
 
-        vertex_container_object.vertices[index].u = fract( ( float( row ) * 100.5 ) / number_of_divs );
-        vertex_container_object.vertices[index].v = fract( ( float( col ) * 100.5 ) / number_of_divs );
+        // vertex_container_object.vertices[index].u = fract( ( float( col / input_shrink_fctr) * 100.5 ) / number_of_divs );
+        // vertex_container_object.vertices[index].v = fract( ( float( row / input_shrink_fctr) * 100.5 ) / number_of_divs );
+        vertex_container_object.vertices[index].u = col % 2 ;
+        vertex_container_object.vertices[index].v = row % 2 ;
 
     }
 
     if(row < number_of_divs && col < number_of_divs){
         
-        indices_container_object.indices[indicesIndex][0] = VERTICES_IN_PLANE + index;
-        indices_container_object.indices[indicesIndex][1] = VERTICES_IN_PLANE + index + ( number_of_divs + 1 ) + 1 ;
-        indices_container_object.indices[indicesIndex][2] = VERTICES_IN_PLANE + index + ( number_of_divs + 1 ) ;
-        indices_container_object.indices[indicesIndex][3] = VERTICES_IN_PLANE + index;
-        indices_container_object.indices[indicesIndex][4] = VERTICES_IN_PLANE + index + 1 ;
-        indices_container_object.indices[indicesIndex][5] = VERTICES_IN_PLANE + index + ( number_of_divs + 1 ) + 1 ;
+        indices_container_object.indices[indicesIndex][0] = index;
+        indices_container_object.indices[indicesIndex][1] = index + ( number_of_divs + 1 ) + 1 ;
+        indices_container_object.indices[indicesIndex][2] = index + ( number_of_divs + 1 ) ;
+        indices_container_object.indices[indicesIndex][3] = index;
+        indices_container_object.indices[indicesIndex][4] = index + 1 ;
+        indices_container_object.indices[indicesIndex][5] = index + ( number_of_divs + 1 ) + 1 ;
     }
 
 }

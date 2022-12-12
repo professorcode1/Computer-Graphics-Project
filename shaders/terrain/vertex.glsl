@@ -18,7 +18,7 @@ out float camera_dist;
 void main(){
 	gl_Position = MVP_mountain * position;
 	intensity = dot(normalize(kSunDir), normal) ;
-	intensity = max(0.2, intensity); //ambient light
+	intensity = max(0.4, intensity); //ambient light
 
 	v_TexCoord = texture_uv;
 	camera_dist = length(position.xyz - camera_loc);

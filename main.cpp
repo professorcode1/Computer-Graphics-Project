@@ -22,7 +22,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGL Compute Shaders", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raghav's Relaxing Flight Simulator", NULL, NULL);
 	if (!window)
 	{
 		std::cout << "Failed to create the GLFW window\n";
@@ -66,8 +66,10 @@ int main()
 	glEnable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-
-	glClearColor(185.0f / 225.0f, 235.0f / 225.0f, 255.0f / 225.0f, 1.0f);
+	const int skyColorR = parameter_json.at("sky color RGB")[0];
+	const int skyColorG = parameter_json.at("sky color RGB")[1];
+	const int skyColorB = parameter_json.at("sky color RGB")[2];
+	glClearColor( skyColorR / 225.0f, skyColorG / 225.0f, skyColorB / 225.0f, 1.0f );
 	// glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
 	Plane plane("shaders/plane/collition.glsl", "shaders/plane/vertex.glsl", "shaders/plane/fragment.glsl", 

@@ -33,7 +33,7 @@ void Plane::render(glm::mat4 viewAndProjection){
     ibo->Bind();
     shader.Bind();
     shader.SetUniform1i(this->texture_UniformName, texture_BindSlot);
-    glm::mat4 model = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(scaling_factor, scaling_factor, scaling_factor)), this->position);
+    glm::mat4 model = glm::scale(glm::translate(glm::mat4(1.0f), this->position), glm::vec3(scaling_factor, scaling_factor, scaling_factor));
 	model = glm::rotate(model, glm::radians(yay_degree  ), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(pitch_degree), glm::vec3(-1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(roll_degree  ), glm::vec3(0.0f, 0.0f, 1.0f));
