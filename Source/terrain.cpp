@@ -2,7 +2,7 @@
 #include "waveFrontFileApi.h"
 
 Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, const std::string &fragmentShaderFile ,const VertexBufferLayout &vertex_layout,
-    const std::string &terrainTextureFile,float atmosphere_light_damping_constant, float atmosphere_damping_red_weight,float atmosphere_damping_green_weight,float atmosphere_damping_blue_weight , 
+    const std::string &terrainTextureFile,float fog_density , 
     const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,float output_increase_fctr_, float input_shrink_fctr_, 
     float lacunarity, float persistance,bool writeToFile,int div, float min_x,float max_x,float min_z,float max_z, float Mountain_Scale_Factor):
 	terrain_generator(terrainGeneratorShaderFile), 
@@ -24,8 +24,7 @@ Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::stri
 	Texture tex(terrainTextureFile);
 	tex.Bind();
 	this->shader.SetUniform1i("mountain_tex", 0); 
-	this->shader.SetUniform1f("atmosphere_light_damping_constant", atmosphere_light_damping_constant); 
-	this->shader.SetUniform4f("atmosphere_light_damping_RGB_Weight", atmosphere_damping_red_weight, atmosphere_damping_green_weight, atmosphere_damping_blue_weight, 1.0); 
+	this->shader.SetUniform1f("fog_density", fog_density); 
 	this->shader.SetUniform1i("mountain_tex", 0);
 	
 	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout);

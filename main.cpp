@@ -45,8 +45,7 @@ int main()
 	VertexBufferLayout vertex_layout;
 	CREATE_VERTEX_LAYOUT(vertex_layout);
 	Terrain terain("shaders/terrain/generate.glsl", "shaders/terrain/vertex.glsl", "shaders/terrain/fragment.glsl",
-		vertex_layout, terrainParam.at("noise texture file"), terrainParam.at("atmosphere light damping constant"),
-		terrainParam.at("atmosphere red"), terrainParam.at("atmosphere green"), terrainParam.at("atmosphere blue"),terrainParam["wave numbers active"], 
+		vertex_layout, terrainParam.at("noise texture file"), parameter_json.at("fog density"),terrainParam["wave numbers active"], 
 		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
 		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), 
 		terrainParam.at("min_x"), terrainParam.at("max_x"), terrainParam.at("min_z"), terrainParam.at("max_z"), 

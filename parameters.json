@@ -2,6 +2,7 @@
     "screen width" : 1920,
     "screen height" : 1080,
     "sky color RGB" : [135,206,235],
+    "fog density" : 0.0010,
     "terrain parameters":{
         "divisions" : 1000,
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
@@ -16,10 +17,6 @@
         "persistance" : 1.1,
         "write normals" : false,
         "write to file" : false,
-        "atmosphere light damping constant" : 0.000,
-        "atmosphere red": 1,
-        "atmosphere green": 1,
-        "atmosphere blue": 1,
         "noise texture file" : "assets/grass.jpg",
         "Mountain Scale Factor" : 200
     },
@@ -30,8 +27,8 @@
         "Camera Beind Distance" : 35.0,
         "Camera Up Distance" : 35.0,
         "Camera ViewPoint Distance" : 10,
-        "Plane Scale" : 0.3 ,
-        "Plane Speed" : 1      
+        "Plane Scale" : 1.3 ,
+        "Plane Speed" : 3      
     },
     "camera":{
         "FOV": 45.0,

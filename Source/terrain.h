@@ -22,8 +22,8 @@ class Terrain{
         Texture tex;
         glm::mat4 mountain_model;
     public:
-    Terrain(const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, const std::string &fragmentShaderFile ,const VertexBufferLayout &vertex_layout,
-    const std::string &terrainTextureFile,float atmosphere_light_damping_constant, float atmosphere_damping_red_weight,float atmosphere_damping_green_weight,float atmosphere_damping_blue_weight,
+    Terrain( const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, const std::string &fragmentShaderFile ,const VertexBufferLayout &vertex_layout,
+    const std::string &terrainTextureFile,float fog_density , 
     const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,float output_increase_fctr_, float input_shrink_fctr_, 
     float lacunarity, float persistance,bool writeToFile,int div, float min_x,float max_x,float min_z,float max_z, float Mountain_Scale_Factor);
 
