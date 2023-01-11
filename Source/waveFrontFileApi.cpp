@@ -106,39 +106,6 @@ static void wavefront_parse_triangle_and_push(
 	index_count++;
 }
 
-void parse_simple_wavefront(const std::string& filename, std::vector<vertex_t> &vertices, std::vector< unsigned int> &index_buffer){
-	std::vector<float> vertex_buffer;
-	std::vector<float> texture_buffer;
-	std::vector<float> normal_buffer;
-	std::string line;
-	std::ifstream file(filename);
-	std::vector<std::string> split;
-	unsigned int index_count = 0;
-	while (getline (file, line)) {
-		// std::cout<<line<<std::endl;
-		split.clear();
-		if(line.size() < 2)
-			continue;
-		string_split(line, split," ");
-		if(split[0] == "v"){
-			vertex_buffer.push_back(std::stof(split[1]));
-			vertex_buffer.push_back(std::stof(split[2]));
-			vertex_buffer.push_back(std::stof(split[3]));
-		}else if(split[0] == "vn"){
-			normal_buffer.push_back(std::stof(split[1]));
-			normal_buffer.push_back(std::stof(split[2]));
-			normal_buffer.push_back(std::stof(split[3]));
-		}else if(split[0] == "vt"){
-			texture_buffer.push_back(std::stof(split[1]));
-			texture_buffer.push_back(std::stof(split[2]));
-		}else if(split[0] == "f"){
-			wavefront_parse_triangle_and_push(
-				split, vertex_buffer, texture_buffer, normal_buffer, vertices, index_buffer, index_count);
-		}
-	}
-	file.close();
-
-}
 
 void parse_complex_wavefront(const std::string& filename, std::vector<vertex_t> &vertices, std::vector< unsigned int> &index_buffer){
 	std::vector<float> vertex_buffer;
@@ -166,51 +133,10 @@ void parse_complex_wavefront(const std::string& filename, std::vector<vertex_t> 
 			texture_buffer.push_back(std::stof(split[1]));
 			texture_buffer.push_back(std::stof(split[2]));
 		}else if(split[0] == "f"){
-			if(split.size() == 4){
+			for(int i=3 ; i<split.size(); i++){
+				std::vector<std::string> triangle({"f", split.at(1), split.at( i - 1 ), split.at( i )});
 				wavefront_parse_triangle_and_push(
-					split, vertex_buffer, texture_buffer, normal_buffer, vertices, index_buffer, index_count);
-			}
-			else if(split.size() == 5){
-				std::vector<std::string> first_triangle({"f"});
-				std::vector<std::string> second_triangle({"f"});
-				first_triangle.insert(first_triangle.cend(), split.begin() + 1, split.begin() + 4);
-				second_triangle.insert(second_triangle.cend(), split.begin() + 2, split.begin() + 5);
-				wavefront_parse_triangle_and_push(
-					first_triangle, vertex_buffer, texture_buffer, normal_buffer, vertices, index_buffer, index_count);
-				wavefront_parse_triangle_and_push(
-					second_triangle, vertex_buffer, texture_buffer, normal_buffer, vertices, index_buffer, index_count);
-			}else{
-				using Point = std::array<double, 3>;
-				std::vector<std::vector<Point>> polygon;
-				{
-					std::vector<Point> hlpr;
-					std::vector<std::string> split_hlpr = split;
-					for(int i=1;i<split_hlpr.size();i++){
-						std::vector<std::string> split_split;
-						string_split(split_hlpr[i], split_split, "/");
-						hlpr.push_back({
-							vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 0), 
-							vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1), 
-							vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2)
-							});
-					}
-					polygon.push_back(move(hlpr));
-				}
-
-				std::vector<uint16_t> indices = mapbox::earcut<uint16_t>(polygon);
-
-				for(int i=0 ; i<indices.size()/3 ; i++){
-					std::vector<std::string> triangle({"f"});
-					uint16_t index_0 = indices[ 3 * i + 0 ];
-					uint16_t index_1 = indices[ 3 * i + 1 ];
-					uint16_t index_2 = indices[ 3 * i + 2 ];
-					triangle.push_back(split.at(1 + index_0));
-					triangle.push_back(split.at(1 + index_1));
-					triangle.push_back(split.at(1 + index_2));
-					wavefront_parse_triangle_and_push(
-						triangle, vertex_buffer, texture_buffer, normal_buffer, vertices, index_buffer, index_count);
-
-				}
+					triangle, vertex_buffer, texture_buffer, normal_buffer, vertices, index_buffer, index_count);
 			}
 		}
 	}
