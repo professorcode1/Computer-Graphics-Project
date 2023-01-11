@@ -63,7 +63,9 @@ void Plane::catchInputs(GLFWwindow* window){
 		roll_degree += rotation_angle_per_frame_deg; 
 		yay_degree -= rotation_angle_per_frame_deg;
     }
-    position += speed * orientation;
+	if(glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS){
+    	position += speed * orientation;
+	}
 	if(! roll_was_changed && roll_was_changed > 360.0f){
 		roll_degree = glm::mod(roll_degree, 360.0f);
 	}
@@ -85,7 +87,7 @@ camera_behind_distant(camera_behind_distant) ,camera_up_distance( camera_up_dist
 MVP_uniform_name(MVP_uniform_name),  texture_UniformName(texture_UniformName),scaling_factor(scaling_factor), speed(speed) {
 	std::vector<vertex_t> vertices_plane;
 	std::vector<unsigned int> index_buffer_plane; 
-	parse_simple_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
+	parse_complex_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
 	vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
 	ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
 	vao.AddBuffer(*vbo, vertex_layout);

@@ -3,7 +3,6 @@ glm
 *.OBJ
 *.obj
 *.o
-stuff/*
 assets/Me.jpg
 main
 imgui.ini

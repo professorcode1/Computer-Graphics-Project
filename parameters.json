@@ -22,13 +22,15 @@
     },
     "plane parameters":{
         "plane position" : [10,50 ,10],
-        "Plane Texuture file" : "assets/PlaneTexture.png",
-        "Plane OBJ file" : "assets/LowPolyPlane01.obj",
-        "Camera Beind Distance" : 35.0,
+        "Plane Texuture file " : "assets/PlaneTexture.png",
+        "Plane Texuture file" : "assets/Tress/Textures/Colorsheet Tree Dry.png",
+        "Plane OBJ file " : "assets/LowPolyPlane01.obj",
+        "Plane OBJ file" : "assets/Tress/Models Obj/Tree Type0 04.obj",
+        "Camera Beind Distance" : 40.0,
         "Camera Up Distance" : 35.0,
         "Camera ViewPoint Distance" : 10,
-        "Plane Scale" : 0.5 ,
-        "Plane Speed" : 5.5      
+        "Plane Scale" : 10 ,
+        "Plane Speed" : 1.5      
     },
     "camera":{
         "FOV": 45.0,

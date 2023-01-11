@@ -8,7 +8,6 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/trigonometric.hpp>
-#include "json.hpp"
 
 
 #include "OpenGL/Renderer.h"
@@ -24,7 +23,7 @@
 // #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
-#include "json.hpp"
+#include "FOSS_Code/json.hpp"
 using json = nlohmann::json;
 
 #include "Source/plane.h"

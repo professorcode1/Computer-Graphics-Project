@@ -17,8 +17,6 @@ out float intensity;
 out float camera_dist;
 
 void main(){
-	// vec4 location = ViewProjectionMatrix * ModelMatrix * position;
-	// vec4 location = ModelMatrix * ViewProjectionMatrix *  position;
 	gl_Position = ModelViewProjectionMatrix *  position;
 	intensity = dot(normalize(kSunDir), normal) ;
 	intensity = max(0.4, intensity); //ambient light

@@ -63,7 +63,7 @@ int main()
 
 
 	glEnable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	const int skyColorR = parameter_json.at("sky color RGB")[0];
 	const int skyColorG = parameter_json.at("sky color RGB")[1];
@@ -90,7 +90,6 @@ int main()
 		glm::mat4 VP, MVP_plane;
 		glm::vec3 camera_pos;
 		std::tie(VP, camera_pos) = plane.get_MVP_Matrix( FOV, NearPlane, FarPlane, screenRatio );
-		// std::cout<<camera_pos.x<<" "<<camera_pos.y<<" "<<camera_pos.z<<" "<<std::endl;
 		
 		terain.render(VP, camera_pos);
 
