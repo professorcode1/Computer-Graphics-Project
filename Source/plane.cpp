@@ -9,7 +9,7 @@ std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPl
 	 cos(glm::radians(pitch_degree)) * cos(glm::radians(yay_degree)));
 	// std::cout<<"Orientation ::\t"<< glm::to_string(orientation)<<std::endl ;
 	glm::vec3 view_position = camera_ViewPoint_distance * orientation + position;
-	glm::vec3 camera_pos = position +  camera_behind_distant * orientation * -1.0f + 
+	const glm::vec3 camera_pos = position +  camera_behind_distant * orientation * -1.0f + 
 		glm::normalize(glm::cross(glm::cross(orientation, Up), orientation)) * camera_up_distance;
 	glm::vec3 camera_dir_vec = glm::normalize(view_position - camera_pos);
 	// Initializes matrices since otherwise they will be the null matrix

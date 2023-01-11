@@ -2,7 +2,7 @@
     "screen width" : 1920,
     "screen height" : 1080,
     "sky color RGB" : [135,206,235],
-    "fog density" : 0.00050,
+    "fog density" : 0.000325,
     "terrain parameters":{
         "divisions" : 1000,
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
@@ -27,8 +27,8 @@
         "Camera Beind Distance" : 35.0,
         "Camera Up Distance" : 35.0,
         "Camera ViewPoint Distance" : 10,
-        "Plane Scale" : 1.3 ,
-        "Plane Speed" : 3      
+        "Plane Scale" : 0.5 ,
+        "Plane Speed" : 5.5      
     },
     "camera":{
         "FOV": 45.0,

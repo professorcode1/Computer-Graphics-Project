@@ -51,6 +51,8 @@ Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::stri
 	this->terrain_generator.bindSSOBuffer(1, index_buffer->GetRenderedID());
 	this->terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
 	this->mountain_model = glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor));
+	this->shader.Bind();
+	this->shader.SetUniformMat4f("ModelMatrix", this->mountain_model);
 		
 	if(writeToFile)
 		write_to_file(this->VBO,this->EBO,div);
@@ -60,7 +62,7 @@ Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::stri
 void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
 		this->shader.Bind();
 		this->tex.Bind();
-		this->shader.SetUniformMat4f("MVP_mountain", ViewProjection * mountain_model);
+		this->shader.SetUniformMat4f("ModelViewProjectionMatrix", ViewProjection * this->mountain_model  );
 		this->shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
 		this->vertex_array.Bind();
 		this->index_buffer->Bind();
