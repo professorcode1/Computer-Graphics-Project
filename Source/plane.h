@@ -40,10 +40,13 @@ class Plane{
         
         std::tuple<glm::mat4,glm::vec3> get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane ,float aspect);
         
-        Plane(const std::string& computeFile, const std::string& vertexFile, const std::string& fragFile, const std::string& modelObjFile,
-         const std::string &texFile, int binding_Pnt,float camera_behind_distant,float camera_up_distance, float camera_ViewPoint_distance,float scaling_factor,float speed, const VertexBufferLayout &vertex_layout, 
-         const std::string MVP_uniform_name = "MVP_plane", const std::string &texture_UniformName = "plane_texture");
-    
+        Plane(const std::string& modelObjFile,
+         const std::string &texFile,float camera_behind_distant,float camera_up_distance, float camera_ViewPoint_distance,float scaling_factor,float speed, 
+         const std::string MVP_uniform_name = "MVP_plane", const std::string &texture_UniformName = "plane_texture",
+         const std::string& computeFile = "shaders/plane/collition.glsl", 
+         const std::string& vertexFile = "shaders/plane/vertex.glsl", 
+         const std::string& fragFile = "shaders/plane/fragment.glsl"
+         );
     private:
         VertexArray vao;
         VertexBuffer*  vbo;
@@ -51,7 +54,7 @@ class Plane{
         ComputeShader collition_detection;
         Shader shader;
         Texture tex;
-        int texture_BindSlot;
+        const int texture_BindSlot = 0;
         float scaling_factor;
         glm::vec3 position = glm::vec3(3,3,3);
         glm::vec3 Up = glm::vec3(0,1,0);

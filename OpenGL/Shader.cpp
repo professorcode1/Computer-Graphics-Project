@@ -41,6 +41,8 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
 
 Shader::Shader(const std::string& filepathVertexShader, const std::string& filepathFragmentShader):
 m_RendererID(0) , m_filepathFragmentShader(filepathFragmentShader), m_filepathVertexShader(filepathVertexShader) {
+    // std::cout<<filepathVertexShader<<std::endl;
+    // std::cout<<filepathFragmentShader<<std::endl;
     std::ifstream vertexShaderFile(filepathVertexShader);
     std::ifstream fragmentShaderFile(filepathFragmentShader);
     std::string vertexShader((std::istreambuf_iterator<char>(vertexShaderFile)), std::istreambuf_iterator<char>());
@@ -155,7 +157,7 @@ m_RendererID(0) , m_filepathComputeShader(filepathComputeShader) {
 			glGetShaderInfoLog(computeShader, length, &length, message);
 			std::cout<<"Failed to compile shader"<<std::endl;
 			std::cout<<message<<std::endl;
-			__builtin_trap();
+			assert(false);
 	}
 
 	GLuint computeProgram = glCreateProgram();
@@ -204,7 +206,13 @@ void ComputeShader::bindSSOBuffer(const int binding_point, const unsigned int bu
 }
 
 void ComputeShader::launch_and_Sync(unsigned int x, unsigned int y, unsigned int z){
+	using namespace std::chrono;
 	this->Bind();
+	auto start = high_resolution_clock::now();
 	glDispatchCompute(x,y,z);
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	auto stop = high_resolution_clock::now();
+	auto duration = duration_cast<microseconds>(stop - start);
+	std::cout<< "Compute Shader time taken in microseconds :: \t" << duration.count() << std::endl;
+
 }

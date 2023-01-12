@@ -2,7 +2,7 @@
     "screen width" : 1920,
     "screen height" : 1080,
     "sky color RGB" : [135,206,235],
-    "fog density" : 0.000325,
+    "fog density" : 0.000925,
     "terrain parameters":{
         "divisions" : 1000,
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
@@ -22,23 +22,22 @@
     },
     "plane parameters":{
         "plane position" : [10,50 ,10],
-        "Plane Texuture file " : "assets/PlaneTexture.png",
-        "Plane Texuture file" : "assets/Tress/Textures/Colorsheet Tree Dry.png",
-        "Plane OBJ file " : "assets/LowPolyPlane01.obj",
-        "Plane OBJ file" : "assets/Tress/Models Obj/Tree Type0 04.obj",
+        "Plane Texuture file" : "assets/PlaneTexture.png",
+        "Plane OBJ file" : "assets/LowPolyPlane01.obj",
         "Camera Beind Distance" : 40.0,
         "Camera Up Distance" : 35.0,
         "Camera ViewPoint Distance" : 10,
-        "Plane Scale" : 10 ,
-        "Plane Speed" : 1.5      
+        "Plane Scale" : 1.0 ,
+        "Plane Speed" : 15      
     },
     "camera":{
         "FOV": 45.0,
         "Near Plane" : 0.1,
         "Far Plane" : 5000.0
     },
-    "cloud":{
-        "height" : 100
+    "tress parameters":{
+        "tress per division" : 100,
+        "tress scale" : 10.0
     }
 
 

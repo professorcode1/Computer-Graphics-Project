@@ -39,13 +39,11 @@ int main()
 	std::ifstream parameter_file("parameters.json");
 	json parameter_json;
 	parameter_file >> parameter_json;
-	json terrainParam = parameter_json.at("terrain parameters");
-	json planeParam = parameter_json.at("plane parameters");
-
-	VertexBufferLayout vertex_layout;
-	CREATE_VERTEX_LAYOUT(vertex_layout);
-	Terrain terain("shaders/terrain/generate.glsl", "shaders/terrain/vertex.glsl", "shaders/terrain/fragment.glsl",
-		vertex_layout, terrainParam.at("noise texture file"), parameter_json.at("fog density"),terrainParam["wave numbers active"], 
+	const json terrainParam = parameter_json.at("terrain parameters");
+	const json planeParam = parameter_json.at("plane parameters");
+	const json tressParameter = parameter_json.at("tress parameters");
+	Terrain terain(
+		terrainParam.at("noise texture file"), parameter_json.at("fog density"),terrainParam["wave numbers active"], 
 		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
 		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), 
 		terrainParam.at("min_x"), terrainParam.at("max_x"), terrainParam.at("min_z"), terrainParam.at("max_z"), 
@@ -53,17 +51,10 @@ int main()
 		);
 
 	glfwSwapInterval(1);
-	
-	glm::vec3 position (0,0.1716,0.5228);
-	glm::vec3 focal_point (5,-0.02399,5);
-	glm::vec3 view_up (-0.29207,0.897259,-0.331091);
-	glm::vec3 plane_Position(3,3,3);
-
-
 
 
 	glEnable(GL_BLEND);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	const int skyColorR = parameter_json.at("sky color RGB")[0];
 	const int skyColorG = parameter_json.at("sky color RGB")[1];
@@ -71,10 +62,10 @@ int main()
 	glClearColor( skyColorR / 225.0f, skyColorG / 225.0f, skyColorB / 225.0f, 1.0f );
 	// glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-	Plane plane("shaders/plane/collition.glsl", "shaders/plane/vertex.glsl", "shaders/plane/fragment.glsl", 
-	planeParam.at("Plane OBJ file"), planeParam.at("Plane Texuture file"), 1, planeParam.at("Camera Beind Distance"),
-	planeParam.at("Camera Up Distance"), planeParam.at("Camera ViewPoint Distance"), planeParam.at("Plane Scale"), 
-	planeParam.at("Plane Speed"), vertex_layout);
+	Plane plane( 
+		planeParam.at("Plane OBJ file"), planeParam.at("Plane Texuture file"), planeParam.at("Camera Beind Distance"),
+		planeParam.at("Camera Up Distance"), planeParam.at("Camera ViewPoint Distance"), planeParam.at("Plane Scale"), 
+		planeParam.at("Plane Speed"));
 	float 
 		FOV = parameter_json.at("camera").at("FOV"), 
 		NearPlane = parameter_json.at("camera").at("Near Plane"), 
@@ -82,12 +73,18 @@ int main()
 		screenRatio = (float)SCREEN_WIDTH / SCREEN_HEIGHT
 		;
 
+
+	Trees trees(
+		tressParameter.at("tress per division"),tressParameter.at("tress per division"),
+		terain
+		);
+
 	while (!glfwWindowShouldClose(window))
 	{	
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 VP, MVP_plane;
+		glm::mat4 VP;
 		glm::vec3 camera_pos;
 		std::tie(VP, camera_pos) = plane.get_MVP_Matrix( FOV, NearPlane, FarPlane, screenRatio );
 		

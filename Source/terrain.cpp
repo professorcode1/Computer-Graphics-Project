@@ -1,15 +1,31 @@
 #include "terrain.h"
 #include "waveFrontFileApi.h"
 
-Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, const std::string &fragmentShaderFile ,const VertexBufferLayout &vertex_layout,
-    const std::string &terrainTextureFile,float fog_density , 
-    const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,float output_increase_fctr_, float input_shrink_fctr_, 
-    float lacunarity, float persistance,bool writeToFile,int div, float min_x,float max_x,float min_z,float max_z, float Mountain_Scale_Factor):
+Terrain::Terrain( 
+	const std::string &terrainTextureFile,float fog_density , 
+    const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
+	float output_increase_fctr_, float input_shrink_fctr_, 
+    float lacunarity, float persistance,
+	bool writeToFile,int div, 
+	float min_x,float max_x,
+	float min_z,float max_z, 
+	float Mountain_Scale_Factor, 
+    const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, 
+	const std::string &fragmentShaderFile
+	):
 	terrain_generator(terrainGeneratorShaderFile), 
 	shader(vertexShaderFile, fragmentShaderFile),
-	tex(terrainTextureFile)
+	tex(terrainTextureFile),
+	div_m{div},
+	min_x_m{min_x},
+	max_x_m{max_x},
+	min_z_m{min_z},
+	max_z_m{max_z},
+	mountain_scale_factor_m{Mountain_Scale_Factor}
 	{
-    
+    VertexBufferLayout vertex_layout_simple;
+	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
+
     
 	glCreateVertexArrays(1, &this->VAO);
 	glCreateBuffers(1, &this->VBO);
@@ -27,7 +43,7 @@ Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::stri
 	this->shader.SetUniform1f("fog_density", fog_density); 
 	this->shader.SetUniform1i("mountain_tex", 0);
 	
-	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout);
+	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout_simple);
 
 	this->terrain_generator.Bind();
 	this->terrain_generator.SetUniform1i("number_of_divs", div);
@@ -47,26 +63,49 @@ Terrain::Terrain( const std::string &terrainGeneratorShaderFile, const std::stri
 	this->terrain_generator.SetUniform1f("input_shrink_fctr", input_shrink_fctr_);
 	this->terrain_generator.SetUniform1f("lacunarity", lacunarity);
 	this->terrain_generator.SetUniform1f("persistance", persistance);
+    glm::mat4 mountain_model;
+	mountain_model = glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor));
+	terrain_generator.SetUniformMat4f("MountainModelMatrix", mountain_model);
 	this->terrain_generator.bindSSOBuffer(0, vertex_buffer->GetRenderedID());
 	this->terrain_generator.bindSSOBuffer(1, index_buffer->GetRenderedID());
-	this->terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
-	this->mountain_model = glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor));
+	this->terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/8), 1);
 	this->shader.Bind();
-	this->shader.SetUniformMat4f("ModelMatrix", this->mountain_model);
 		
 	if(writeToFile)
 		write_to_file(this->VBO,this->EBO,div);
 	// std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
 }
 
+Terrain::~Terrain(){
+	glDeleteBuffers(1, &this->VBO);
+	glDeleteBuffers(1, &this->EBO);
+}
+
 void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
 		this->shader.Bind();
 		this->tex.Bind();
-		this->shader.SetUniformMat4f("ModelViewProjectionMatrix", ViewProjection * this->mountain_model  );
+		this->shader.SetUniformMat4f("ViewProjectionMatrix", ViewProjection   );
 		this->shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
 		this->vertex_array.Bind();
 		this->index_buffer->Bind();
 
 		GLCall(glDrawElements(GL_TRIANGLES, this->index_buffer->GetCount() , GL_UNSIGNED_INT, nullptr));
 
+}
+
+std::tuple<float,float,float,float> Terrain::get_dimentions() const {
+	return std::make_tuple(
+		this->min_x_m * mountain_scale_factor_m, 
+		this->max_x_m * mountain_scale_factor_m, 
+		this->min_z_m * mountain_scale_factor_m,
+		this->max_z_m * mountain_scale_factor_m
+	);
+}
+
+int Terrain::get_divisions() const{
+	return div_m;
+}
+
+unsigned int Terrain::get_terrain_ssbo_buffer_id() const{
+	return this->VBO;
 }

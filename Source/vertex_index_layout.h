@@ -8,7 +8,7 @@ struct index_t{
 	int indices[6];
 };
 
-#define CREATE_VERTEX_LAYOUT(x) \
+#define CREATE_SIMPLE_VERTEX_LAYOUT(x) \
 x.Push<float>(3);\
 x.Push<float>(3);\
 x.Push<float>(2)

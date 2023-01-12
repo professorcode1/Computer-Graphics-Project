@@ -6,8 +6,7 @@ layout(location = 2) in vec2 texture_uv;
 
 const vec3  kSunDir = vec3(-0.624695,0.468521,-0.624695);
 
-uniform mat4 ModelViewProjectionMatrix;
-uniform mat4 ModelMatrix;
+uniform mat4 ViewProjectionMatrix;
 uniform vec3 camera_loc;
 
 
@@ -17,11 +16,10 @@ out float intensity;
 out float camera_dist;
 
 void main(){
-	gl_Position = ModelViewProjectionMatrix *  position;
+	gl_Position = ViewProjectionMatrix *  position;
 	intensity = dot(normalize(kSunDir), normal) ;
 	intensity = max(0.4, intensity); //ambient light
 
 	v_TexCoord = texture_uv;
-	camera_dist = length((ModelMatrix * position).xyz - camera_loc);
-	//camera_dist = 0;
+	camera_dist = length(position.xyz - camera_loc);
 }

@@ -1,6 +1,6 @@
 #version 460 core
 
-layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 #define M_PI 3.14159265358979323846264338327950288
 
@@ -18,9 +18,8 @@ uniform float lacunarity;
 uniform float persistance;
 uniform vec3 camera_loc;
 uniform vec3 sun_light_dir;
+uniform mat4 MountainModelMatrix;
 uniform float sun_height;
-shared float hops_along_x;
-shared float hops_along_z;
 struct Vertex{
     float posx,posy,posz;
     float norx, nory,norz;
@@ -56,8 +55,8 @@ void main(){
     int index = row * ( number_of_divs + 1 ) + col;
     int indicesIndex = row * number_of_divs + col;
     if(row <= number_of_divs && col <= number_of_divs){
-        float del_x = ( max_x - min_x ) / ( number_of_divs  );
-        float del_z = ( max_z - min_z ) / ( number_of_divs  );
+        float del_x = ( max_x - min_x ) / ( number_of_divs + 1 );
+        float del_z = ( max_z - min_z ) / ( number_of_divs + 1 );
         float x = min_x  + row * del_x ;
         float z = min_z  + col * del_z;
         float epsilon_del_x = epsilon * del_x;
@@ -70,6 +69,17 @@ void main(){
         vec3 input_ = vec3(vertex_container_object.vertices[index].posx, vertex_container_object.vertices[index].posy, vertex_container_object.vertices[index].posz) / input_shrink_fctr;
         float noise_output = noise(input_);
         vertex_container_object.vertices[index].posy = noise_output * output_increase_fctr ;
+        vec4 pos;
+        pos.x = vertex_container_object.vertices[index].posx;
+        pos.y = vertex_container_object.vertices[index].posy;
+        pos.z = vertex_container_object.vertices[index].posz;
+        pos.w = 1.0;
+        pos = MountainModelMatrix * pos;
+        vertex_container_object.vertices[index].posx = pos.x;
+        vertex_container_object.vertices[index].posy = pos.y;
+        vertex_container_object.vertices[index].posz = pos.z;
+        
+        
         
         vec3 normal;
 
