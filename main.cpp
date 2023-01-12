@@ -42,12 +42,16 @@ int main()
 	const json terrainParam = parameter_json.at("terrain parameters");
 	const json planeParam = parameter_json.at("plane parameters");
 	const json tressParameter = parameter_json.at("tress parameters");
+	const json sunParameters = parameter_json.at("sun parameters");
+	const std::vector<float> sun_dir_vec = sunParameters.at("direction vector").get<std::vector<float>>();
+	const glm::vec3 sun_direction = glm::vec3(sun_dir_vec.at(0),sun_dir_vec.at(1), sun_dir_vec.at(2)); 
+	const float fog_densty = parameter_json.at("fog density");
 	Terrain terain(
-		terrainParam.at("noise texture file"), parameter_json.at("fog density"),terrainParam["wave numbers active"], 
+		terrainParam.at("noise texture file"), fog_densty,terrainParam["wave numbers active"], 
 		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
 		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), 
 		terrainParam.at("min_x"), terrainParam.at("max_x"), terrainParam.at("min_z"), terrainParam.at("max_z"), 
-		terrainParam.at("Mountain Scale Factor")
+		terrainParam.at("Mountain Scale Factor"), sun_direction
 		);
 
 	glfwSwapInterval(1);
@@ -76,7 +80,7 @@ int main()
 
 	Trees trees(
 		tressParameter.at("tress per division"),tressParameter.at("tress per division"),
-		terain
+		terain, sun_direction,fog_densty
 		);
 
 	while (!glfwWindowShouldClose(window))
@@ -90,8 +94,12 @@ int main()
 		
 		terain.render(VP, camera_pos);
 
+		trees.render(VP, camera_pos);
+
 		plane.catchInputs(window);
 		plane.render(VP);
+
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

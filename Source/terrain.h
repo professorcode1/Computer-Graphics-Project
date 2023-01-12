@@ -28,6 +28,7 @@ class Terrain{
 	    const float min_z_m;
         const float max_z_m;
         const float mountain_scale_factor_m;
+        const glm::vec3 sun_dir_m;
     public:
     Terrain( 
         const std::string &terrainTextureFile,float fog_density , 
@@ -38,6 +39,7 @@ class Terrain{
 	    float min_x,float max_x,
 	    float min_z,float max_z, 
 	    float Mountain_Scale_Factor, 
+        const glm::vec3 &sun_direction,
         const std::string &terrainGeneratorShaderFile = "shaders/terrain/generate.glsl", 
 	    const std::string &vertexShaderFile = "shaders/terrain/vertex.glsl",
 	    const std::string &fragmentShaderFile = "shaders/terrain/fragment.glsl"

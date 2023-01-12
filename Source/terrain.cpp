@@ -10,6 +10,7 @@ Terrain::Terrain(
 	float min_x,float max_x,
 	float min_z,float max_z, 
 	float Mountain_Scale_Factor, 
+    const glm::vec3 &sun_direction,
     const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, 
 	const std::string &fragmentShaderFile
 	):
@@ -21,7 +22,8 @@ Terrain::Terrain(
 	max_x_m{max_x},
 	min_z_m{min_z},
 	max_z_m{max_z},
-	mountain_scale_factor_m{Mountain_Scale_Factor}
+	mountain_scale_factor_m{Mountain_Scale_Factor},
+	sun_dir_m{sun_direction}
 	{
     VertexBufferLayout vertex_layout_simple;
 	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
@@ -42,6 +44,7 @@ Terrain::Terrain(
 	this->shader.SetUniform1i("mountain_tex", 0); 
 	this->shader.SetUniform1f("fog_density", fog_density); 
 	this->shader.SetUniform1i("mountain_tex", 0);
+	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
 	
 	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout_simple);
 
