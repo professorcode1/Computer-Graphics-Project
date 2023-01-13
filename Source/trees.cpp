@@ -7,13 +7,16 @@ TreeSpecie::TreeSpecie(const std::string &assetFile, const VertexBufferLayout &v
 	this->vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
 	this->ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
 	this->vao.AddBuffer(*vbo, vertex_layout);
+    this->vao.AddElementBuffer(*ibo);
+    this->vao.Unbind();
+    this->vbo->Unbind();
+    this->ibo->Unbind();
 }
 
 void TreeSpecie::render() const {
     vao.Bind();
-    ibo->Bind();
     GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
-
+    this->vao.Unbind();
 }
 
 Tree::Tree(
@@ -32,6 +35,7 @@ Tree::Tree(
 }
 
 void Tree::render()const {
+    // std::cout<<"calling specie_m to render"<<std::endl;
     this->specie_m->render();
 }
 
@@ -63,6 +67,7 @@ Trees::Trees(
     }
     for(const auto & tree_texture_file : std::filesystem::directory_iterator(tree_texture_folders)){
         this->textures.emplace_back(tree_texture_file.path());
+        this->textures.back().Unbind();
         break;
     }
     const int number_of_species = this->Species.size();
@@ -90,8 +95,8 @@ Trees::Trees(
             }
         }
         unsigned int tree_positions_gpu;
-        glCreateBuffers(1, &tree_positions_gpu);
-        glNamedBufferData(tree_positions_gpu, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu, GL_STATIC_DRAW);
+        GLCall(glCreateBuffers(1, &tree_positions_gpu));
+        GLCall(glNamedBufferData(tree_positions_gpu, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu, GL_STATIC_DRAW));
         height_extractor.Bind();
         height_extractor.SetUniform1f("min_x", x_min);
         height_extractor.SetUniform1f("max_x", x_max);
@@ -102,8 +107,8 @@ Trees::Trees(
         height_extractor.bindSSOBuffer(0, terain.get_terrain_ssbo_buffer_id());
         height_extractor.bindSSOBuffer(1, tree_positions_gpu);
         height_extractor.launch_and_Sync( ceil((float)tree_per_division_sqrt/8), ceil((float)tree_per_division_sqrt/8) , 1);
-        glGetNamedBufferSubData(tree_positions_gpu, 0, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu);
-        glDeleteBuffers(1, &tree_positions_gpu);
+        GLCall(glGetNamedBufferSubData(tree_positions_gpu, 0, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu));
+        GLCall(glDeleteBuffers(1, &tree_positions_gpu));
         
         for(uint32_t tree_index=0; tree_index<Trees_per_division ; tree_index++){
             int specie_index = Randomness::Random_t::Random.rand(number_of_species);
@@ -116,16 +121,25 @@ Trees::Trees(
 }
 
 void Trees::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
+    shader.Bind();
+    shader.SetUniform1i("tree_tex_0", 0);
+    shader.SetUniform1i("tree_tex_1", 1);
+    shader.SetUniform1i("tree_tex_2", 2);
+    shader.SetUniform1i("tree_tex_3", 3);
     for(uint32_t texture_index=0; texture_index<this->textures.size() ; texture_index++){
         this->textures[texture_index].Bind(texture_index);
     }
 
-    shader.Bind();
 	shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
 
     for(const auto &tree:this->trees){
-        shader.SetUniformMat4f("MVPMatrix", ViewProjection * tree.model_matrix_m );
-        shader.SetUniform1i("tree_tex", 0);
+        shader.SetUniformMat4f("VPMatrix", ViewProjection );
+        shader.SetUniformMat4f("ModelMatrix", tree.model_matrix_m );
+        shader.SetUniform1i("texture_to_use", tree.texture_slot_m);
         tree.render();
+    }
+
+    for(uint32_t texture_index=0; texture_index<this->textures.size() ; texture_index++){
+        this->textures[texture_index].Unbind();
     }
 }

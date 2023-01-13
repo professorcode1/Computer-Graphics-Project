@@ -29,12 +29,11 @@ Terrain::Terrain(
 	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
 
     
-	glCreateVertexArrays(1, &this->VAO);
-	glCreateBuffers(1, &this->VBO);
-	glCreateBuffers(1, &this->EBO);
+	GLCall(glCreateBuffers(1, &this->VBO));
+	GLCall(glCreateBuffers(1, &this->EBO));
 
-    glNamedBufferData(this->VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW);
-	glNamedBufferData(this->EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW);
+    GLCall(glNamedBufferData(this->VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW));
+	GLCall(glNamedBufferData(this->EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW));
 
 	this->vertex_buffer = new VertexBuffer(this->VBO);
 	this->index_buffer = new IndexBuffer(this->EBO, div * div * 6);
@@ -47,6 +46,7 @@ Terrain::Terrain(
 	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
 	
 	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout_simple);
+	this->vertex_array.AddElementBuffer(*index_buffer);
 
 	this->terrain_generator.Bind();
 	this->terrain_generator.SetUniform1i("number_of_divs", div);
@@ -77,6 +77,12 @@ Terrain::Terrain(
 	if(writeToFile)
 		write_to_file(this->VBO,this->EBO,div);
 	// std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
+
+	this->tex.Unbind();
+	this->vertex_array.Unbind();
+	this->vertex_buffer->Unbind();
+	this->index_buffer->Unbind();
+	this->shader.Unbind();
 }
 
 Terrain::~Terrain(){
@@ -90,11 +96,15 @@ void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_po
 		this->shader.SetUniformMat4f("ViewProjectionMatrix", ViewProjection   );
 		this->shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
 		this->vertex_array.Bind();
-		this->index_buffer->Bind();
 
 		GLCall(glDrawElements(GL_TRIANGLES, this->index_buffer->GetCount() , GL_UNSIGNED_INT, nullptr));
 
-}
+		this->tex.Unbind();
+		this->vertex_array.Unbind();
+		this->vertex_buffer->Unbind();
+		this->index_buffer->Unbind();
+		this->shader.Unbind();
+}	
 
 std::tuple<float,float,float,float> Terrain::get_dimentions() const {
 	return std::make_tuple(

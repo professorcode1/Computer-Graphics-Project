@@ -49,7 +49,7 @@ class Plane{
          );
     private:
         VertexArray vao;
-        VertexBuffer*  vbo;
+        VertexBuffer* vbo;
         IndexBuffer* ibo;
         ComputeShader collition_detection;
         Shader shader;

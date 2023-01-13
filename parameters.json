@@ -2,7 +2,7 @@
     "screen width" : 1920,
     "screen height" : 1080,
     "sky color RGB" : [135,206,235],
-    "fog density" : 0.000525,
+    "fog density" : 0.0005,
     "terrain parameters":{
         "divisions" : 1000,
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],

@@ -12,11 +12,10 @@
 
 class Terrain{
     private:
-        GLuint VAO;
         GLuint VBO;
         GLuint EBO;
         VertexArray vertex_array;
-        VertexBuffer*  vertex_buffer;
+        VertexBuffer* vertex_buffer;
         IndexBuffer* index_buffer;
         ComputeShader terrain_generator;
         Shader shader;

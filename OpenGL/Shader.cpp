@@ -93,7 +93,7 @@ void Shader::SetUniform1i(const std::string &name,int v0){
     GLCall(glUniform1i(GetUniformLocation(name), v0));
 }
 void Shader::SetUniformMat4f(const std::string &name, const glm::mat4& matrix){
-	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
+	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
 }
 
 
@@ -146,8 +146,8 @@ m_RendererID(0) , m_filepathComputeShader(filepathComputeShader) {
 	
 	const char * screenComputeShaderSource = computeShaderStr.c_str();
 	// std::cout<<screenComputeShaderSource<<std::endl;
-	glShaderSource(computeShader, 1, &screenComputeShaderSource, NULL);
-	glCompileShader(computeShader);
+	GLCall(glShaderSource(computeShader, 1, &screenComputeShaderSource, NULL));
+	GLCall(glCompileShader(computeShader));
   	int result;
 	glGetShaderiv(computeShader, GL_COMPILE_STATUS, &result);
 	if (result == GL_FALSE){
@@ -161,9 +161,9 @@ m_RendererID(0) , m_filepathComputeShader(filepathComputeShader) {
 	}
 
 	GLuint computeProgram = glCreateProgram();
-	glAttachShader(computeProgram, computeShader);
-	glLinkProgram(computeProgram);
-	glUseProgram(computeProgram);
+	GLCall(glAttachShader(computeProgram, computeShader));
+	GLCall(glLinkProgram(computeProgram));
+	GLCall(glUseProgram(computeProgram));
 	m_RendererID = computeProgram;
 }
 ComputeShader::~ComputeShader(){
@@ -197,20 +197,20 @@ void ComputeShader::SetUniform1f(const std::string &name,float v0){
     GLCall(glUniform1f(GetUniformLocation(name), v0));
 }
 void ComputeShader::SetUniformMat4f(const std::string &name, const glm::mat4& matrix){
-	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
+	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
 }
 
 
 void ComputeShader::bindSSOBuffer(const int binding_point, const unsigned int buffer_ID){
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_point, buffer_ID);
+	GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_point, buffer_ID));
 }
 
 void ComputeShader::launch_and_Sync(unsigned int x, unsigned int y, unsigned int z){
 	using namespace std::chrono;
 	this->Bind();
 	auto start = high_resolution_clock::now();
-	glDispatchCompute(x,y,z);
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	GLCall(glDispatchCompute(x,y,z));
+	GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 	auto stop = high_resolution_clock::now();
 	auto duration = duration_cast<microseconds>(stop - start);
 	std::cout<< "Compute Shader time taken in microseconds :: \t" << duration.count() << std::endl;

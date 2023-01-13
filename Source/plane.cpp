@@ -30,7 +30,6 @@ std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPl
 
 void Plane::render(glm::mat4 viewAndProjection){
     vao.Bind();
-    ibo->Bind();
     shader.Bind();
 	tex.Bind();
     shader.SetUniform1i(this->texture_UniformName, texture_BindSlot);
@@ -40,6 +39,11 @@ void Plane::render(glm::mat4 viewAndProjection){
 	model = glm::rotate(model, glm::radians(roll_degree  ), glm::vec3(0.0f, 0.0f, 1.0f));
     shader.SetUniformMat4f(this->MVP_uniform_name, viewAndProjection * model);
     GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
+	tex.Unbind();
+	shader.Unbind();
+	vao.Unbind();
+	vbo->Unbind();
+	ibo->Unbind();
 }
 
 void Plane::catchInputs(GLFWwindow* window){
@@ -112,7 +116,14 @@ Plane::Plane(
 	vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
 	ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
 	vao.AddBuffer(*vbo, vertex_layout_simple);
+	vao.AddElementBuffer(*ibo);
 	shader.Bind();
 	tex.Bind(texture_BindSlot);
 	shader.SetUniform1i(texture_UniformName, texture_BindSlot);
+
+	tex.Unbind();
+	shader.Unbind();
+	vao.Unbind();
+	vbo->Unbind();
+	ibo->Unbind();
 }
