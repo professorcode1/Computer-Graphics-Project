@@ -9,6 +9,7 @@ private:
     int m_Width, m_Height, m_BPP;
 public:
     Texture(const std::string& path);
+    Texture(Texture &&other) noexcept ;
     ~Texture();
 
     void Bind(unsigned int slot = 0) const ;

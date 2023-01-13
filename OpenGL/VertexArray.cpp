@@ -7,7 +7,6 @@ VertexArray::VertexArray(){
 VertexArray::VertexArray(const unsigned int RendererID):m_RendererID(RendererID){}
 VertexArray::~VertexArray(){
     GLCall(glDeleteVertexArrays(1, &m_RendererID));
-    std::cout<<"Deleted "<<m_RendererID<<"as a render id"<<std::endl;
 }
 
 void VertexArray::AddBuffer(const VertexBuffer &vb, const VertexBufferLayout &layout){
@@ -35,7 +34,6 @@ void VertexArray::AddElementBuffer(const IndexBuffer &ib) const {
 }
 
 void VertexArray::Bind()const {
-    std::cout<<"Bind called for"<<m_RendererID<<std::endl;
     GLCall(glBindVertexArray(m_RendererID));
 }
 void VertexArray::Unbind()const {

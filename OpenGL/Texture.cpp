@@ -20,7 +20,22 @@ Texture::Texture(const std::string& path) : m_FilePath(path), m_LocalBuffer(null
         stbi_image_free(m_LocalBuffer);
 
 }
+Texture::Texture(Texture &&other) noexcept:
+    m_FilePath{move(other.m_FilePath)}
+{
+    if(&other == this){
+        return ;
+    }
+    this->m_RendererID = other.m_RendererID;
+    this->m_Width = m_Width;
+    this->m_Height = m_Height;
+    this->m_BPP = m_BPP;
+    other.m_RendererID = 0;
+}
+
+
 Texture::~Texture(){
+    // std::cout<<"Deleting Texture \t"<<this->m_FilePath<<std::endl;
     GLCall(glDeleteTextures(1, &m_RendererID));
 }
 

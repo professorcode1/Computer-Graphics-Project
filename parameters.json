@@ -2,7 +2,7 @@
     "screen width" : 1920,
     "screen height" : 1080,
     "sky color RGB" : [135,206,235],
-    "fog density" : 0.0005,
+    "fog density" : 0.0000,
     "terrain parameters":{
         "divisions" : 1000,
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
@@ -33,11 +33,11 @@
     "camera":{
         "FOV": 45.0,
         "Near Plane" : 0.1,
-        "Far Plane" : 5000.0
+        "Far Plane" : 10000.0
     },
     "tress parameters":{
         "tress per division" : 100,
-        "tress scale" : 1000.0
+        "tress scale" : 100.0
     },
     "sun parameters":{
         "direction vector":[ -0.624695 , 0.468521 , -0.624695 ]

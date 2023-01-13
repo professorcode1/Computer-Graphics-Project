@@ -5,7 +5,6 @@ TreeSpecie::TreeSpecie(const std::string &assetFile, const VertexBufferLayout &v
 {
     std::vector<vertex_t> vertices_plane;
 	std::vector<unsigned int> index_buffer_plane; 
-    std::cout<<"Constructor  \t" << assetFile <<std::endl;
 	parse_complex_wavefront(assetFile, vertices_plane, index_buffer_plane);
 	this->vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
 	this->ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
@@ -14,7 +13,6 @@ TreeSpecie::TreeSpecie(const std::string &assetFile, const VertexBufferLayout &v
     this->vao.Unbind();
     this->vbo->Unbind();
     this->ibo->Unbind();
-    std::cout<<"Done for \t"<<assetFile<<std::endl;
 }
 TreeSpecie::TreeSpecie(TreeSpecie &&other) noexcept :
     vao{std::move(other.vao)},
@@ -23,7 +21,6 @@ TreeSpecie::TreeSpecie(TreeSpecie &&other) noexcept :
     if(&other == this){
         return ;
     }
-    std::cout<<"moving \t"<<other.name<<std::endl;
     this->vbo = other.vbo;
     this->ibo = other.ibo;
     other.vbo = nullptr;
@@ -31,10 +28,8 @@ TreeSpecie::TreeSpecie(TreeSpecie &&other) noexcept :
 }
 
 TreeSpecie::~TreeSpecie(){
-    std::cout<<"killing \t"<<name<<std::endl;
 }
 void TreeSpecie::render() const {
-    std::cout<<" Calling TreeSpecie Bind"<<std::endl;
     vao.Bind();
     GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
     this->vao.Unbind();
@@ -91,7 +86,7 @@ Trees::Trees(
     for(const auto & tree_texture_file : std::filesystem::directory_iterator(tree_texture_folders)){
         this->textures.emplace_back(tree_texture_file.path());
         this->textures.back().Unbind();
-        break;
+        // break;
     }
     const int number_of_species = this->Species.size();
     uint32_t number_of_textures = this->textures.size();
