@@ -44,9 +44,6 @@ Terrain::Terrain(
 	this->shader.SetUniform1f("fog_density", fog_density); 
 	this->shader.SetUniform1i("mountain_tex", 0);
 	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
-	
-	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout_simple);
-	this->vertex_array.AddElementBuffer(*index_buffer);
 
 	this->terrain_generator.Bind();
 	this->terrain_generator.SetUniform1i("number_of_divs", div);
@@ -72,8 +69,11 @@ Terrain::Terrain(
 	this->terrain_generator.bindSSOBuffer(0, vertex_buffer->GetRenderedID());
 	this->terrain_generator.bindSSOBuffer(1, index_buffer->GetRenderedID());
 	this->terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/8), 1);
-	this->shader.Bind();
-		
+	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout_simple);
+	this->vertex_array.AddElementBuffer(*index_buffer);
+
+
+
 	if(writeToFile)
 		write_to_file(this->VBO,this->EBO,div);
 	// std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;

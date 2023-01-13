@@ -16,15 +16,16 @@ any gpu with core opengl 4.3 and above will be overpowered for this application 
 */
 class TreeSpecie{
 private:
-    VertexArray vao;
-    VertexBuffer*  vbo;
+    VertexArray  vao;
+    VertexBuffer* vbo;
     IndexBuffer* ibo;
-
+    std::string name;
     void render()const ;
 
 public:
     TreeSpecie(const std::string &assetFile, const VertexBufferLayout &vertex_layout_simple);
-    
+    TreeSpecie(TreeSpecie &&other)noexcept;
+    ~TreeSpecie();
     
     friend class Tree;
 };

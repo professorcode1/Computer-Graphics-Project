@@ -1,8 +1,11 @@
 #include "trees.h"
 
-TreeSpecie::TreeSpecie(const std::string &assetFile, const VertexBufferLayout &vertex_layout){
+TreeSpecie::TreeSpecie(const std::string &assetFile, const VertexBufferLayout &vertex_layout)
+:name(assetFile)
+{
     std::vector<vertex_t> vertices_plane;
 	std::vector<unsigned int> index_buffer_plane; 
+    std::cout<<"Constructor  \t" << assetFile <<std::endl;
 	parse_complex_wavefront(assetFile, vertices_plane, index_buffer_plane);
 	this->vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
 	this->ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
@@ -11,12 +14,32 @@ TreeSpecie::TreeSpecie(const std::string &assetFile, const VertexBufferLayout &v
     this->vao.Unbind();
     this->vbo->Unbind();
     this->ibo->Unbind();
+    std::cout<<"Done for \t"<<assetFile<<std::endl;
+}
+TreeSpecie::TreeSpecie(TreeSpecie &&other) noexcept :
+    vao{std::move(other.vao)},
+    name{std::move(other.name)}
+    {
+    if(&other == this){
+        return ;
+    }
+    std::cout<<"moving \t"<<other.name<<std::endl;
+    this->vbo = other.vbo;
+    this->ibo = other.ibo;
+    other.vbo = nullptr;
+    other.ibo = nullptr;
 }
 
+TreeSpecie::~TreeSpecie(){
+    std::cout<<"killing \t"<<name<<std::endl;
+}
 void TreeSpecie::render() const {
+    std::cout<<" Calling TreeSpecie Bind"<<std::endl;
     vao.Bind();
     GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
     this->vao.Unbind();
+    this->ibo->Unbind();
+    this->vbo->Unbind();
 }
 
 Tree::Tree(
@@ -62,8 +85,8 @@ Trees::Trees(
 	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
 	this->shader.SetUniform1f("fog_density", fog_density_m);
     for (const auto & tree_asset_file : std::filesystem::directory_iterator(tree_assets_folder)){
-        this->Species.emplace_back(tree_asset_file.path(), vertex_layout_simple);
-        break;
+        this->Species.emplace_back(std::move(TreeSpecie(tree_asset_file.path(), vertex_layout_simple)));
+        // break;
     }
     for(const auto & tree_texture_file : std::filesystem::directory_iterator(tree_texture_folders)){
         this->textures.emplace_back(tree_texture_file.path());

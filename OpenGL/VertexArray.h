@@ -7,6 +7,7 @@ private:
     unsigned int m_RendererID;
 public:
     VertexArray();
+    VertexArray(VertexArray &&other) noexcept ;
     VertexArray(const unsigned int RendererID);
     ~VertexArray();
 

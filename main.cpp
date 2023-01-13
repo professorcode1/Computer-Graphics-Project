@@ -92,12 +92,12 @@ int main()
 		glm::vec3 camera_pos;
 		std::tie(VP, camera_pos) = plane.get_MVP_Matrix( FOV, NearPlane, FarPlane, screenRatio );
 		
-		terain.render(VP, camera_pos);
+		// terain.render(VP, camera_pos);
 
 		trees.render(VP, camera_pos);
 
 		plane.catchInputs(window);
-		plane.render(VP);
+		// plane.render(VP);
 
 
 
