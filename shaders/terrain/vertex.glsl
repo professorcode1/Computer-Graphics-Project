@@ -18,7 +18,7 @@ out float camera_dist;
 void main(){
 	gl_Position = ViewProjectionMatrix *  position;
 	intensity = dot(normalize(sun_direction_vector), normal) ;
-	intensity = max(0.4, intensity); //ambient light
+	intensity = max(0.7, intensity); //ambient light
 
 	v_TexCoord = texture_uv;
 	camera_dist = length(position.xyz - camera_loc);

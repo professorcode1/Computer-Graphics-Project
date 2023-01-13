@@ -1,7 +1,50 @@
 #include "plane.h"
 #include "waveFrontFileApi.h"
 
+Plane::Plane(
+	const std::string& modelObjFile,
+	const std::string &texFile,
+    const float rotation_x,const float rotation_y,const float rotation_z, 
+	float camera_behind_distant,float camera_up_distance, 
+	float camera_ViewPoint_distance,float scaling_factor,
+	float speed , const std::string MVP_uniform_name, 
+	const std::string &texture_UniformName,
+	const std::string& computeFile, const std::string& vertexFile, 
+	const std::string& fragFile
+	):
+	vbo(nullptr), 
+	ibo(nullptr), 
+	collition_detection(computeFile), 
+	shader(vertexFile,fragFile),
+	camera_behind_distant(camera_behind_distant) ,
+	camera_up_distance( camera_up_distance),
+	camera_ViewPoint_distance(camera_ViewPoint_distance),  
+	tex(texFile),
+	MVP_uniform_name(MVP_uniform_name),
+	texture_UniformName(texture_UniformName),
+	scaling_factor(scaling_factor), 
+	speed(speed)
+	{
+	VertexBufferLayout vertex_layout_simple;
+	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
 
+	std::vector<vertex_t> vertices_plane;
+	std::vector<unsigned int> index_buffer_plane; 
+	parse_complex_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
+	vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
+	ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
+	vao.AddBuffer(*vbo, vertex_layout_simple);
+	vao.AddElementBuffer(*ibo);
+	shader.Bind();
+	tex.Bind(texture_BindSlot);
+	shader.SetUniform1i(texture_UniformName, texture_BindSlot);
+
+	tex.Unbind();
+	shader.Unbind();
+	vao.Unbind();
+	vbo->Unbind();
+	ibo->Unbind();
+}
 
 std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane, float aspect){
 	glm::vec3 orientation( cos(glm::radians(pitch_degree)) * sin(glm::radians(yay_degree)), 
@@ -84,46 +127,3 @@ void Plane::catchInputs(GLFWwindow* window){
 	// printf("%s \n", glm::to_string(position).c_str());
 }
 
-Plane::Plane(
-	const std::string& modelObjFile,
-	const std::string &texFile,
-	float camera_behind_distant,float camera_up_distance, 
-	float camera_ViewPoint_distance,float scaling_factor,
-	float speed , const std::string MVP_uniform_name, 
-	const std::string &texture_UniformName,
-	const std::string& computeFile, const std::string& vertexFile, 
-	const std::string& fragFile
-	):
-	vbo(nullptr), 
-	ibo(nullptr), 
-	collition_detection(computeFile), 
-	shader(vertexFile,fragFile),
-	camera_behind_distant(camera_behind_distant) ,
-	camera_up_distance( camera_up_distance),
-	camera_ViewPoint_distance(camera_ViewPoint_distance),  
-	tex(texFile),
-	MVP_uniform_name(MVP_uniform_name),
-	texture_UniformName(texture_UniformName),
-	scaling_factor(scaling_factor), 
-	speed(speed)
-	{
-	VertexBufferLayout vertex_layout_simple;
-	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
-
-	std::vector<vertex_t> vertices_plane;
-	std::vector<unsigned int> index_buffer_plane; 
-	parse_complex_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
-	vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
-	ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
-	vao.AddBuffer(*vbo, vertex_layout_simple);
-	vao.AddElementBuffer(*ibo);
-	shader.Bind();
-	tex.Bind(texture_BindSlot);
-	shader.SetUniform1i(texture_UniformName, texture_BindSlot);
-
-	tex.Unbind();
-	shader.Unbind();
-	vao.Unbind();
-	vbo->Unbind();
-	ibo->Unbind();
-}

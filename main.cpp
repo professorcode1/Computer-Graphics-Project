@@ -41,6 +41,7 @@ int main()
 	parameter_file >> parameter_json;
 	const json terrainParam = parameter_json.at("terrain parameters");
 	const json planeParam = parameter_json.at("plane parameters");
+	const json planeToUse = parameter_json.at("planes").at(planeParam.at("plane"));
 	const json tressParameter = parameter_json.at("tress parameters");
 	const json sunParameters = parameter_json.at("sun parameters");
 	const std::vector<float> sun_dir_vec = sunParameters.at("direction vector").get<std::vector<float>>();
@@ -67,8 +68,11 @@ int main()
 	// glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
 	Plane plane( 
-		planeParam.at("Plane OBJ file"), planeParam.at("Plane Texuture file"), planeParam.at("Camera Beind Distance"),
-		planeParam.at("Camera Up Distance"), planeParam.at("Camera ViewPoint Distance"), planeParam.at("Plane Scale"), 
+		planeToUse.at("Plane OBJ file"), planeToUse.at("Plane Texuture file"), 
+		planeToUse.at("Rotation Along X axis"),planeToUse.at("Rotation Along Y axis"), 
+		planeToUse.at("Rotation Along Z axis"),
+		planeParam.at("Camera Beind Distance"), planeParam.at("Camera Up Distance"), 
+		planeParam.at("Camera ViewPoint Distance"), planeParam.at("Plane Scale"), 
 		planeParam.at("Plane Speed"));
 	float 
 		FOV = parameter_json.at("camera").at("FOV"), 
@@ -82,10 +86,11 @@ int main()
 		tressParameter.at("tress per division"),tressParameter.at("tress scale"),
 		terain, sun_direction,fog_densty
 		);
-
+	auto start = std::chrono::system_clock::now();
+	auto end = std::chrono::system_clock::now();
 	while (!glfwWindowShouldClose(window))
 	{	
-
+		start = end;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 VP;
@@ -103,7 +108,9 @@ int main()
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
+		end = std::chrono::system_clock::now();
+		float elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+		printf("Frame Rate :: %.1f fps\n", (1000000.0 / elapsed));
 	}
 
 	glfwDestroyWindow(window);

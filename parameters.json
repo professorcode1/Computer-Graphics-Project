@@ -2,9 +2,9 @@
     "screen width" : 1920,
     "screen height" : 1080,
     "sky color RGB" : [135,206,235],
-    "fog density" : 0.0000,
+    "fog density" : 0.00025,
     "terrain parameters":{
-        "divisions" : 1000,
+        "divisions" : 100,
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
         "rotation angle fractal ground" : 36.87,
         "output_increase_fctr_" : 2.0,
@@ -17,13 +17,12 @@
         "persistance" : 1.1,
         "write normals" : false,
         "write to file" : false,
-        "noise texture file" : "assets/grass.jpg",
+        "noise texture file" : "assets/Ground Textures/grass.jpg",
         "Mountain Scale Factor" : 200
     },
     "plane parameters":{
+        "plane":"eleven",
         "plane position" : [10,50 ,10],
-        "Plane Texuture file" : "assets/PlaneTexture.png",
-        "Plane OBJ file" : "assets/LowPolyPlane01.obj",
         "Camera Beind Distance" : 40.0,
         "Camera Up Distance" : 35.0,
         "Camera ViewPoint Distance" : 10,
@@ -36,12 +35,35 @@
         "Far Plane" : 10000.0
     },
     "tress parameters":{
-        "tress per division" : 100,
-        "tress scale" : 100.0
+        "tress per division" : 2000,
+        "tress scale" : 50.0
     },
     "sun parameters":{
         "direction vector":[ -0.624695 , 0.468521 , -0.624695 ]
-    }
+    },
+    "planes":{
+        "second":{
+            "Plane Texuture file" : "assets/Planes/Airplane/PUSHILIN_PLANE.png",
+            "Plane OBJ file" : "assets/Planes/Airplane/PUSHILIN_Plane.obj",
+            "Rotation Along X axis" : 0.0,
+            "Rotation Along Y axis" : 0.0,
+            "Rotation Along Z axis" : 0.0
+        },
+        "six":{
+            "Plane Texuture file" : "assets/Planes/Simple Plain/PlaneTexture.png",
+            "Plane OBJ file" : "assets/Planes/Dog in plane/model.obj",
+            "Rotation Along X axis" : 0.0,
+            "Rotation Along Y axis" : 0.0,
+            "Rotation Along Z axis" : 0.0
+        },
+        "eleven":{
+            "Plane Texuture file" : "assets/Planes/Simple Plain/PlaneTexture.png",
+            "Plane OBJ file" : "assets/Planes/Simple Plain/LowPolyPlane01.obj",
+            "Rotation Along X axis" : 0.0,
+            "Rotation Along Y axis" : 0.0,
+            "Rotation Along Z axis" : 0.0            
+        }
 
+    }
 
 }   

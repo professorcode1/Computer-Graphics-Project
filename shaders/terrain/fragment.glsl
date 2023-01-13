@@ -27,7 +27,7 @@ void main(){
 	vec4 texColor = texture(mountain_tex, v_TexCoord);
 	//vec4 texColor = vec4(116.0 / 255.0,102.0 / 255.0,59.0 / 255.0,1.0);
 	
-	texColor = texColor * intensity;
+	// texColor = texColor * intensity;
 	applyExponentialFog(texColor, camera_dist);
 	color = texColor;
 }
