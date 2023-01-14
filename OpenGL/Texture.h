@@ -23,7 +23,7 @@ public:
     ~Texture();
 
     void Bind(unsigned int slot = 0 ) const ;
-    void Bind(unsigned int slot = 0, uint32_t texture_type = GL_TEXTURE_CUBE_MAP ) const ;
+    void Bind(unsigned int slot, uint32_t texture_type ) const ;
     void Unbind() const ;
 
     inline int GetWidth() const { return m_Width; }

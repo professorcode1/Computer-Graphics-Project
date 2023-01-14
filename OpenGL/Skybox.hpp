@@ -12,7 +12,6 @@ private:
     Shader shader;
     VertexArray vao;
     VertexBuffer *vbo;  
-    IndexBuffer *ibo;  
 public:
     Skybox(
         const std::vector<std::string> &images_name = {
