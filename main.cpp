@@ -84,6 +84,7 @@ int main()
 
 	Trees trees(
 		tressParameter.at("tress per division"),tressParameter.at("tress scale"),
+		tressParameter.at("align with normals"),
 		terain, sun_direction,fog_densty
 		);
 	auto start = std::chrono::system_clock::now();
@@ -96,21 +97,21 @@ int main()
 		glm::mat4 VP;
 		glm::vec3 camera_pos;
 		std::tie(VP, camera_pos) = plane.get_MVP_Matrix( FOV, NearPlane, FarPlane, screenRatio );
+		plane.catchInputs(window);
 		
 		terain.render(VP, camera_pos);
-
+		
 		trees.render(VP, camera_pos);
 
-		plane.catchInputs(window);
 		plane.render(VP);
-
-
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		end = std::chrono::system_clock::now();
-		float elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-		printf("Frame Rate :: %.1f fps\n", (1000000.0 / elapsed));
+		if(false){
+			float elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+			printf("Frame Rate :: %.1f fps\n", (1000000.0 / elapsed));
+		}
 	}
 
 	glfwDestroyWindow(window);

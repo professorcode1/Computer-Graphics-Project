@@ -4,8 +4,9 @@
     "sky color RGB" : [135,206,235],
     "fog density" : 0.00025,
     "terrain parameters":{
-        "divisions" : 100,
+        "divisions" : 1000, 
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
+        "wave numbers active " : [0, 1],
         "rotation angle fractal ground" : 36.87,
         "output_increase_fctr_" : 2.0,
         "input_shrink_fctr_": 3.0,
@@ -14,20 +15,20 @@
         "min_z":-50.0,
         "max_z": 50.0,
         "lacunarity" : 2.0,
-        "persistance" : 1.1,
+        "persistance" : 3.1,
         "write normals" : false,
         "write to file" : false,
-        "noise texture file" : "assets/Ground Textures/grass.jpg",
-        "Mountain Scale Factor" : 200
+        "noise texture file" : "assets/Ground Textures/soil.jpg",
+        "Mountain Scale Factor" : 100
     },
     "plane parameters":{
         "plane":"eleven",
         "plane position" : [10,50 ,10],
         "Camera Beind Distance" : 40.0,
-        "Camera Up Distance" : 35.0,
-        "Camera ViewPoint Distance" : 10,
-        "Plane Scale" : 1.0 ,
-        "Plane Speed" : 5      
+        "Camera Up Distance" : 3.50,
+        "Camera ViewPoint Distance" : 1.0,
+        "Plane Scale" : 0.50 ,
+        "Plane Speed" : 10      
     },
     "camera":{
         "FOV": 45.0,
@@ -35,8 +36,9 @@
         "Far Plane" : 10000.0
     },
     "tress parameters":{
-        "tress per division" : 2000,
-        "tress scale" : 50.0
+        "tress per division" : 100,
+        "tress scale" : 50.0,
+        "align with normals" : false
     },
     "sun parameters":{
         "direction vector":[ -0.624695 , 0.468521 , -0.624695 ]

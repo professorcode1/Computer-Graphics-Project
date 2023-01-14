@@ -38,7 +38,9 @@ void TreeSpecie::render() const {
 }
 
 Tree::Tree(
-    const glm::vec3 &position, const float scaling_factor,
+    const glm::vec3 &position, const glm::vec3 &normal, 
+    const bool rotate_to_normal,
+    const float scaling_factor,
     TreeSpecie const * const specie, const uint32_t texture_slot
 ):
     specie_m{specie},
@@ -50,6 +52,11 @@ Tree::Tree(
         );
 
     this->model_matrix_m = glm::rotate(this->model_matrix_m, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+    if(rotate_to_normal){
+        const glm::vec3 rotation_vector = glm::cross(normal, glm::vec3(0.0, 1.0, 0.0));
+        const float rotation_angle = glm::acos(normal.y / glm::length(normal));
+        this->model_matrix_m = glm::rotate(this->model_matrix_m, rotation_angle, rotation_vector);
+    }
 }
 
 void Tree::render()const {
@@ -60,6 +67,7 @@ void Tree::render()const {
 Trees::Trees(
     unsigned int Trees_per_division,
     const int tree_scale,
+    const bool align_with_normal,
     const Terrain &terain,
     const glm::vec3 &sun_dir,
     const float fog_density,
@@ -95,43 +103,49 @@ Trees::Trees(
         float tree_per_division_f = static_cast<float>(Trees_per_division);
         int tree_per_division_sqrt = ceil(sqrt(tree_per_division_f));
         Trees_per_division = tree_per_division_sqrt * tree_per_division_sqrt;
-        float x_min, z_min;
-        float x_max, z_max;
-        std::tie(x_min, x_max, z_min, z_max) = terain.get_dimentions();
         int divisions = terain.get_divisions();
-        float x_dim = x_max - x_min;
-        float z_dim = z_max - z_min;
-        float x_stride = x_dim / tree_per_division_sqrt;
-        float z_stride = z_dim / tree_per_division_sqrt;
-        glm::vec3 *tree_positions_cpu = new glm::vec3[Trees_per_division];
+        glm::vec3 *tree_positions_cpu = new glm::vec3[ 2 * Trees_per_division ];
+        int tree_per_divison_per_axis = divisions / tree_per_division_sqrt;
+        // std::cout<<tree_per_divison_per_axis<<std::endl;
         for(int row_tree_index = 0; row_tree_index < tree_per_division_sqrt ; row_tree_index++){
             for(int col_tree_index = 0; col_tree_index < tree_per_division_sqrt ; col_tree_index++){
-                float x_loc = x_min + x_stride * (row_tree_index + Randomness::Random_t::Random.rand());
-                float z_loc = z_min + z_stride * (col_tree_index + Randomness::Random_t::Random.rand());
+                float row = row_tree_index * tree_per_divison_per_axis + Randomness::Random_t::Random.rand( tree_per_divison_per_axis);
+                float col = col_tree_index * tree_per_divison_per_axis + Randomness::Random_t::Random.rand( tree_per_divison_per_axis);
+                // std::cout<<row<<" "<<col<<std::endl;
                 int row_major_index = col_tree_index + row_tree_index * tree_per_division_sqrt;
-                tree_positions_cpu[row_major_index] = glm::vec3(x_loc, 0, z_loc);
+                tree_positions_cpu[ 2 * row_major_index ] = glm::vec3(row, 0, col);
             }
         }
         unsigned int tree_positions_gpu;
         GLCall(glCreateBuffers(1, &tree_positions_gpu));
-        GLCall(glNamedBufferData(tree_positions_gpu, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu, GL_STATIC_DRAW));
+        GLCall(glNamedBufferData(tree_positions_gpu, Trees_per_division * 2 * sizeof(glm::vec3) , tree_positions_cpu, GL_STATIC_DRAW));
         height_extractor.Bind();
-        height_extractor.SetUniform1f("min_x", x_min);
-        height_extractor.SetUniform1f("max_x", x_max);
-        height_extractor.SetUniform1f("min_z", z_min);
-        height_extractor.SetUniform1f("max_z", z_max);
         height_extractor.SetUniform1i("number_of_divs", divisions);
         height_extractor.SetUniform1i("number_of_trees_sqrt", tree_per_division_sqrt);
         height_extractor.bindSSOBuffer(0, terain.get_terrain_ssbo_buffer_id());
         height_extractor.bindSSOBuffer(1, tree_positions_gpu);
         height_extractor.launch_and_Sync( ceil((float)tree_per_division_sqrt/8), ceil((float)tree_per_division_sqrt/8) , 1);
-        GLCall(glGetNamedBufferSubData(tree_positions_gpu, 0, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu));
+        GLCall(glGetNamedBufferSubData(tree_positions_gpu, 0, Trees_per_division * 2 * sizeof(glm::vec3) , tree_positions_cpu));
         GLCall(glDeleteBuffers(1, &tree_positions_gpu));
         
         for(uint32_t tree_index=0; tree_index<Trees_per_division ; tree_index++){
             int specie_index = Randomness::Random_t::Random.rand(number_of_species);
             uint32_t texture_index = binding_slot_start + Randomness::Random_t::Random.rand(number_of_textures);
-            this->trees.emplace_back(tree_positions_cpu[tree_index], tree_scale, &this->Species.at(specie_index), texture_index);
+            this->trees.emplace_back(
+                tree_positions_cpu[ 2 * tree_index ], 
+                tree_positions_cpu[ 2 * tree_index + 1 ], 
+                align_with_normal,
+                tree_scale, 
+                &this->Species.at(specie_index), 
+                texture_index
+                );
+            if(false){
+                std::cout <<
+                tree_positions_cpu[tree_index].x << " "<<
+                tree_positions_cpu[tree_index].y << " "<<
+                tree_positions_cpu[tree_index].z << " "<<
+                std::endl;
+            }
         }
         delete[] tree_positions_cpu;
     }

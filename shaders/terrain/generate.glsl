@@ -48,6 +48,26 @@ float noise( vec3 x )
                mix(mix( hash(n+113.0), hash(n+114.0),f.x),
                    mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
 }
+
+float generate_terrain(in float x, in float z){
+    float res = 0;
+    for(int iter_i = 0 ; iter_i < 32 ; iter_i++){
+        if( (ActiveWaveFreqsGround & (1 << iter_i)) != 0){
+            float freq = pow(lacunarity, iter_i);
+            float amp = pow(persistance, iter_i);
+            float u = freq * ( cos( rotation_Angle * iter_i ) * x - sin( rotation_Angle * iter_i ) * z );
+            float v = freq * ( sin( rotation_Angle * iter_i ) * x + cos( rotation_Angle * iter_i ) * z );
+            float noise_ = noise( vec3( u , 0 , v ) );
+            res += noise_ / amp;
+        }
+    }
+    return res;
+}
+
+float generate_terrain(in vec3 vector){
+    return generate_terrain(vector.x, vector.z);
+}
+
 int row = int(gl_GlobalInvocationID.x);
 int col = int(gl_GlobalInvocationID.y);
 float epsilon = 0.001;
@@ -66,8 +86,12 @@ void main(){
         vertex_container_object.vertices[index].posy = 0 ;
         vertex_container_object.vertices[index].posz = z ;
 
-        vec3 input_ = vec3(vertex_container_object.vertices[index].posx, vertex_container_object.vertices[index].posy, vertex_container_object.vertices[index].posz) / input_shrink_fctr;
-        float noise_output = noise(input_);
+        vec3 input_ = vec3(
+            vertex_container_object.vertices[index].posx / input_shrink_fctr,
+            0,
+            vertex_container_object.vertices[index].posz / input_shrink_fctr
+        );
+        float noise_output = generate_terrain( input_.x, input_.z );
         vertex_container_object.vertices[index].posy = noise_output * output_increase_fctr ;
         vec4 pos;
         pos.x = vertex_container_object.vertices[index].posx;
@@ -83,11 +107,11 @@ void main(){
         
         vec3 normal;
 
-        normal.x = ( noise( input_ + vec3( 0 , 0 , epsilon_del_z ) ) - noise_output ) / epsilon_del_z ;
+        normal.x = ( generate_terrain( input_ + vec3( 0 , 0 , epsilon_del_z ) ) - noise_output ) / epsilon_del_z ;
         normal.y = 1 ;
-        normal.z = ( noise( input_ + vec3( epsilon_del_x , 0 , 0 ) ) - noise_output ) / epsilon_del_x ;
-
-        normalize(normal);
+        normal.z = ( generate_terrain( input_ + vec3( epsilon_del_x , 0 , 0 ) ) - noise_output ) / epsilon_del_x ;
+        normal *= output_increase_fctr;
+        normal = normalize(normal);
 
         vertex_container_object.vertices[index].norx = normal.x;
         vertex_container_object.vertices[index].nory = normal.y;

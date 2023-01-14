@@ -122,3 +122,7 @@ int Terrain::get_divisions() const{
 unsigned int Terrain::get_terrain_ssbo_buffer_id() const{
 	return this->VBO;
 }
+
+float Terrain::get_Mountain_Scale() const{
+	return this->mountain_scale_factor_m;
+}

@@ -51,4 +51,6 @@ class Terrain{
     int get_divisions() const;
 
     unsigned int get_terrain_ssbo_buffer_id() const;
+
+    float get_Mountain_Scale() const;
 };

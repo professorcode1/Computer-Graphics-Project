@@ -3,7 +3,7 @@
 layout(location = 0) out vec4 color;
 
 const vec4 fog_color = vec4(169.0 / 255.0, 169.0 / 255.0, 169.0 / 255.0, 0); //grey
-
+const vec4 dirt_color = vec4(52.0 / 255.0, 40.0 / 255.0, 23.0 / 255.0, 0.0);
 uniform sampler2D mountain_tex;
 
 uniform float fog_density;
@@ -24,10 +24,10 @@ void applyExponentialFog(inout vec4 original_color, float view_distance){
 
 
 void main(){
-	vec4 texColor = texture(mountain_tex, v_TexCoord);
-	//vec4 texColor = vec4(116.0 / 255.0,102.0 / 255.0,59.0 / 255.0,1.0);
-	
-	// texColor = texColor * intensity;
+	// vec4 texColor = texture(mountain_tex, v_TexCoord);
+	vec4 texColor = dirt_color;
+		
+	texColor = texColor * intensity;
 	applyExponentialFog(texColor, camera_dist);
 	color = texColor;
 }

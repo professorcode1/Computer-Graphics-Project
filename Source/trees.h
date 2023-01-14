@@ -39,7 +39,11 @@ private:
     void render()const ;
 
 public:
-    Tree(const glm::vec3 &position, const float scaling_factor,TreeSpecie const * const specie, const uint32_t texture_slot);
+    Tree(
+        const glm::vec3 &position,const glm::vec3 &normal,
+        const bool rotate_to_normal, const float scaling_factor,
+        TreeSpecie const * const specie, const uint32_t texture_slot
+        );
 
     friend class Trees;
 };
@@ -57,6 +61,7 @@ public:
     Trees(
         const unsigned int Trees_per_division,
         const int tree_scale,
+        const bool align_with_normal,
         const Terrain &terain,
         const glm::vec3 &sun_dir,
         const float fog_density,
