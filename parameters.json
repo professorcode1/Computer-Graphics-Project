@@ -8,12 +8,12 @@
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
         "wave numbers active " : [0, 1],
         "rotation angle fractal ground" : 36.87,
-        "output_increase_fctr_" : 2.0,
+        "output_increase_fctr_" : 3.0,
         "input_shrink_fctr_": 3.0,
-        "min_x":-50.0,
-        "max_x": 50.0,
-        "min_z":-50.0,
-        "max_z": 50.0,
+        "min_x":-10.0,
+        "max_x": 10.0,
+        "min_z":-10.0,
+        "max_z": 10.0,
         "lacunarity" : 2.0,
         "persistance" : 3.1,
         "write normals" : false,
@@ -28,7 +28,7 @@
         "Camera Up Distance" : 3.50,
         "Camera ViewPoint Distance" : 1.0,
         "Plane Scale" : 0.50 ,
-        "Plane Speed" : 10      
+        "Plane Speed" : 2      
     },
     "camera":{
         "FOV": 45.0,
@@ -36,8 +36,8 @@
         "Far Plane" : 10000.0
     },
     "tress parameters":{
-        "tress per division" : 100,
-        "tress scale" : 50.0,
+        "tress per division" : 1000,
+        "tress scale" : 5.0,
         "align with normals" : false
     },
     "sun parameters":{

@@ -24,8 +24,8 @@ void applyExponentialFog(inout vec4 original_color, float view_distance){
 
 
 void main(){
-	// vec4 texColor = texture(mountain_tex, v_TexCoord);
-	vec4 texColor = dirt_color;
+	vec4 texColor = texture(mountain_tex, v_TexCoord);
+	// vec4 texColor = dirt_color;
 		
 	texColor = texColor * intensity;
 	applyExponentialFog(texColor, camera_dist);

@@ -38,7 +38,7 @@ class Plane{
 
         void catchInputs(GLFWwindow* window);
         
-        std::tuple<glm::mat4,glm::vec3> get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane ,float aspect);
+        std::tuple<glm::mat4,glm::vec3> get_MVP_Matrix();
         
         Plane(
         const std::string& modelObjFile, const std::string &texFile,

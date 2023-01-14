@@ -141,9 +141,9 @@ Trees::Trees(
                 );
             if(false){
                 std::cout <<
-                tree_positions_cpu[tree_index].x << " "<<
-                tree_positions_cpu[tree_index].y << " "<<
-                tree_positions_cpu[tree_index].z << " "<<
+                tree_positions_cpu[ 2 * tree_index ].x << " "<<
+                tree_positions_cpu[ 2 * tree_index ].y << " "<<
+                tree_positions_cpu[ 2 * tree_index ].z << " "<<
                 std::endl;
             }
         }

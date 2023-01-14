@@ -1,6 +1,9 @@
 #include "Texture.h"
 #include <GL/gl.h>
 #include "stb_image.h"
+
+
+
 Texture::Texture(const std::string& path) : m_FilePath(path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_BPP(0){
     stbi_set_flip_vertically_on_load(1);
     m_LocalBuffer = stbi_load(path.c_str(), &m_Width, &m_Height, &m_BPP, 4);
@@ -20,6 +23,38 @@ Texture::Texture(const std::string& path) : m_FilePath(path), m_LocalBuffer(null
         stbi_image_free(m_LocalBuffer);
 
 }
+
+
+Texture::Texture(const std::vector<std::string>& paths){
+    GLCall(glGenTextures(1, &m_RendererID));
+    GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID));
+
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < paths.size(); i++)
+    {
+        unsigned char *data = stbi_load(paths[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            std::cout<<width <<" "<<height<<std::endl;
+            GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+                         0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            ));
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cout << "Cubemap tex failed to load at path: " << paths[i] << std::endl;
+            assert(false);
+            stbi_image_free(data);
+        }
+    }
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+}
+
 Texture::Texture(Texture &&other) noexcept:
     m_FilePath{move(other.m_FilePath)}
 {
@@ -43,6 +78,13 @@ void Texture::Bind(unsigned int slot) const {
     GLCall(glActiveTexture(GL_TEXTURE0 + slot));
     GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 }
+
+
+void Texture::Bind(unsigned int slot, uint32_t texture_type) const {
+    GLCall(glActiveTexture(GL_TEXTURE0 + slot));
+    GLCall(glBindTexture(texture_type, m_RendererID));
+}
+
 void Texture::Unbind() const {
     GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 }

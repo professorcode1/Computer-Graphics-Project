@@ -22,9 +22,9 @@ layout ( std430, binding = 1 ) buffer Positions {Position positions[] ;} tree_po
 int row = int(gl_GlobalInvocationID.x);
 int col = int(gl_GlobalInvocationID.y);
 void main(){
-    if(row >= number_of_trees_sqrt || col >= number_of_trees_sqrt)
+    if(row > number_of_trees_sqrt || col > number_of_trees_sqrt)
         return ;
-    int index = 2 * (col + row * number_of_trees_sqrt);
+    int index = col + row * number_of_trees_sqrt;
     int div_row_to_sample = int(tree_position_container_object.positions[index].x) ;
     int div_col_to_sample = int(tree_position_container_object.positions[index].z) ;
     int terrain_index = div_col_to_sample + div_row_to_sample * ( number_of_divs + 1 );

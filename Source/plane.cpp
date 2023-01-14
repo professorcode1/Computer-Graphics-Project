@@ -46,7 +46,7 @@ Plane::Plane(
 	ibo->Unbind();
 }
 
-std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPlane, float farPlane, float aspect){
+std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(){
 	glm::vec3 orientation( cos(glm::radians(pitch_degree)) * sin(glm::radians(yay_degree)), 
 	sin(glm::radians(pitch_degree)) ,
 	 cos(glm::radians(pitch_degree)) * cos(glm::radians(yay_degree)));
@@ -55,20 +55,9 @@ std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(float FOVdeg, float nearPl
 	const glm::vec3 camera_pos = position +  camera_behind_distant * orientation * -1.0f + 
 		glm::normalize(glm::cross(glm::cross(orientation, Up), orientation)) * camera_up_distance;
 	glm::vec3 camera_dir_vec = glm::normalize(view_position - camera_pos);
-	// Initializes matrices since otherwise they will be the null matrix
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
+	glm::mat4 view = glm::lookAt(camera_pos, camera_pos + glm::normalize(camera_dir_vec), Up);
 
-	// Makes camera look in the right direction from the right position
-	view = glm::lookAt(camera_pos, camera_pos + glm::normalize(camera_dir_vec), Up);
-	// Adds perspective to the scene
-	projection = glm::perspective(glm::radians(FOVdeg), aspect, nearPlane, farPlane);
-
-	// Exports the camera matrix to the Vertex Shader
-	glm::mat4 VP = projection * view;
-	// printf("Camera %s \n", glm::to_string(camera_pos).c_str());
-	// printf("Plane %s \n", glm::to_string(position).c_str());
-	return {VP, camera_pos};	
+	return {view, camera_pos};	
 }
 
 void Plane::render(glm::mat4 viewAndProjection){

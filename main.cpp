@@ -80,6 +80,7 @@ int main()
 		FarPlane = parameter_json.at("camera").at("Far Plane"),
 		screenRatio = (float)SCREEN_WIDTH / SCREEN_HEIGHT
 		;
+	const glm::mat4 projection = glm::perspective(glm::radians(FOV), screenRatio, NearPlane, FarPlane);
 
 
 	Trees trees(
@@ -87,23 +88,27 @@ int main()
 		tressParameter.at("align with normals"),
 		terain, sun_direction,fog_densty
 		);
+	Skybox skybox;
 	auto start = std::chrono::system_clock::now();
 	auto end = std::chrono::system_clock::now();
+
 	while (!glfwWindowShouldClose(window))
 	{	
 		start = end;
+		plane.catchInputs(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 VP;
+		glm::mat4 VP, View;
 		glm::vec3 camera_pos;
-		std::tie(VP, camera_pos) = plane.get_MVP_Matrix( FOV, NearPlane, FarPlane, screenRatio );
-		plane.catchInputs(window);
-		
+		std::tie(View, camera_pos) = plane.get_MVP_Matrix();
+		VP = projection * View ;
 		terain.render(VP, camera_pos);
 		
 		trees.render(VP, camera_pos);
 
 		plane.render(VP);
+
+		skybox.render(View , projection);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

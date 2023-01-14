@@ -19,7 +19,7 @@
 #include "OpenGL/Camera.h"
 #include "OpenGL/VertexBufferLayout.h"
 #include "OpenGL/Texture.h"
-
+#include "OpenGL/Skybox.hpp"
 // #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
