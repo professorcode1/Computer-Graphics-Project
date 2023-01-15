@@ -19,6 +19,9 @@ public:
         float rnd = rand();
         return l + (r-l)*(rand() + 1) / 2;
     }
+    float rand_f(float f){
+        return rand_f(0, f);
+    }
     int rand(int l, int r){
         int diff = r - l;
         int rndm_nmbr = abs(static_cast<int>(rndm_nmbr_gnrt()));

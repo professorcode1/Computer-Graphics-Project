@@ -56,7 +56,7 @@ void Cloud::render() const {
 }
 
 Clouds::Clouds(
-    const unsigned int clouds_per_divison,
+    unsigned int clouds_per_divison,
     const float cloud_scale,
     const Terrain &terrain,
     const glm::vec3 &sun_dir,
@@ -79,12 +79,21 @@ sun_dir_m{sun_dir}
     const int number_of_cloud_types = this->cloud_type.size();
 	float min_x, min_z, max_x, max_z;
 	std::tie(min_x, max_x, min_z, max_z) = terrain.get_corners();
-	for(int iter_i=0 ; iter_i < clouds_per_divison ; iter_i++){
-		float x = Randomness::Random_t::Random.rand_f( min_x , max_x );
-		float z = Randomness::Random_t::Random.rand_f( min_z , max_z );
+
+
+
+    float clouds_per_division_f = static_cast<float>(clouds_per_divison);
+    int clouds_per_division_sqrt = ceil(sqrt(clouds_per_division_f));
+    clouds_per_divison = clouds_per_division_sqrt * clouds_per_division_sqrt;
+    const float dist_per_div_sqrt = (max_z - min_z ) / clouds_per_division_sqrt;
+    for(int row_cloud_index = 0; row_cloud_index < clouds_per_division_sqrt ; row_cloud_index++ ){
+        for(int col_cloud_index = 0 ; col_cloud_index < clouds_per_division_sqrt ; col_cloud_index++ ){
+		float x = min_x + row_cloud_index * dist_per_div_sqrt + Randomness::Random_t::Random.rand_f(dist_per_div_sqrt);
+		float z = min_z + col_cloud_index * dist_per_div_sqrt + Randomness::Random_t::Random.rand_f(dist_per_div_sqrt);
 		int cloud_type = Randomness::Random_t::Random.rand( this->cloud_type.size() );
 		clouds.emplace_back( glm::vec3(x,height_to_start,z), cloud_scale , &this->cloud_type.at(cloud_type) );
-	}
+        }
+    }
 }
 
 void Clouds::render(const glm::mat4 &ViewProjection)  {

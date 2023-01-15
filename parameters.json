@@ -21,7 +21,7 @@
     "plane parameters":{
         "plane":"eleven",
         "plane position" : [10,50 ,10],
-        "Camera Beind Distance" : 40.0,
+        "Camera Beind Distance" : 20.0,
         "Camera Up Distance" : 3.50,
         "Camera ViewPoint Distance" : 1.0,
         "Plane Scale" : 0.50 ,
@@ -30,11 +30,11 @@
     "cloud parameters":{
         "distance above terrain" : 300,
         "cloud per division" : 100,
-        "scale" : 0.5
+        "scale" : 0.4
     },
     "tress parameters":{
         "tress per division" : 1000,
-        "tress scale" : 25.0,
+        "tress scale" : 20.0,
         "align with normals" : false
     },
     "sun parameters":{
