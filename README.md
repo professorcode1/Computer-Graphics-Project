@@ -4,8 +4,20 @@
 
 <img alt="preview" src="ScreenShots/Game.png" >
 
-To use, git pull this project. In the project folder download and put the glm source code folder as well. Then use the make command. 
+The terrain is generated using Perlin Noise (kind of) and using 3 D perlin noise is used to generate dynamic flow field that change with time. 
 
+To use, git pull this project. 
+Install glfw on your system. After that download glm from github and place the glm library in the /usr/include directory.
+Install make and just use the make command .
+It won't run on windows (sorry :|). A lot of files have their linux names in the source(such as shader file names)
+
+<br><br>
+Thanks to Yan Chernikov for their amazing OpenGL Series
+Thanks to Niels Lohmann for the [JSON C++ Library](https://github.com/nlohmann/json)
+Thanks to Ryo Suzuki for their C++ [Perlin Noise](https://github.com/Reputeless/PerlinNoise)
+Thanks to Ashima Arts for their glsl implementations of [noises](https://github.com/ashima/webgl-noise) 
+
+<br><br>
 Credits for the assets 
 Airplane by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/8VysVKMXN2J)
 
