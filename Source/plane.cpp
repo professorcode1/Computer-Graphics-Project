@@ -7,26 +7,25 @@ Plane::Plane(
     const float rotation_x,const float rotation_y,const float rotation_z, 
 	float camera_behind_distant,float camera_up_distance, 
 	float camera_ViewPoint_distance,float scaling_factor,
-	float speed , const std::string MVP_uniform_name, 
+	float speed ,  float starting_height, 
 	const std::string &texture_UniformName,
-	const std::string& computeFile, const std::string& vertexFile, 
+	const std::string& vertexFile, 
 	const std::string& fragFile
 	):
 	vbo(nullptr), 
 	ibo(nullptr), 
-	collition_detection(computeFile), 
 	shader(vertexFile,fragFile),
 	camera_behind_distant(camera_behind_distant) ,
 	camera_up_distance( camera_up_distance),
 	camera_ViewPoint_distance(camera_ViewPoint_distance),  
 	tex(texFile),
-	MVP_uniform_name(MVP_uniform_name),
 	texture_UniformName(texture_UniformName),
 	scaling_factor(scaling_factor), 
-	speed(speed)
+	speed(speed),
+	position(0,starting_height,0)
 	{
 	VertexBufferLayout vertex_layout_simple;
-	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
+	CREATE_VERTEX_LAYOUT(vertex_layout_simple);
 
 	std::vector<vertex_t> vertices_plane;
 	std::vector<unsigned int> index_buffer_plane; 
@@ -69,7 +68,7 @@ void Plane::render(glm::mat4 viewAndProjection){
 	model = glm::rotate(model, glm::radians(yay_degree  ), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(pitch_degree), glm::vec3(-1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(roll_degree  ), glm::vec3(0.0f, 0.0f, 1.0f));
-    shader.SetUniformMat4f(this->MVP_uniform_name, viewAndProjection * model);
+    shader.SetUniformMat4f("MVP_plane", viewAndProjection * model);
     GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
 	tex.Unbind();
 	shader.Unbind();

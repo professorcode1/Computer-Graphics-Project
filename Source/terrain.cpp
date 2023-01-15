@@ -7,10 +7,10 @@ Terrain::Terrain(
 	float output_increase_fctr_, float input_shrink_fctr_, 
     float lacunarity, float persistance,
 	bool writeToFile,int div, 
-	float min_x,float max_x,
-	float min_z,float max_z, 
+	float length_of_side, 
 	float Mountain_Scale_Factor, 
     const glm::vec3 &sun_direction,
+	glm::vec2 terrain_index,
     const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, 
 	const std::string &fragmentShaderFile
 	):
@@ -18,15 +18,13 @@ Terrain::Terrain(
 	shader(vertexShaderFile, fragmentShaderFile),
 	tex(terrainTextureFile),
 	div_m{div},
-	min_x_m{min_x},
-	max_x_m{max_x},
-	min_z_m{min_z},
-	max_z_m{max_z},
+	length_of_side_m{length_of_side},
 	mountain_scale_factor_m{Mountain_Scale_Factor},
-	sun_dir_m{sun_direction}
+	sun_dir_m{sun_direction},
+	terrain_index_m{terrain_index}
 	{
     VertexBufferLayout vertex_layout_simple;
-	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
+	CREATE_VERTEX_LAYOUT(vertex_layout_simple);
 
     
 	GLCall(glCreateBuffers(1, &this->VBO));
@@ -47,10 +45,7 @@ Terrain::Terrain(
 
 	this->terrain_generator.Bind();
 	this->terrain_generator.SetUniform1i("number_of_divs", div);
-	this->terrain_generator.SetUniform1f("min_x", min_x);
-	this->terrain_generator.SetUniform1f("max_x", max_x);
-	this->terrain_generator.SetUniform1f("min_z", min_z);
-	this->terrain_generator.SetUniform1f("max_z", max_z);
+	this->terrain_generator.SetUniform1f("length_of_side", length_of_side_m);
 	int ActiveWaveFreqsGround = 0;
     for(int freq : ActiveWaveNumber){
         ActiveWaveFreqsGround |= (1 << freq);
@@ -63,6 +58,8 @@ Terrain::Terrain(
 	this->terrain_generator.SetUniform1f("input_shrink_fctr", input_shrink_fctr_);
 	this->terrain_generator.SetUniform1f("lacunarity", lacunarity);
 	this->terrain_generator.SetUniform1f("persistance", persistance);
+	this->terrain_generator.SetUniform1f("length_of_side", length_of_side_m);
+	this->terrain_generator.SetUniform2f("terrain_index", terrain_index_m.x,terrain_index_m.y );
     glm::mat4 mountain_model;
 	mountain_model = glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor));
 	terrain_generator.SetUniformMat4f("MountainModelMatrix", mountain_model);
@@ -106,14 +103,6 @@ void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_po
 		this->shader.Unbind();
 }	
 
-std::tuple<float,float,float,float> Terrain::get_dimentions() const {
-	return std::make_tuple(
-		this->min_x_m * mountain_scale_factor_m, 
-		this->max_x_m * mountain_scale_factor_m, 
-		this->min_z_m * mountain_scale_factor_m,
-		this->max_z_m * mountain_scale_factor_m
-	);
-}
 
 int Terrain::get_divisions() const{
 	return div_m;
@@ -125,4 +114,13 @@ unsigned int Terrain::get_terrain_ssbo_buffer_id() const{
 
 float Terrain::get_Mountain_Scale() const{
 	return this->mountain_scale_factor_m;
+}
+
+std::tuple<float, float, float,float> Terrain::get_corners() const {
+	return std::make_tuple(
+		(this->terrain_index_m.x - 0.5) * this->length_of_side_m * this->mountain_scale_factor_m,
+		(this->terrain_index_m.x + 0.5) * this->length_of_side_m * this->mountain_scale_factor_m,
+		(this->terrain_index_m.y - 0.5) * this->length_of_side_m * this->mountain_scale_factor_m,
+		(this->terrain_index_m.y + 0.5) * this->length_of_side_m * this->mountain_scale_factor_m
+		);
 }

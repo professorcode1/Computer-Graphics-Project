@@ -38,3 +38,27 @@ Grass by hat_my_guy (https://poly.pizza/m/9S0fmIfGPO)
 grass blades by Tiff Eidmann [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/7jaHZEe1exG)
 
 Grass #1 by Tomáš Bayer [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/00rprwmzLKP)
+
+Cumulus Clouds 5 by S. Paul Michael [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/25RmW99gwuv)
+
+Cumulus Clouds 2 by S. Paul Michael [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/5ckRCisrnXh)    
+
+Clouds by Jarlan Perez [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/b3Kia9N2fS2)
+
+Cumuls Clouds 3 by S. Paul Michael [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/3wzu2FRYXUi)
+
+Cloud by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/44cGXp6_8WD)
+
+Cloud by Quaternius (https://poly.pizza/m/KdFNOVn1Gf)
+
+Clouds by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/5vL346OfNST)
+
+Cloud by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/aQl2tRgDupm)
+
+Cloud by Quaternius (https://poly.pizza/m/P1cMV8qtN2)
+
+Cloud by Quaternius (https://poly.pizza/m/pjiBiLJwAl)
+
+Cloud by Quaternius (https://poly.pizza/m/F6DzCxDz6I)
+
+Cloud by jeremy [CC-BY] via Poly Pizza

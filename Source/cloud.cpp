@@ -1,71 +1,97 @@
 #include "cloud.h"
-#include "waveFrontFileApi.h"
 
-Cloud::Cloud( const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, const std::string &fragmentShaderFile ,const VertexBufferLayout &vertex_layout,
-    const std::string &terrainTextureFile,float atmosphere_light_damping_constant, float atmosphere_damping_red_weight,float atmosphere_damping_green_weight,float atmosphere_damping_blue_weight , 
-    const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,float output_increase_fctr_, float input_shrink_fctr_, 
-    float lacunarity, float persistance,bool writeToFile,int div, float min_x,float max_x,float min_z,float max_z, float Mountain_Scale_Factor):
-	terrain_generator(terrainGeneratorShaderFile), 
-	shader(vertexShaderFile, fragmentShaderFile),
-	tex(terrainTextureFile)
-	{
-    
-    
-	glCreateVertexArrays(1, &this->VAO);
-	glCreateBuffers(1, &this->VBO);
-	glCreateBuffers(1, &this->EBO);
-
-    glNamedBufferData(this->VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW);
-	glNamedBufferData(this->EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW);
-
-	this->vertex_buffer = new VertexBuffer(this->VBO);
-	this->index_buffer = new IndexBuffer(this->EBO, div * div * 6);
-	this->shader.Bind();
-	Texture tex(terrainTextureFile);
-	tex.Bind();
-	this->shader.SetUniform1i("mountain_tex", 0); 
-	this->shader.SetUniform1f("atmosphere_light_damping_constant", atmosphere_light_damping_constant); 
-	this->shader.SetUniform4f("atmosphere_light_damping_RGB_Weight", atmosphere_damping_red_weight, atmosphere_damping_green_weight, atmosphere_damping_blue_weight, 1.0); 
-	this->shader.SetUniform1i("mountain_tex", 0);
-	
-	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout);
-
-	this->terrain_generator.Bind();
-	this->terrain_generator.SetUniform1i("number_of_divs", div);
-	this->terrain_generator.SetUniform1f("min_x", min_x);
-	this->terrain_generator.SetUniform1f("max_x", max_x);
-	this->terrain_generator.SetUniform1f("min_z", min_z);
-	this->terrain_generator.SetUniform1f("max_z", max_z);
-	int ActiveWaveFreqsGround = 0;
-    for(int freq : ActiveWaveNumber){
-        ActiveWaveFreqsGround |= (1 << freq);
-	}
-	// std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
-
-	this->terrain_generator.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
-	this->terrain_generator.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
-	this->terrain_generator.SetUniform1f("output_increase_fctr", output_increase_fctr_);
-	this->terrain_generator.SetUniform1f("input_shrink_fctr", input_shrink_fctr_);
-	this->terrain_generator.SetUniform1f("lacunarity", lacunarity);
-	this->terrain_generator.SetUniform1f("persistance", persistance);
-	this->terrain_generator.bindSSOBuffer(0, vertex_buffer->GetRenderedID());
-	this->terrain_generator.bindSSOBuffer(1, index_buffer->GetRenderedID());
-	this->terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/4), 1);
-	this->mountain_model = glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor));
-		
-	if(writeToFile)
-		write_to_file(this->VBO,this->EBO,div);
-	// std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
+CloudType::CloudType(const std::string &assetFile, const VertexBufferLayout &vertex_layout_simple){
+	std::vector<simple_vertex_t> vertices_plane;
+	std::vector<unsigned int> index_buffer_plane; 
+	parse_complex_wavefront(assetFile, vertices_plane, index_buffer_plane);
+	this->vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(simple_vertex_t));
+	this->ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
+    // std::cout<<"vertex buffer size "<<vertices_plane.size()<<std::endl;
+    // std::cout<<"index buffer size "<<index_buffer_plane.size()<<std::endl;
+	this->vao.AddBuffer(*vbo, vertex_layout_simple);
+    this->vao.AddElementBuffer(*ibo);
+    this->vao.Unbind();
+    this->vbo->Unbind();
+    this->ibo->Unbind();
 }
 
-void Cloud::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
-		this->shader.Bind();
-		this->tex.Bind();
-		this->shader.SetUniformMat4f("MVP_mountain", ViewProjection * mountain_model);
-		this->shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
-		this->vertex_array.Bind();
-		this->index_buffer->Bind();
+CloudType::CloudType(CloudType &&other) noexcept :
+    vao{std::move(other.vao)},
+    name{std::move(other.name)}
+{
+    if(&other == this){
+        return ;
+    }
+    this->vbo = other.vbo;
+    this->ibo = other.ibo;
+    other.vbo = nullptr;
+    other.ibo = nullptr;
+}
 
-		GLCall(glDrawElements(GL_TRIANGLES, this->index_buffer->GetCount() , GL_UNSIGNED_INT, nullptr));
+CloudType::~CloudType(){}; //can write this but it exists the lifespan of the program so not really necessary
 
+void CloudType::render() const {
+    vao.Bind();
+    GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
+    this->vao.Unbind();
+    this->ibo->Unbind();
+    this->vbo->Unbind();
+}
+
+Cloud::Cloud(
+    const glm::vec3 &position,
+    const float scaling_factor,
+    CloudType const * const specie
+):specie_m{specie}{
+    // std::cout<<"position "<<position.x<<" "<<position.y<<" "<<position.z<<std::endl;
+	// std::cout<<"scale "<<scaling_factor<<std::endl;
+    this->model_matrix_m = glm::scale(
+        glm::translate(glm::mat4(1.0f), position), 
+        glm::vec3(scaling_factor, scaling_factor, scaling_factor)
+    );
+}
+
+void Cloud::render() const {
+	this->specie_m->render();
+}
+
+Clouds::Clouds(
+    const unsigned int clouds_per_divison,
+    const float cloud_scale,
+    const Terrain &terrain,
+    const glm::vec3 &sun_dir,
+    const float height_to_start,
+    const std::string &cloud_assets_folder, 
+    const std::string &vertex_shader_file,
+    const std::string &fragment_shader_file
+):
+shader( vertex_shader_file, fragment_shader_file ),
+sun_dir_m{sun_dir}
+{
+	VertexBufferLayout vertex_layout_simple;
+	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
+    this->shader.Bind();
+	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
+    for (const auto & tree_asset_file : std::filesystem::directory_iterator(cloud_assets_folder)){
+        this->cloud_type.emplace_back(tree_asset_file.path(), vertex_layout_simple);
+        // break;
+    }
+    const int number_of_cloud_types = this->cloud_type.size();
+	float min_x, min_z, max_x, max_z;
+	std::tie(min_x, max_x, min_z, max_z) = terrain.get_corners();
+	for(int iter_i=0 ; iter_i < clouds_per_divison ; iter_i++){
+		float x = Randomness::Random_t::Random.rand_f( min_x , max_x );
+		float z = Randomness::Random_t::Random.rand_f( min_z , max_z );
+		int cloud_type = Randomness::Random_t::Random.rand( this->cloud_type.size() );
+		clouds.emplace_back( glm::vec3(x,height_to_start,z), cloud_scale , &this->cloud_type.at(cloud_type) );
+	}
+}
+
+void Clouds::render(const glm::mat4 &ViewProjection)  {
+    shader.Bind();
+	shader.SetUniform3f("sun_direction_vector", sun_dir_m.x, sun_dir_m.y, sun_dir_m.z);
+    for(const auto &cloud:this->clouds){
+        shader.SetUniformMat4f("MVPMatrix", ViewProjection * cloud.model_matrix_m );
+        cloud.render();
+    }
 }

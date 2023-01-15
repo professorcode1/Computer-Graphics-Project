@@ -10,16 +10,13 @@
         "rotation angle fractal ground" : 36.87,
         "output_increase_fctr_" : 3.0,
         "input_shrink_fctr_": 3.0,
-        "min_x":-10.0,
-        "max_x": 10.0,
-        "min_z":-10.0,
-        "max_z": 10.0,
+        "length of one side":100.0,
         "lacunarity" : 2.0,
         "persistance" : 3.1,
         "write normals" : false,
         "write to file" : false,
         "noise texture file" : "assets/Ground Textures/soil.jpg",
-        "Mountain Scale Factor" : 100
+        "Mountain Scale Factor" : 50
     },
     "plane parameters":{
         "plane":"eleven",
@@ -30,18 +27,23 @@
         "Plane Scale" : 0.50 ,
         "Plane Speed" : 2      
     },
-    "camera":{
-        "FOV": 45.0,
-        "Near Plane" : 0.1,
-        "Far Plane" : 10000.0
+    "cloud parameters":{
+        "distance above terrain" : 300,
+        "cloud per division" : 100,
+        "scale" : 0.5
     },
     "tress parameters":{
         "tress per division" : 1000,
-        "tress scale" : 5.0,
+        "tress scale" : 25.0,
         "align with normals" : false
     },
     "sun parameters":{
         "direction vector":[ -0.624695 , 0.468521 , -0.624695 ]
+    },
+    "camera":{
+        "FOV": 45.0,
+        "Near Plane" : 0.1,
+        "Far Plane" : 10000.0
     },
     "planes":{
         "second":{

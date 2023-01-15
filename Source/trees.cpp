@@ -17,7 +17,7 @@ TreeSpecie::TreeSpecie(const std::string &assetFile, const VertexBufferLayout &v
 TreeSpecie::TreeSpecie(TreeSpecie &&other) noexcept :
     vao{std::move(other.vao)},
     name{std::move(other.name)}
-    {
+{
     if(&other == this){
         return ;
     }
@@ -68,7 +68,7 @@ Trees::Trees(
     unsigned int Trees_per_division,
     const int tree_scale,
     const bool align_with_normal,
-    const Terrain &terain,
+    const Terrain &terrain,
     const glm::vec3 &sun_dir,
     const float fog_density,
     const std::string &tree_assets_folder, 
@@ -83,7 +83,7 @@ Trees::Trees(
     fog_density_m{fog_density}
 {
     VertexBufferLayout vertex_layout_simple;
-	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
+	CREATE_VERTEX_LAYOUT(vertex_layout_simple);
     this->shader.Bind();
 	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
 	this->shader.SetUniform1f("fog_density", fog_density_m);
@@ -103,7 +103,7 @@ Trees::Trees(
         float tree_per_division_f = static_cast<float>(Trees_per_division);
         int tree_per_division_sqrt = ceil(sqrt(tree_per_division_f));
         Trees_per_division = tree_per_division_sqrt * tree_per_division_sqrt;
-        int divisions = terain.get_divisions();
+        int divisions = terrain.get_divisions();
         glm::vec3 *tree_positions_cpu = new glm::vec3[ 2 * Trees_per_division ];
         int tree_per_divison_per_axis = divisions / tree_per_division_sqrt;
         // std::cout<<tree_per_divison_per_axis<<std::endl;
@@ -122,7 +122,7 @@ Trees::Trees(
         height_extractor.Bind();
         height_extractor.SetUniform1i("number_of_divs", divisions);
         height_extractor.SetUniform1i("number_of_trees_sqrt", tree_per_division_sqrt);
-        height_extractor.bindSSOBuffer(0, terain.get_terrain_ssbo_buffer_id());
+        height_extractor.bindSSOBuffer(0, terrain.get_terrain_ssbo_buffer_id());
         height_extractor.bindSSOBuffer(1, tree_positions_gpu);
         height_extractor.launch_and_Sync( ceil((float)tree_per_division_sqrt/8), ceil((float)tree_per_division_sqrt/8) , 1);
         GLCall(glGetNamedBufferSubData(tree_positions_gpu, 0, Trees_per_division * 2 * sizeof(glm::vec3) , tree_positions_cpu));

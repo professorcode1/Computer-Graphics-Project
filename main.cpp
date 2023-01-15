@@ -40,21 +40,18 @@ int main()
 	json parameter_json;
 	parameter_file >> parameter_json;
 	const json terrainParam = parameter_json.at("terrain parameters");
-	const json planeParam = parameter_json.at("plane parameters");
-	const json planeToUse = parameter_json.at("planes").at(planeParam.at("plane"));
-	const json tressParameter = parameter_json.at("tress parameters");
 	const json sunParameters = parameter_json.at("sun parameters");
 	const std::vector<float> sun_dir_vec = sunParameters.at("direction vector").get<std::vector<float>>();
 	const glm::vec3 sun_direction = glm::vec3(sun_dir_vec.at(0),sun_dir_vec.at(1), sun_dir_vec.at(2)); 
 	const float fog_densty = parameter_json.at("fog density");
-	Terrain terain(
+	Terrain terrain(
 		terrainParam.at("noise texture file"), fog_densty,terrainParam["wave numbers active"], 
 		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
 		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), 
-		terrainParam.at("min_x"), terrainParam.at("max_x"), terrainParam.at("min_z"), terrainParam.at("max_z"), 
-		terrainParam.at("Mountain Scale Factor"), sun_direction
+		terrainParam.at("length of one side"), 
+		terrainParam.at("Mountain Scale Factor"), sun_direction, glm::vec2(0.0, 0.0)
 		);
-
+	const float terrain_max_height = terrainParam.at("output_increase_fctr_").get<float>() * terrainParam.at("Mountain Scale Factor").get<float>();
 	glfwSwapInterval(1);
 
 
@@ -67,13 +64,18 @@ int main()
 	glClearColor( skyColorR / 225.0f, skyColorG / 225.0f, skyColorB / 225.0f, 1.0f );
 	// glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
+
+	const json planeParam = parameter_json.at("plane parameters");
+	const json planeToUse = parameter_json.at("planes").at(planeParam.at("plane"));
+
 	Plane plane( 
 		planeToUse.at("Plane OBJ file"), planeToUse.at("Plane Texuture file"), 
 		planeToUse.at("Rotation Along X axis"),planeToUse.at("Rotation Along Y axis"), 
 		planeToUse.at("Rotation Along Z axis"),
 		planeParam.at("Camera Beind Distance"), planeParam.at("Camera Up Distance"), 
 		planeParam.at("Camera ViewPoint Distance"), planeParam.at("Plane Scale"), 
-		planeParam.at("Plane Speed"));
+		planeParam.at("Plane Speed"),
+		terrain_max_height);
 	float 
 		FOV = parameter_json.at("camera").at("FOV"), 
 		NearPlane = parameter_json.at("camera").at("Near Plane"), 
@@ -82,13 +84,22 @@ int main()
 		;
 	const glm::mat4 projection = glm::perspective(glm::radians(FOV), screenRatio, NearPlane, FarPlane);
 
-
+	const json tressParameter = parameter_json.at("tress parameters");
 	Trees trees(
 		tressParameter.at("tress per division"),tressParameter.at("tress scale"),
 		tressParameter.at("align with normals"),
-		terain, sun_direction,fog_densty
+		terrain, sun_direction,fog_densty
 		);
 	Skybox skybox;
+
+	const json cloudParameters = parameter_json.at("cloud parameters");
+	Clouds clouds(
+		cloudParameters.at("cloud per division").get<uint32_t>(),
+        cloudParameters.at("scale").get<float>(),
+        terrain,
+        sun_direction,
+        terrain_max_height + cloudParameters.at("distance above terrain").get<float>()
+	);
 	auto start = std::chrono::system_clock::now();
 	auto end = std::chrono::system_clock::now();
 
@@ -102,11 +113,14 @@ int main()
 		glm::vec3 camera_pos;
 		std::tie(View, camera_pos) = plane.get_MVP_Matrix();
 		VP = projection * View ;
-		terain.render(VP, camera_pos);
+		terrain.render(VP, camera_pos);
 		
 		trees.render(VP, camera_pos);
 
+		clouds.render(VP);
+
 		plane.render(VP);
+
 
 		skybox.render(View , projection);
 

@@ -62,7 +62,7 @@ public:
         const unsigned int Trees_per_division,
         const int tree_scale,
         const bool align_with_normal,
-        const Terrain &terain,
+        const Terrain &terrain,
         const glm::vec3 &sun_dir,
         const float fog_density,
         const std::string &tree_assets_folder = "assets/Trees/Models Obj", 

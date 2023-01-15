@@ -200,6 +200,11 @@ void ComputeShader::SetUniformMat4f(const std::string &name, const glm::mat4& ma
 	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
 }
 
+void ComputeShader::SetUniform2f(const std::string &name,float v0, float v1){
+	GLCall(glUniform2f(GetUniformLocation(name), v0, v1));
+}
+
+
 
 void ComputeShader::bindSSOBuffer(const int binding_point, const unsigned int buffer_ID){
 	GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_point, buffer_ID));

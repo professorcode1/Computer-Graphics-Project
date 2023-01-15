@@ -143,3 +143,86 @@ void parse_complex_wavefront(const std::string& filename, std::vector<vertex_t> 
 	file.close();
 
 }
+
+static void wavefront_parse_triangle_and_push(
+	std::vector<std::string> &split, std::vector<float> &vertex_buffer,
+	std::vector<float> &normal_buffer,
+	std::vector<simple_vertex_t> &vertices, std::vector< unsigned int> &index_buffer,
+	unsigned int &index_count
+){
+	std::vector<std::string> split_split;
+	simple_vertex_t hlpr_ver;
+	// std::cout<<"line\t"<<line<<std::endl;
+	// std::cout<<split[1]<<'\t' <<split[2]<<'\t'<<split[3]<<'\t'<<std::endl;
+	string_split(split[1], split_split, "/");
+	hlpr_ver.pos[0] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 0);
+	hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
+	hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
+	
+	hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
+	hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
+	hlpr_ver.nor[2] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 2);
+	vertices.push_back(hlpr_ver);
+	index_buffer.push_back(index_count);
+	index_count++;
+	split_split.clear();
+	
+	string_split(split[2], split_split, "/");
+	hlpr_ver.pos[0] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 0);
+	hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
+	hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
+		
+	hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
+	hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
+	hlpr_ver.nor[2] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 2);
+	vertices.push_back(hlpr_ver);
+	index_buffer.push_back(index_count);
+	index_count++;
+	split_split.clear();
+	string_split(split[3], split_split, "/");
+	hlpr_ver.pos[0] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 0);
+	hlpr_ver.pos[1] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 1);
+	hlpr_ver.pos[2] = vertex_buffer.at(3 * (std::stoi(split_split[0]) - 1 ) + 2);
+		
+	hlpr_ver.nor[0] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 0);
+	hlpr_ver.nor[1] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 1);
+	hlpr_ver.nor[2] = normal_buffer.at(3 * (std::stoi(split_split[2]) - 1 ) + 2);
+	vertices.push_back(hlpr_ver);
+	index_buffer.push_back(index_count);
+	index_count++;
+}
+
+
+void parse_complex_wavefront(const std::string& filename, std::vector<simple_vertex_t> &vertices, std::vector< unsigned int> &index_buffer){
+	std::vector<float> vertex_buffer;
+	std::vector<float> normal_buffer;
+	std::string line;
+	std::ifstream file(filename);
+	std::vector<std::string> split;
+	unsigned int index_count = 0;
+	while (getline (file, line)) {
+		// std::cout<<line<<std::endl;
+		split.clear();
+		if(line.size() < 2)
+			continue;
+		string_split(line, split," ");
+		if(split[0] == "v"){
+			vertex_buffer.push_back(std::stof(split[1]));
+			vertex_buffer.push_back(std::stof(split[2]));
+			vertex_buffer.push_back(std::stof(split[3]));
+		}else if(split[0] == "vn"){
+			normal_buffer.push_back(std::stof(split[1]));
+			normal_buffer.push_back(std::stof(split[2]));
+			normal_buffer.push_back(std::stof(split[3]));
+		}else if(split[0] == "f"){
+			for(int i=3 ; i<split.size(); i++){
+				std::vector<std::string> triangle({"f", split.at(1), split.at( i - 1 ), split.at( i )});
+				wavefront_parse_triangle_and_push(
+					triangle, vertex_buffer,  normal_buffer, vertices, index_buffer, index_count);
+			}
+		}
+	}
+	file.close();
+
+}
+

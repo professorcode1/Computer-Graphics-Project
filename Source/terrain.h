@@ -22,12 +22,10 @@ class Terrain{
         Texture tex;
         unsigned int texture_slot_m = 0;
         const int div_m; 
-	    const float min_x_m;
-        const float max_x_m;
-	    const float min_z_m;
-        const float max_z_m;
+	    const float length_of_side_m;
         const float mountain_scale_factor_m;
         const glm::vec3 sun_dir_m;
+        const glm::vec2 terrain_index_m;
     public:
     Terrain( 
         const std::string &terrainTextureFile,float fog_density , 
@@ -35,10 +33,10 @@ class Terrain{
 	    float output_increase_fctr_, float input_shrink_fctr_, 
         float lacunarity, float persistance,
 	    bool writeToFile,int div, 
-	    float min_x,float max_x,
-	    float min_z,float max_z, 
+	    float length_of_side, 
 	    float Mountain_Scale_Factor, 
         const glm::vec3 &sun_direction,
+        glm::vec2 terrain_index,
         const std::string &terrainGeneratorShaderFile = "shaders/terrain/generate.glsl", 
 	    const std::string &vertexShaderFile = "shaders/terrain/vertex.glsl",
 	    const std::string &fragmentShaderFile = "shaders/terrain/fragment.glsl"
@@ -46,9 +44,9 @@ class Terrain{
     ~Terrain();
     void render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos);
 
-    std::tuple<float,float,float,float> get_dimentions() const ;
-
     int get_divisions() const;
+
+    std::tuple<float, float, float,float> get_corners() const ;
 
     unsigned int get_terrain_ssbo_buffer_id() const;
 

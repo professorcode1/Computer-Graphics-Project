@@ -29,3 +29,4 @@ using json = nlohmann::json;
 #include "Source/plane.h"
 #include "Source/terrain.h"
 #include "Source/trees.h"
+#include "Source/cloud.h"

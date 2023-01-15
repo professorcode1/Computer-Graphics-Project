@@ -45,9 +45,8 @@ class Plane{
         const float rotation_x,const float rotation_y,const float rotation_z, 
         float camera_behind_distant,float camera_up_distance, 
         float camera_ViewPoint_distance,float scaling_factor,
-        float speed, 
-        const std::string MVP_uniform_name = "MVP_plane", const std::string &texture_UniformName = "plane_texture",
-        const std::string& computeFile = "shaders/plane/collition.glsl", 
+        float speed, float starting_height,
+        const std::string &texture_UniformName = "plane_texture",
         const std::string& vertexFile = "shaders/plane/vertex.glsl", 
         const std::string& fragFile = "shaders/plane/fragment.glsl"
          );
@@ -55,17 +54,15 @@ class Plane{
         VertexArray vao;
         VertexBuffer* vbo;
         IndexBuffer* ibo;
-        ComputeShader collition_detection;
         Shader shader;
         Texture tex;
         const int texture_BindSlot = 0;
         float scaling_factor;
-        glm::vec3 position = glm::vec3(3,3,3);
+        glm::vec3 position;
         glm::vec3 Up = glm::vec3(0,1,0);
         float yay_degree = 0;
         float pitch_degree = 0;
         float roll_degree = 0;
-        std::string MVP_uniform_name;
         std::string texture_UniformName;
         float speed = 0.10f;
         const float rotation_angle_per_frame_deg = 1.5f;

@@ -15,6 +15,10 @@ public:
     float rand(){
         return (static_cast<float>(static_cast<int32_t>(rndm_nmbr_gnrt())) - min) / (max - min);
     }
+    float rand_f(float l, float r){
+        float rnd = rand();
+        return l + (r-l)*(rand() + 1) / 2;
+    }
     int rand(int l, int r){
         int diff = r - l;
         int rndm_nmbr = abs(static_cast<int>(rndm_nmbr_gnrt()));

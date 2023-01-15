@@ -7,6 +7,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
+/*
+Todo, make a shader base class with protected constructor to abstract out the 
+uniforms and such
+*/
 class Shader{
 private:
     unsigned int m_RendererID;
@@ -50,6 +54,7 @@ class ComputeShader{
 
     void SetUniform4f(const std::string &name,float v0, float v1, float v2, float v3);
     void SetUniform1i(const std::string &name,int v0);
+    void SetUniform2f(const std::string &name,float v0, float v1);
     void SetUniform1f(const std::string &name,float v0);
     void SetUniformMat4f(const std::string &name, const glm::mat4& matrix);
     

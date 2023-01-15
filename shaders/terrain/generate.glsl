@@ -6,10 +6,8 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 
 uniform int number_of_divs;
-uniform float min_x;
-uniform float max_x;
-uniform float min_z;
-uniform float max_z;
+uniform float length_of_side;
+uniform vec2 terrain_index;
 uniform int ActiveWaveFreqsGround;
 uniform float rotation_Angle;
 uniform float output_increase_fctr;
@@ -75,8 +73,10 @@ void main(){
     int index = row * ( number_of_divs + 1 ) + col;
     int indicesIndex = row * number_of_divs + col;
     if(row <= number_of_divs && col <= number_of_divs){
-        float del_x = ( max_x - min_x ) / ( number_of_divs + 1 );
-        float del_z = ( max_z - min_z ) / ( number_of_divs + 1 );
+        float del_x = ( length_of_side ) / ( number_of_divs + 1 );
+        float del_z = ( length_of_side ) / ( number_of_divs + 1 );
+        float min_x = length_of_side * (terrain_index.x - 0.5);
+        float min_z = length_of_side * (terrain_index.y - 0.5);
         float x = min_x  + row * del_x ;
         float z = min_z  + col * del_z;
         float epsilon_del_x = epsilon * del_x;
