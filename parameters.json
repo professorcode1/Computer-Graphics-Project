@@ -10,7 +10,7 @@
         "rotation angle fractal ground" : 36.87,
         "output_increase_fctr_" : 3.0,
         "input_shrink_fctr_": 3.0,
-        "length of one side":100.0,
+        "length of one side":200.0,
         "lacunarity" : 2.0,
         "persistance" : 3.1,
         "write normals" : false,
@@ -24,8 +24,8 @@
         "Camera Beind Distance" : 20.0,
         "Camera Up Distance" : 3.50,
         "Camera ViewPoint Distance" : 1.0,
-        "Plane Scale" : 0.50 ,
-        "Plane Speed" : 2      
+        "Plane Scale" : 0.250 ,
+        "Plane Speed" : 5      
     },
     "cloud parameters":{
         "distance above terrain" : 300,

@@ -9,9 +9,8 @@
 #include <filesystem>
 #include "random.hpp"
 #include "../FOSS_Code/PerlinNoise.hpp"
-
 /*
-TODO: BATCH
+TODO: BATCH, and frustum cull
 */
 class CloudType{
 private:
