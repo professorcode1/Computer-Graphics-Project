@@ -98,15 +98,19 @@ int main()
         cloudParameters.at("scale").get<float>(),
         terrain,
         sun_direction,
-        terrain_max_height + cloudParameters.at("distance above terrain").get<float>()
+        terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
+		cloudParameters.at("input shrink factor"),
+		cloudParameters.at("time shrink factor"),
+		cloudParameters.at("velocity")
 	);
 	auto start = std::chrono::system_clock::now();
 	auto end = std::chrono::system_clock::now();
-
+	int32_t time = 0;
 	while (!glfwWindowShouldClose(window))
 	{	
 		start = end;
 		plane.catchInputs(window);
+		clouds.flow(time++);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 VP, View;
@@ -118,7 +122,6 @@ int main()
 		trees.render(VP, camera_pos);
 
 		clouds.render(VP);
-
 		plane.render(VP);
 
 
@@ -127,7 +130,7 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		end = std::chrono::system_clock::now();
-		if(false){
+		if(true){
 			float elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 			printf("Frame Rate :: %.1f fps\n", (1000000.0 / elapsed));
 		}

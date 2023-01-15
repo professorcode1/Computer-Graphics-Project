@@ -41,14 +41,31 @@ void CloudType::render() const {
 Cloud::Cloud(
     const glm::vec3 &position,
     const float scaling_factor,
+    const float rotation,
     CloudType const * const specie
-):specie_m{specie}{
-    // std::cout<<"position "<<position.x<<" "<<position.y<<" "<<position.z<<std::endl;
-	// std::cout<<"scale "<<scaling_factor<<std::endl;
-    this->model_matrix_m = glm::scale(
-        glm::translate(glm::mat4(1.0f), position), 
-        glm::vec3(scaling_factor, scaling_factor, scaling_factor)
-    );
+):specie_m{specie}, position_m{position}, rotation_m{rotation} , scaling_factor_m{scaling_factor} {}
+
+glm::mat4 Cloud::get_model_matrix() const {
+    glm::mat4 model = glm::translate( glm::mat4(1.0f) , this->position_m );
+    model = glm::scale( model , glm::vec3(scaling_factor_m, scaling_factor_m, scaling_factor_m));
+    model = glm::rotate(model, glm::radians(rotation_m), glm::vec3(0.0f, 1.0f, 0.0f));
+    return model;
+}
+
+void Cloud::flow(
+    const siv::PerlinNoise &perlin, 
+    float input_shrink_factor, 
+    float time_shrink_factor,
+    float velocity,
+    float time
+){
+    double angle = perlin.noise3D_01(
+            this->position_m.x / input_shrink_factor,
+            this->position_m.z / input_shrink_factor,
+            time / time_shrink_factor 
+        ) * glm::pi<double>();
+
+    position_m += velocity * glm::vec3( glm::cos(angle) , 0 , glm::sin(angle) );
 }
 
 void Cloud::render() const {
@@ -61,12 +78,18 @@ Clouds::Clouds(
     const Terrain &terrain,
     const glm::vec3 &sun_dir,
     const float height_to_start,
+    const float input_shrink_factor,
+    const float time_shrink_factor,
+    const float velocity,
     const std::string &cloud_assets_folder, 
     const std::string &vertex_shader_file,
     const std::string &fragment_shader_file
 ):
 shader( vertex_shader_file, fragment_shader_file ),
-sun_dir_m{sun_dir}
+sun_dir_m{sun_dir},
+input_shrink_factor_m{input_shrink_factor},
+time_shrink_factor_m{time_shrink_factor},
+velocity_m{velocity}
 {
 	VertexBufferLayout vertex_layout_simple;
 	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
@@ -91,7 +114,8 @@ sun_dir_m{sun_dir}
 		float x = min_x + row_cloud_index * dist_per_div_sqrt + Randomness::Random_t::Random.rand_f(dist_per_div_sqrt);
 		float z = min_z + col_cloud_index * dist_per_div_sqrt + Randomness::Random_t::Random.rand_f(dist_per_div_sqrt);
 		int cloud_type = Randomness::Random_t::Random.rand( this->cloud_type.size() );
-		clouds.emplace_back( glm::vec3(x,height_to_start,z), cloud_scale , &this->cloud_type.at(cloud_type) );
+        float rotation = Randomness::Random_t::Random.rand_f(360.0);
+		clouds.emplace_back( glm::vec3(x,height_to_start,z), cloud_scale , rotation, &this->cloud_type.at(cloud_type) );
         }
     }
 }
@@ -100,7 +124,19 @@ void Clouds::render(const glm::mat4 &ViewProjection)  {
     shader.Bind();
 	shader.SetUniform3f("sun_direction_vector", sun_dir_m.x, sun_dir_m.y, sun_dir_m.z);
     for(const auto &cloud:this->clouds){
-        shader.SetUniformMat4f("MVPMatrix", ViewProjection * cloud.model_matrix_m );
+        shader.SetUniformMat4f("MVPMatrix", ViewProjection * cloud.get_model_matrix() );
         cloud.render();
+    }
+}
+
+void Clouds::flow(int time){
+    for(auto &cloud:this->clouds){
+        cloud.flow(
+            perlin,
+            input_shrink_factor_m,
+            time_shrink_factor_m,
+            velocity_m,
+            time
+        );
     }
 }

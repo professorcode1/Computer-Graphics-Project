@@ -29,8 +29,11 @@
     },
     "cloud parameters":{
         "distance above terrain" : 300,
-        "cloud per division" : 100,
-        "scale" : 0.4
+        "cloud per division" : 500,
+        "scale" : 0.4,
+        "input shrink factor" : 500.0,
+        "time shrink factor" : 100.0,
+        "velocity" : 1.5
     },
     "tress parameters":{
         "tress per division" : 1000,

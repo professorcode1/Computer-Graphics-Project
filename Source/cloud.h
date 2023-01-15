@@ -8,6 +8,8 @@
 #include "waveFrontFileApi.h"
 #include <filesystem>
 #include "random.hpp"
+#include "../FOSS_Code/PerlinNoise.hpp"
+
 /*
 TODO: BATCH
 */
@@ -30,14 +32,26 @@ public:
 class Cloud{
 private:
     CloudType const * const specie_m;
-    glm::mat4 model_matrix_m;
-
+    glm::vec3 position_m;
+    float rotation_m;
+    float scaling_factor_m;
     void render()const ;
+
+    glm::mat4 get_model_matrix() const ;
+
+    void flow(
+        const siv::PerlinNoise &perlin, 
+        float input_shrink_factor, 
+        float time_shrink_factor,
+        float velocity,
+        float time
+        );
 
 public:
     Cloud(
         const glm::vec3 &position,
         const float scaling_factor,
+        const float rotation,
         CloudType const * const specie
         );
 
@@ -50,6 +64,10 @@ private:
     std::list<Cloud> clouds;
     Shader shader;
     const glm::vec3 sun_dir_m;
+    const siv::PerlinNoise perlin;
+    const float input_shrink_factor_m;
+    const float velocity_m;
+    const float time_shrink_factor_m;
 public:
     Clouds(
         const unsigned int clouds_per_divison,
@@ -57,9 +75,16 @@ public:
         const Terrain &terrain,
         const glm::vec3 &sun_dir,
         const float height_to_start,
+        const float input_shrink_factor,
+        const float time_shrink_factor,
+        const float velocity,
         const std::string &cloud_assets_folder = "assets/cloud", 
         const std::string &vertex_shader_file = "shaders/clouds/vertex.glsl",
         const std::string &fragment_shader_file = "shaders/clouds/fragment.glsl"
     );
     void render(const glm::mat4 &ViewProjection) ;
+
+    void flow(
+            int time
+        );
 };
