@@ -63,7 +63,7 @@ void Cloud::flow(
             this->position_m.x / input_shrink_factor,
             this->position_m.z / input_shrink_factor,
             time / time_shrink_factor 
-        ) * glm::pi<double>();
+        ) * 2 * glm::pi<double>();
 
     position_m += velocity * glm::vec3( glm::cos(angle) , 0 , glm::sin(angle) );
 }

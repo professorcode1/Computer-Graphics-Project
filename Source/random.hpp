@@ -16,7 +16,6 @@ public:
         return (static_cast<float>(static_cast<int32_t>(rndm_nmbr_gnrt())) - min) / (max - min);
     }
     float rand_f(float l, float r){
-        float rnd = rand();
         return l + (r-l)*(rand() + 1) / 2;
     }
     float rand_f(float f){

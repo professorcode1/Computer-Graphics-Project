@@ -8,7 +8,7 @@
 #include "Texture.h"
 class Skybox{
 private:
-    Texture *tex;
+    Texture tex;
     Shader shader;
     VertexArray vao;
     VertexBuffer *vbo;  

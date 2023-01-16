@@ -5,7 +5,8 @@ Skybox::Skybox(
     const std::string &vertex_shader_file,
     const std::string &frgmnt_shader_file
 ):
-shader(vertex_shader_file, frgmnt_shader_file)
+shader(vertex_shader_file, frgmnt_shader_file),
+tex(images_name)
 {
     std::vector<float> skyboxVertices =
         {
@@ -57,7 +58,6 @@ shader(vertex_shader_file, frgmnt_shader_file)
     VertexBufferLayout layout;
     layout.Push<float>(3);
     vao.AddBuffer(*vbo, layout);
-    tex = new Texture(images_name);
 }
 
 void Skybox::render(glm::mat4 view, const glm::mat4 &projecton) {
@@ -69,10 +69,10 @@ void Skybox::render(glm::mat4 view, const glm::mat4 &projecton) {
     shader.SetUniformMat4f("projection", projecton);
     shader.SetUniform1i("skybox", 0);
     vao.Bind();
-    tex->Bind( 0, GL_TEXTURE_CUBE_MAP);        
+    tex.Bind( 0, GL_TEXTURE_CUBE_MAP);        
     glDrawArrays(GL_TRIANGLES, 0, 36);
     vao.Unbind();
-    tex->Unbind();
+    tex.Unbind();
     shader.Unbind();
     glDepthFunc(GL_LESS);
 }
