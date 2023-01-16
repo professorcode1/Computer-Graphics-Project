@@ -7,12 +7,16 @@
 The terrain is generated using Perlin Noise (kind of) and using 3 D perlin noise is used to generate dynamic flow field that change with time. 
 
 To use
+<br>
 git pull this project. 
-Install glfw on your system
+<br>
+Install glfw3 on your system
+<br>
 download glm from github and place the glm library in the /usr/include directory.
+<br>
 Install make and just use the make command.
-
-It won't run on windows (sorry :|). A lot of files their positions relative to the execute hard coded. To use on windows you will have to find the names of all shaders in the code and rename them with forward slashes. The clouds and trees constructor will also have to changed to use forward slash.
+<br><br>
+It won't run on windows (sorry :|). A lot of files have their positions hard coded relative to the executable. To use on windows you will have to find the names of all shaders and assets files and folders in the code and rename them with forward slashes. The clouds and trees constructor will also have to changed to use forward slash. And the `__builtin_trap` defined in the assert macro will have to be changed to something that windows supports.
 
 <br><br>
 Thanks to Yan Chernikov for their amazing OpenGL Series
