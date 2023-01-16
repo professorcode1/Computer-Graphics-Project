@@ -4,7 +4,7 @@
 
 <img alt="preview" src="ScreenShots/Game.png" >
 
-The terrain is generated using Perlin Noise (kind of) and using 3 D perlin noise is used to generate dynamic flow field that change with time. 
+The terrain is generated using Perlin Noise (kind of) and 3 D perlin noise is used to generate dynamic flow field that change with time. 
 
 To use
 <br>
@@ -18,6 +18,7 @@ Install make and just use the make command.
 <br><br>
 It won't run on windows (sorry :|). A lot of files have their positions hard coded relative to the executable. To use on windows you will have to find the names of all shaders and assets files and folders in the code and rename them with forward slashes. The clouds and trees constructor will also have to changed to use forward slash. And the `__builtin_trap` defined in the assert macro will have to be changed to something that windows supports.
 
+<h6>Credits to the creators</h6>
 <br><br>
 Thanks to Yan Chernikov for their amazing OpenGL Series
 <br>
@@ -27,8 +28,7 @@ Thanks to Ryo Suzuki for their C++ [Perlin Noise](https://github.com/Reputeless/
 <br>
 Thanks to Ashima Arts for their glsl implementations of [noises](https://github.com/ashima/webgl-noise) 
 
-<br><br>
-Credits for the assets 
+<h6>Credits for the assets </h6>
 Airplane by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/8VysVKMXN2J)
 
 Airplane by Poly by Google [CC-BY] (https://creativecommons.org/licenses/by/3.0/) via Poly Pizza (https://poly.pizza/m/8ciDd9k8wha)
