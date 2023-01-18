@@ -19,7 +19,7 @@
         "Mountain Scale Factor" : 50
     },
     "plane parameters":{
-        "plane":"two",
+        "plane":"three",
         "Camera Beind Distance" : 20.0,
         "Camera Up Distance" : 3.50,
         "Camera ViewPoint Distance" : 1.0,
@@ -48,28 +48,33 @@
         "Far Plane" : 10000.0
     },
     "planes":{
-        "two":{
-            "Plane Texuture file" : "assets/Planes/Airplane/PUSHILIN_PLANE.png",
-            "Plane OBJ file" : "assets/Planes/Airplane/PUSHILIN_Plane.obj",
+        "one":{
+            "Plane OBJ file" : "assets/Planes/Aeroplane/Plane.obj",
+            "Plane Texuture file" : "assets/Planes/Aeroplane/Color plane map.png",
             "Plane Scale" : 1.0,
-            "Rotation Along X axis" : 0.0,
-            "Rotation Along Y axis" : 0.0,
-            "Rotation Along Z axis" : 0.0
+            "rotation angles":[ 0.0 , 0.0 , 0.0 ],
+            "rotation axises":[ "y" , "z" , "x" ]            
         },
-        "six":{
-            "Plane Texuture file" : "assets/Planes/Simple Plain/PlaneTexture.png",
-            "Plane OBJ file" : "assets/Planes/Dog in plane/model.obj",
-            "Rotation Along X axis" : 0.0,
-            "Rotation Along Y axis" : 0.0,
-            "Rotation Along Z axis" : 0.0
+        "two":{
+            "Plane OBJ file" : "assets/Planes/Airplane/PUSHILIN_Plane.obj",
+            "Plane Texuture file" : "assets/Planes/Airplane/PUSHILIN_PLANE.png",
+            "Plane Scale" : 1.0,
+            "rotation angles":[ -90.0 , -10.0 , 0.0 ],
+            "rotation axises":[ "y" , "z" , "x" ]
         },
-        "eleven":{
-            "Plane Texuture file" : "assets/Planes/Simple Plain/PlaneTexture.png",
+        "three":{
+            "Plane OBJ file" : "assets/Planes/Airplane (1)/Airplane.obj",
+            "Plane Texuture file" : "assets/Planes/Airplane (1)/Airplane Texture.png",
+            "Plane Scale" : 0.0025,
+            "rotation angles":[ 0.0 , 0.0 ,0.0 ],
+            "rotation axises":[ "x" , "y" , "z" ]
+        },
+        "four":{
             "Plane OBJ file" : "assets/Planes/Simple Plain/LowPolyPlane01.obj",
+            "Plane Texuture file" : "assets/Planes/Simple Plain/PlaneTexture.png",
             "Plane Scale" : 0.250,
-            "Rotation Along X axis" : 0.0,
-            "Rotation Along Y axis" : 0.0,
-            "Rotation Along Z axis" : 0.0
+            "rotation angles":[ 0.0 , 0.0 ,0.0 ],
+            "rotation axises":[ "x" , "y" , "z" ]
         }
 
     }

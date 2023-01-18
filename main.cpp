@@ -70,12 +70,13 @@ int main()
 
 	Plane plane( 
 		planeToUse.at("Plane OBJ file"), planeToUse.at("Plane Texuture file"), 
-		planeToUse.at("Rotation Along X axis"),planeToUse.at("Rotation Along Y axis"), 
-		planeToUse.at("Rotation Along Z axis"),
 		planeParam.at("Camera Beind Distance"), planeParam.at("Camera Up Distance"), 
 		planeParam.at("Camera ViewPoint Distance"), planeToUse.at("Plane Scale"), 
 		planeParam.at("Plane Speed"),
-		terrain_max_height);
+		terrain_max_height,
+		planeToUse.at("rotation angles").get<std::vector<float> >(),
+		planeToUse.at("rotation axises").get<std::vector<std::string> >()
+	);
 	float 
 		FOV = parameter_json.at("camera").at("FOV"), 
 		NearPlane = parameter_json.at("camera").at("Near Plane"), 
@@ -131,7 +132,7 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		end = std::chrono::system_clock::now();
-		if(true){
+		if(false){
 			float elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 			printf("Frame Rate :: %.1f fps\n", (1000000.0 / elapsed));
 		}

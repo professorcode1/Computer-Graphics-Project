@@ -43,10 +43,11 @@ class Plane{
         
         Plane(
         const std::string& modelObjFile, const std::string &texFile,
-        const float rotation_x,const float rotation_y,const float rotation_z, 
         float camera_behind_distant,float camera_up_distance, 
         float camera_ViewPoint_distance,float scaling_factor,
         float speed, float starting_height,
+        const std::vector<float> &rotation_angles,
+        const std::vector<std::string> &rotation_axises,
         const std::string &texture_UniformName = "plane_texture",
         const std::string& vertexFile = "shaders/plane/vertex.glsl", 
         const std::string& fragFile = "shaders/plane/fragment.glsl"

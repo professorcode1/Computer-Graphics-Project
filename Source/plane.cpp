@@ -4,10 +4,11 @@
 Plane::Plane(
 	const std::string& modelObjFile,
 	const std::string &texFile,
-    const float rotation_x,const float rotation_y,const float rotation_z, 
 	float camera_behind_distant,float camera_up_distance, 
 	float camera_ViewPoint_distance,float scaling_factor,
 	float speed ,  float starting_height, 
+	const std::vector<float> &rotation_angles,
+    const std::vector<std::string> &rotation_axises,
 	const std::string &texture_UniformName,
 	const std::string& vertexFile, 
 	const std::string& fragFile
@@ -30,6 +31,7 @@ Plane::Plane(
 	std::vector<vertex_t> vertices_plane;
 	std::vector<unsigned int> index_buffer_plane; 
 	parse_complex_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
+	rotate_mesh_inplace(vertices_plane, rotation_angles, rotation_axises);
 	vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
 	ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
 	vao.AddBuffer(*vbo, vertex_layout_simple);
