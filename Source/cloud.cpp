@@ -57,6 +57,7 @@ void Cloud::flow(
     float input_shrink_factor, 
     float time_shrink_factor,
     float velocity,
+    float angular_velocty,
     float time
 ){
     double angle = perlin.noise3D_01(
@@ -66,6 +67,9 @@ void Cloud::flow(
         ) * 2 * glm::pi<double>();
 
     position_m += velocity * glm::vec3( glm::cos(angle) , 0 , glm::sin(angle) );
+    rotation_m += perlin.noise1D(
+            time / time_shrink_factor 
+        ) * angular_velocty;
 }
 
 void Cloud::render() const {
@@ -81,6 +85,7 @@ Clouds::Clouds(
     const float input_shrink_factor,
     const float time_shrink_factor,
     const float velocity,
+    const float angular_velocty,
     const std::string &cloud_assets_folder, 
     const std::string &vertex_shader_file,
     const std::string &fragment_shader_file
@@ -89,7 +94,8 @@ shader( vertex_shader_file, fragment_shader_file ),
 sun_dir_m{sun_dir},
 input_shrink_factor_m{input_shrink_factor},
 time_shrink_factor_m{time_shrink_factor},
-velocity_m{velocity}
+velocity_m{velocity},
+angular_velocty_m{angular_velocty}
 {
 	VertexBufferLayout vertex_layout_simple;
 	CREATE_SIMPLE_VERTEX_LAYOUT(vertex_layout_simple);
@@ -136,6 +142,7 @@ void Clouds::flow(int time){
             input_shrink_factor_m,
             time_shrink_factor_m,
             velocity_m,
+            angular_velocty_m,
             time
         );
     }

@@ -8,6 +8,7 @@
 #include "../OpenGL/VertexBufferLayout.h"
 #include "vertex_index_layout.h"
 #include "waveFrontFileApi.h"
+#include "meshTransform.h"
 #include <cstddef>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>

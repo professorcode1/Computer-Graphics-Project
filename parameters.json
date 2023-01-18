@@ -19,12 +19,10 @@
         "Mountain Scale Factor" : 50
     },
     "plane parameters":{
-        "plane":"eleven",
-        "plane position" : [10,50 ,10],
+        "plane":"two",
         "Camera Beind Distance" : 20.0,
         "Camera Up Distance" : 3.50,
         "Camera ViewPoint Distance" : 1.0,
-        "Plane Scale" : 0.250 ,
         "Plane Speed" : 5      
     },
     "cloud parameters":{
@@ -32,8 +30,9 @@
         "cloud per division" : 500,
         "scale" : 0.4,
         "input shrink factor" : 500.0,
-        "time shrink factor" : 100.0,
-        "velocity" : 1.5
+        "time shrink factor" : 600.0,
+        "velocity" : 0.15,
+        "rotational velocity degree" : 0.10
     },
     "tress parameters":{
         "tress per division" : 1000,
@@ -49,9 +48,10 @@
         "Far Plane" : 10000.0
     },
     "planes":{
-        "second":{
+        "two":{
             "Plane Texuture file" : "assets/Planes/Airplane/PUSHILIN_PLANE.png",
             "Plane OBJ file" : "assets/Planes/Airplane/PUSHILIN_Plane.obj",
+            "Plane Scale" : 1.0,
             "Rotation Along X axis" : 0.0,
             "Rotation Along Y axis" : 0.0,
             "Rotation Along Z axis" : 0.0
@@ -66,9 +66,10 @@
         "eleven":{
             "Plane Texuture file" : "assets/Planes/Simple Plain/PlaneTexture.png",
             "Plane OBJ file" : "assets/Planes/Simple Plain/LowPolyPlane01.obj",
+            "Plane Scale" : 0.250,
             "Rotation Along X axis" : 0.0,
             "Rotation Along Y axis" : 0.0,
-            "Rotation Along Z axis" : 0.0            
+            "Rotation Along Z axis" : 0.0
         }
 
     }

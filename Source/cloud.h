@@ -43,6 +43,7 @@ private:
         float input_shrink_factor, 
         float time_shrink_factor,
         float velocity,
+        float angular_velocty,
         float time
         );
 
@@ -66,6 +67,7 @@ private:
     const siv::PerlinNoise perlin;
     const float input_shrink_factor_m;
     const float velocity_m;
+    const float angular_velocty_m;
     const float time_shrink_factor_m;
 public:
     Clouds(
@@ -77,6 +79,7 @@ public:
         const float input_shrink_factor,
         const float time_shrink_factor,
         const float velocity,
+        const float angular_velocty,
         const std::string &cloud_assets_folder = "assets/cloud", 
         const std::string &vertex_shader_file = "shaders/clouds/vertex.glsl",
         const std::string &fragment_shader_file = "shaders/clouds/fragment.glsl"

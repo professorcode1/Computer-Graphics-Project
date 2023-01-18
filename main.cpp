@@ -73,7 +73,7 @@ int main()
 		planeToUse.at("Rotation Along X axis"),planeToUse.at("Rotation Along Y axis"), 
 		planeToUse.at("Rotation Along Z axis"),
 		planeParam.at("Camera Beind Distance"), planeParam.at("Camera Up Distance"), 
-		planeParam.at("Camera ViewPoint Distance"), planeParam.at("Plane Scale"), 
+		planeParam.at("Camera ViewPoint Distance"), planeToUse.at("Plane Scale"), 
 		planeParam.at("Plane Speed"),
 		terrain_max_height);
 	float 
@@ -101,7 +101,8 @@ int main()
         terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
 		cloudParameters.at("input shrink factor"),
 		cloudParameters.at("time shrink factor"),
-		cloudParameters.at("velocity")
+		cloudParameters.at("velocity"),
+		cloudParameters.at("rotational velocity degree")
 	);
 	auto start = std::chrono::system_clock::now();
 	auto end = std::chrono::system_clock::now();
