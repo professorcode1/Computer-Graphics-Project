@@ -19,8 +19,12 @@ Texture::Texture(const std::string& path) : m_FilePath(path), m_LocalBuffer(null
     GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer));
     GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 
+    // std::cout<<path.c_str()<<m_RendererID<<std::endl;
     if (m_LocalBuffer)
         stbi_image_free(m_LocalBuffer);
+    else{
+        std::cout<<"unable to load image for "<<m_FilePath<<std::endl;
+    }
 
 }
 
@@ -71,12 +75,13 @@ Texture::Texture(Texture &&other) noexcept:
 
 
 Texture::~Texture(){
-    // std::cout<<"Deleting Texture \t"<<this->m_FilePath<<std::endl;
+    // std::cout<<"Deleting Texture \t"<<this->m_FilePath<<this->m_RendererID<<std::endl;
     GLCall(glDeleteTextures(1, &m_RendererID));
 }
 
 void Texture::Bind(unsigned int slot) const {
     GLCall(glActiveTexture(GL_TEXTURE0 + slot));
+    // std::cout<<"m_RendererID"<<m_RendererID<<std::endl;
     GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 }
 

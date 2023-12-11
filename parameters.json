@@ -68,13 +68,6 @@
             "Plane Scale" : 0.0025,
             "rotation angles":[ 0.0 , 0.0 ,0.0 ],
             "rotation axises":[ "x" , "y" , "z" ]
-        },
-        "four":{
-            "Plane OBJ file" : "assets/Planes/Simple Plain/LowPolyPlane01.obj",
-            "Plane Texuture file" : "assets/Planes/Simple Plain/PlaneTexture.png",
-            "Plane Scale" : 0.250,
-            "rotation angles":[ 0.0 , 0.0 ,0.0 ],
-            "rotation axises":[ "x" , "y" , "z" ]
         }
 
     }

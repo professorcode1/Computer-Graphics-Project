@@ -36,8 +36,7 @@ Terrain::Terrain(
 	this->vertex_buffer = new VertexBuffer(this->VBO);
 	this->index_buffer = new IndexBuffer(this->EBO, div * div * 6);
 	this->shader.Bind();
-	Texture tex(terrainTextureFile);
-	tex.Bind();
+	// Texture tex(terrainTextureFile);
 	this->shader.SetUniform1i("mountain_tex", 0); 
 	this->shader.SetUniform1f("fog_density", fog_density); 
 	this->shader.SetUniform1i("mountain_tex", 0);
@@ -89,11 +88,11 @@ Terrain::~Terrain(){
 
 void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
 		this->shader.Bind();
-		this->tex.Bind();
 		this->shader.SetUniformMat4f("ViewProjectionMatrix", ViewProjection   );
 		this->shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
 		this->vertex_array.Bind();
 
+		this->tex.Bind();
 		GLCall(glDrawElements(GL_TRIANGLES, this->index_buffer->GetCount() , GL_UNSIGNED_INT, nullptr));
 
 		this->tex.Unbind();

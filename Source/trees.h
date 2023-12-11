@@ -20,10 +20,11 @@ private:
     VertexBuffer* vbo;
     IndexBuffer* ibo;
     std::string name;
+    Texture* tex;
     void render()const ;
 
 public:
-    TreeSpecie(const std::string &assetFile, const VertexBufferLayout &vertex_layout_simple);
+    TreeSpecie(const std::string &assetFile, const VertexBufferLayout &vertex_layout_simple, const std::string tex_file);
     TreeSpecie(TreeSpecie &&other)noexcept;
     ~TreeSpecie();
     
@@ -33,7 +34,6 @@ public:
 class Tree{
 private:
     TreeSpecie const * const specie_m;
-    const uint32_t texture_slot_m;
     glm::mat4 model_matrix_m;
 
     void render()const ;
@@ -42,7 +42,7 @@ public:
     Tree(
         const glm::vec3 &position,const glm::vec3 &normal,
         const bool rotate_to_normal, const float scaling_factor,
-        TreeSpecie const * const specie, const uint32_t texture_slot
+        TreeSpecie const * const specie
         );
 
     friend class Trees;
@@ -50,7 +50,6 @@ public:
 
 class Trees{
 private:
-    std::vector<Texture> textures;
     std::vector<TreeSpecie> Species;
     std::list<Tree> trees;
     Shader shader;
@@ -65,8 +64,7 @@ public:
         const Terrain &terrain,
         const glm::vec3 &sun_dir,
         const float fog_density,
-        const std::string &tree_assets_folder = "assets/Trees/Models Obj", 
-        const std::string &tree_texture_folders = "assets/Trees/Textures",
+        const std::string &tree_assets_folder = "assets/Trees", 
         const std::string &height_extract_file = "shaders/trees/extract_height.glsl",
         const std::string &vertex_shader_file = "shaders/trees/vertex.glsl",
         const std::string &fragment_shader_file = "shaders/trees/fragment.glsl"

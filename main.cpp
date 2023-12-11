@@ -58,6 +58,7 @@ int main()
 	glEnable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+
 	const int skyColorR = parameter_json.at("sky color RGB")[0];
 	const int skyColorG = parameter_json.at("sky color RGB")[1];
 	const int skyColorB = parameter_json.at("sky color RGB")[2];
@@ -119,9 +120,9 @@ int main()
 		glm::vec3 camera_pos;
 		std::tie(View, camera_pos) = plane.get_MVP_Matrix();
 		VP = projection * View ;
+		trees.render(VP, camera_pos);
 		terrain.render(VP, camera_pos);
 		
-		trees.render(VP, camera_pos);
 
 		clouds.render(VP);
 		plane.render(VP);

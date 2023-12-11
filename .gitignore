@@ -1,7 +1,5 @@
 imgui
 glm
-*.OBJ
-*.obj
 *.o
 assets/Me.jpg
 main

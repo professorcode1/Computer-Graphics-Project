@@ -37,10 +37,8 @@ Plane::Plane(
 	vao.AddBuffer(*vbo, vertex_layout_simple);
 	vao.AddElementBuffer(*ibo);
 	shader.Bind();
-	tex.Bind(texture_BindSlot);
 	shader.SetUniform1i(texture_UniformName, texture_BindSlot);
 
-	tex.Unbind();
 	shader.Unbind();
 	vao.Unbind();
 	vbo->Unbind();
@@ -64,13 +62,13 @@ std::tuple<glm::mat4,glm::vec3> Plane::get_MVP_Matrix(){
 void Plane::render(glm::mat4 viewAndProjection){
     vao.Bind();
     shader.Bind();
-	tex.Bind();
     shader.SetUniform1i(this->texture_UniformName, texture_BindSlot);
     glm::mat4 model = glm::scale(glm::translate(glm::mat4(1.0f), this->position), glm::vec3(scaling_factor, scaling_factor, scaling_factor));
 	model = glm::rotate(model, glm::radians(yay_degree  ), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(pitch_degree), glm::vec3(-1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(roll_degree  ), glm::vec3(0.0f, 0.0f, 1.0f));
     shader.SetUniformMat4f("MVP_plane", viewAndProjection * model);
+	tex.Bind();
     GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
 	tex.Unbind();
 	shader.Unbind();
