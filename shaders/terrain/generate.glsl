@@ -73,8 +73,8 @@ void main(){
     int index = row * ( number_of_divs + 1 ) + col;
     int indicesIndex = row * number_of_divs + col;
     if(row <= number_of_divs && col <= number_of_divs){
-        float del_x = ( length_of_side ) / ( number_of_divs + 1 );
-        float del_z = ( length_of_side ) / ( number_of_divs + 1 );
+        float del_x = ( length_of_side ) / ( number_of_divs + 0 );
+        float del_z = ( length_of_side ) / ( number_of_divs + 0 );
         float min_x = length_of_side * (terrain_index.x - 0.5);
         float min_z = length_of_side * (terrain_index.y - 0.5);
         float x = min_x  + row * del_x ;
