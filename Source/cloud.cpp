@@ -79,7 +79,7 @@ void Cloud::render() const {
 Clouds::Clouds(
     unsigned int clouds_per_divison,
     const float cloud_scale,
-    const Terrain &terrain,
+    const TerrainPatch&terrain,
     const glm::vec3 &sun_dir,
     const float height_to_start,
     const float input_shrink_factor,

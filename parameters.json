@@ -4,13 +4,13 @@
     "sky color RGB" : [135,206,235],
     "fog density" : 0.00025,
     "terrain parameters":{
-        "divisions" : 1000, 
+        "divisions" : 100, 
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
         "wave numbers active " : [0, 1],
         "rotation angle fractal ground" : 36.87,
         "output_increase_fctr_" : 3.0,
         "input_shrink_fctr_": 3.0,
-        "length of one side":200.0,
+        "length of one side":20.0,
         "lacunarity" : 2.0,
         "persistance" : 3.1,
         "write normals" : false,
@@ -19,7 +19,7 @@
         "Mountain Scale Factor" : 50
     },
     "plane parameters":{
-        "plane":"three",
+        "plane":"two",
         "Camera Beind Distance" : 20.0,
         "Camera Up Distance" : 3.50,
         "Camera ViewPoint Distance" : 1.0,
@@ -27,7 +27,7 @@
     },
     "cloud parameters":{
         "distance above terrain" : 300,
-        "cloud per division" : 500,
+        "cloud per division" : 50,
         "scale" : 0.4,
         "input shrink factor" : 500.0,
         "time shrink factor" : 600.0,
@@ -35,7 +35,7 @@
         "rotational velocity degree" : 0.10
     },
     "tress parameters":{
-        "tress per division" : 1000,
+        "tress per division" : 10,
         "tress scale" : 20.0,
         "align with normals" : false
     },

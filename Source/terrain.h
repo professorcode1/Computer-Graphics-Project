@@ -9,8 +9,9 @@
 #include "vertex_index_layout.h"
 #include "waveFrontFileApi.h"
 #include "glm/ext.hpp" 
+#include "../FOSS_Code/json.hpp"
 
-class Terrain{
+class TerrainPatch{
     private:
         GLuint VBO;
         GLuint EBO;
@@ -27,7 +28,7 @@ class Terrain{
         const glm::vec3 sun_dir_m;
         const glm::vec2 terrain_index_m;
     public:
-    Terrain( 
+    TerrainPatch( 
         const std::string &terrainTextureFile,float fog_density , 
         const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
 	    float output_increase_fctr_, float input_shrink_fctr_, 
@@ -41,7 +42,7 @@ class Terrain{
 	    const std::string &vertexShaderFile = "shaders/terrain/vertex.glsl",
 	    const std::string &fragmentShaderFile = "shaders/terrain/fragment.glsl"
 	);
-    ~Terrain();
+    ~TerrainPatch();
     void render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos);
 
     int get_divisions() const;
@@ -51,4 +52,15 @@ class Terrain{
     unsigned int get_terrain_ssbo_buffer_id() const;
 
     float get_Mountain_Scale() const;
+};
+
+
+class Terrain{
+private:
+    TerrainPatch * grid[3][3];
+    glm::vec2 current_center;
+public:
+    Terrain(const float fog_densty, const glm::vec3 &sun_direction, const nlohmann::json &terrainParam);
+    void render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos);
+
 };

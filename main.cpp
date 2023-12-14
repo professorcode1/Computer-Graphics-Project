@@ -43,14 +43,9 @@ int main()
 	const json sunParameters = parameter_json.at("sun parameters");
 	const std::vector<float> sun_dir_vec = sunParameters.at("direction vector").get<std::vector<float>>();
 	const glm::vec3 sun_direction = glm::vec3(sun_dir_vec.at(0),sun_dir_vec.at(1), sun_dir_vec.at(2)); 
-	const float fog_densty = parameter_json.at("fog density");
-	Terrain terrain(
-		terrainParam.at("noise texture file"), fog_densty,terrainParam["wave numbers active"], 
-		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
-		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), 
-		terrainParam.at("length of one side"), 
-		terrainParam.at("Mountain Scale Factor"), sun_direction, glm::vec2(0.0, 0.0)
-		);
+	const float fog_densty = parameter_json.at("fog density").get<float>();
+	
+	Terrain terrain(fog_densty, sun_direction, terrainParam);
 	const float terrain_max_height = terrainParam.at("output_increase_fctr_").get<float>() * terrainParam.at("Mountain Scale Factor").get<float>();
 	glfwSwapInterval(1);
 
@@ -87,25 +82,25 @@ int main()
 	const glm::mat4 projection = glm::perspective(glm::radians(FOV), screenRatio, NearPlane, FarPlane);
 
 	const json tressParameter = parameter_json.at("tress parameters");
-	Trees trees(
-		tressParameter.at("tress per division"),tressParameter.at("tress scale"),
-		tressParameter.at("align with normals"),
-		terrain, sun_direction,fog_densty
-		);
+	// Trees trees(
+	// 	tressParameter.at("tress per division"),tressParameter.at("tress scale"),
+	// 	tressParameter.at("align with normals"),
+	// 	terrain, sun_direction,fog_densty
+	// 	);
 	Skybox skybox;
 
 	const json cloudParameters = parameter_json.at("cloud parameters");
-	Clouds clouds(
-		cloudParameters.at("cloud per division").get<uint32_t>(),
-        cloudParameters.at("scale").get<float>(),
-        terrain,
-        sun_direction,
-        terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
-		cloudParameters.at("input shrink factor"),
-		cloudParameters.at("time shrink factor"),
-		cloudParameters.at("velocity"),
-		cloudParameters.at("rotational velocity degree")
-	);
+	// Clouds clouds(
+	// 	cloudParameters.at("cloud per division").get<uint32_t>(),
+    //     cloudParameters.at("scale").get<float>(),
+    //     terrain,
+    //     sun_direction,
+    //     terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
+	// 	cloudParameters.at("input shrink factor"),
+	// 	cloudParameters.at("time shrink factor"),
+	// 	cloudParameters.at("velocity"),
+	// 	cloudParameters.at("rotational velocity degree")
+	// );
 	auto start = std::chrono::system_clock::now();
 	auto end = std::chrono::system_clock::now();
 	int32_t time = 0;
@@ -113,18 +108,18 @@ int main()
 	{	
 		start = end;
 		plane.catchInputs(window);
-		clouds.flow(time++);
+		// clouds.flow(time++);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 VP, View;
 		glm::vec3 camera_pos;
 		std::tie(View, camera_pos) = plane.get_MVP_Matrix();
 		VP = projection * View ;
-		trees.render(VP, camera_pos);
+		// trees.render(VP, camera_pos);
 		terrain.render(VP, camera_pos);
 		
 
-		clouds.render(VP);
+		// clouds.render(VP);
 		plane.render(VP);
 
 

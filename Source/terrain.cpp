@@ -1,7 +1,7 @@
 #include "terrain.h"
 #include "waveFrontFileApi.h"
 
-Terrain::Terrain( 
+TerrainPatch::TerrainPatch( 
 	const std::string &terrainTextureFile,float fog_density , 
     const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
 	float output_increase_fctr_, float input_shrink_fctr_, 
@@ -81,12 +81,15 @@ Terrain::Terrain(
 	this->shader.Unbind();
 }
 
-Terrain::~Terrain(){
-	glDeleteBuffers(1, &this->VBO);
-	glDeleteBuffers(1, &this->EBO);
+TerrainPatch::~TerrainPatch(){
+	// glDeleteBuffers(1, &this->VBO);
+	// glDeleteBuffers(1, &this->EBO);	
+	delete this->index_buffer;
+	delete this->vertex_buffer;
+
 }
 
-void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
+void TerrainPatch::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
 		this->shader.Bind();
 		this->shader.SetUniformMat4f("ViewProjectionMatrix", ViewProjection   );
 		this->shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
@@ -103,23 +106,60 @@ void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_po
 }	
 
 
-int Terrain::get_divisions() const{
+int TerrainPatch::get_divisions() const{
 	return div_m;
 }
 
-unsigned int Terrain::get_terrain_ssbo_buffer_id() const{
+unsigned int TerrainPatch::get_terrain_ssbo_buffer_id() const{
 	return this->VBO;
 }
 
-float Terrain::get_Mountain_Scale() const{
+float TerrainPatch::get_Mountain_Scale() const{
 	return this->mountain_scale_factor_m;
 }
 
-std::tuple<float, float, float,float> Terrain::get_corners() const {
+std::tuple<float, float, float,float> TerrainPatch::get_corners() const {
 	return std::make_tuple(
 		(this->terrain_index_m.x - 0.5) * this->length_of_side_m * this->mountain_scale_factor_m,
 		(this->terrain_index_m.x + 0.5) * this->length_of_side_m * this->mountain_scale_factor_m,
 		(this->terrain_index_m.y - 0.5) * this->length_of_side_m * this->mountain_scale_factor_m,
 		(this->terrain_index_m.y + 0.5) * this->length_of_side_m * this->mountain_scale_factor_m
 		);
+}
+
+static TerrainPatch* terrain_patch_generator(
+	const float fog_densty, const glm::vec3 &sun_direction, 
+	const nlohmann::json &terrainParam, const glm::vec2 &center 
+){
+	return new TerrainPatch(
+		terrainParam.at("noise texture file"), fog_densty,terrainParam["wave numbers active"], 
+		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
+		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), 
+		terrainParam.at("length of one side"), 
+		terrainParam.at("Mountain Scale Factor"), sun_direction, center
+		);
+}
+
+
+Terrain::Terrain(
+	const float fog_densty, const glm::vec3 &sun_direction, const nlohmann::json &terrainParam
+):current_center(0.0, 0.0){
+	this->grid[0][0] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2(-1.0, -1.0));
+	this->grid[0][1] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2(-1.0,  0.0));
+	this->grid[0][2] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2(-1.0,  1.0));
+	this->grid[1][0] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 0.0, -1.0));
+	this->grid[1][1] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 0.0,  0.0));
+	this->grid[1][2] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 0.0,  1.0));
+	this->grid[2][0] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 1.0, -1.0));
+	this->grid[2][1] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 1.0,  0.0));
+	this->grid[2][2] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 1.0,  1.0));
+
+}
+
+void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
+	for(int i=0;i<3;i++){
+		for(int j=0;j<3;j++){
+			this->grid[i][j]->render(ViewProjection, camera_pos);
+		}
+	}
 }
