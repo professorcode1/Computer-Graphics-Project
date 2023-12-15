@@ -11,6 +11,7 @@
 #include "glm/ext.hpp" 
 #include "../FOSS_Code/json.hpp"
 
+
 class TerrainPatch{
     private:
         GLuint VBO;
@@ -55,12 +56,5 @@ class TerrainPatch{
 };
 
 
-class Terrain{
-private:
-    TerrainPatch * grid[3][3];
-    glm::vec2 current_center;
-public:
-    Terrain(const float fog_densty, const glm::vec3 &sun_direction, const nlohmann::json &terrainParam);
-    void render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos);
 
-};
+// constexpr int Terrain::NumberOfPatcherInGridPerAxis = 3;

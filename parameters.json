@@ -26,7 +26,7 @@
         "Plane Speed" : 5      
     },
     "cloud parameters":{
-        "distance above terrain" : 300,
+        "distance above terrain" : 350,
         "cloud per division" : 50,
         "scale" : 0.4,
         "input shrink factor" : 500.0,

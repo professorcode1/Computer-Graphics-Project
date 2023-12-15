@@ -45,7 +45,10 @@ int main()
 	const glm::vec3 sun_direction = glm::vec3(sun_dir_vec.at(0),sun_dir_vec.at(1), sun_dir_vec.at(2)); 
 	const float fog_densty = parameter_json.at("fog density").get<float>();
 	
-	Terrain terrain(fog_densty, sun_direction, terrainParam);
+	const json tressParameter = parameter_json.at("tress parameters");
+	const json cloudParameters = parameter_json.at("cloud parameters");
+
+	Grid terrain(fog_densty, sun_direction, terrainParam, tressParameter, cloudParameters);
 	const float terrain_max_height = terrainParam.at("output_increase_fctr_").get<float>() * terrainParam.at("Mountain Scale Factor").get<float>();
 	glfwSwapInterval(1);
 
@@ -81,45 +84,26 @@ int main()
 		;
 	const glm::mat4 projection = glm::perspective(glm::radians(FOV), screenRatio, NearPlane, FarPlane);
 
-	const json tressParameter = parameter_json.at("tress parameters");
-	// Trees trees(
-	// 	tressParameter.at("tress per division"),tressParameter.at("tress scale"),
-	// 	tressParameter.at("align with normals"),
-	// 	terrain, sun_direction,fog_densty
-	// 	);
 	Skybox skybox;
 
-	const json cloudParameters = parameter_json.at("cloud parameters");
-	// Clouds clouds(
-	// 	cloudParameters.at("cloud per division").get<uint32_t>(),
-    //     cloudParameters.at("scale").get<float>(),
-    //     terrain,
-    //     sun_direction,
-    //     terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
-	// 	cloudParameters.at("input shrink factor"),
-	// 	cloudParameters.at("time shrink factor"),
-	// 	cloudParameters.at("velocity"),
-	// 	cloudParameters.at("rotational velocity degree")
-	// );
+
 	auto start = std::chrono::system_clock::now();
 	auto end = std::chrono::system_clock::now();
-	int32_t time = 0;
+	uint32_t time = 0;
 	while (!glfwWindowShouldClose(window))
 	{	
 		start = end;
 		plane.catchInputs(window);
-		// clouds.flow(time++);
+		terrain.update(time++);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 VP, View;
 		glm::vec3 camera_pos;
 		std::tie(View, camera_pos) = plane.get_MVP_Matrix();
 		VP = projection * View ;
-		// trees.render(VP, camera_pos);
 		terrain.render(VP, camera_pos);
 		
 
-		// clouds.render(VP);
 		plane.render(VP);
 
 

@@ -127,39 +127,6 @@ std::tuple<float, float, float,float> TerrainPatch::get_corners() const {
 		);
 }
 
-static TerrainPatch* terrain_patch_generator(
-	const float fog_densty, const glm::vec3 &sun_direction, 
-	const nlohmann::json &terrainParam, const glm::vec2 &center 
-){
-	return new TerrainPatch(
-		terrainParam.at("noise texture file"), fog_densty,terrainParam["wave numbers active"], 
-		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
-		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"), terrainParam.at("divisions"), 
-		terrainParam.at("length of one side"), 
-		terrainParam.at("Mountain Scale Factor"), sun_direction, center
-		);
-}
 
 
-Terrain::Terrain(
-	const float fog_densty, const glm::vec3 &sun_direction, const nlohmann::json &terrainParam
-):current_center(0.0, 0.0){
-	this->grid[0][0] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2(-1.0, -1.0));
-	this->grid[0][1] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2(-1.0,  0.0));
-	this->grid[0][2] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2(-1.0,  1.0));
-	this->grid[1][0] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 0.0, -1.0));
-	this->grid[1][1] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 0.0,  0.0));
-	this->grid[1][2] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 0.0,  1.0));
-	this->grid[2][0] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 1.0, -1.0));
-	this->grid[2][1] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 1.0,  0.0));
-	this->grid[2][2] = terrain_patch_generator(fog_densty, sun_direction, terrainParam, glm::vec2( 1.0,  1.0));
 
-}
-
-void Terrain::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
-	for(int i=0;i<3;i++){
-		for(int j=0;j<3;j++){
-			this->grid[i][j]->render(ViewProjection, camera_pos);
-		}
-	}
-}
