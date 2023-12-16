@@ -4,14 +4,21 @@
 
 class Grid{
 private:
-    static constexpr int  NumberOfPatcherInGridPerAxis = 5;
+    static constexpr int  NumberOfPatcherInGridPerAxis = 7;
     Trees* tree_grid[Grid::NumberOfPatcherInGridPerAxis][Grid::NumberOfPatcherInGridPerAxis];
     TerrainPatch* main_terrain_grid[Grid::NumberOfPatcherInGridPerAxis][Grid::NumberOfPatcherInGridPerAxis];
     Clouds* cloud_grid[Grid::NumberOfPatcherInGridPerAxis][Grid::NumberOfPatcherInGridPerAxis];
     
     glm::vec2 current_center;
+
+    void generate_terrain_grid(
+        const glm::vec2 &center, const float fog_densty, 
+        const glm::vec3 &sun_direction, const nlohmann::json &terrainParam
+    );
 public:
     Grid(const float fog_densty, const glm::vec3 &sun_direction, const nlohmann::json &terrainParam, const nlohmann::json &tressParameter, const nlohmann::json &cloudParameters);
     void render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos);
-    void update(uint32_t time);
+    void update(	uint32_t time, const glm::vec3 &plane_position,
+	const float fog_densty, const glm::vec3 &sun_direction, 
+	const nlohmann::json &terrainParam);
 };

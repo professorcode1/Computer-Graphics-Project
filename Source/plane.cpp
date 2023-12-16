@@ -115,3 +115,6 @@ void Plane::catchInputs(GLFWwindow* window){
 	// printf("%s \n", glm::to_string(position).c_str());
 }
 
+glm::vec3 Plane::get_position() const {
+	return this->position;
+}

@@ -15,15 +15,11 @@ static TerrainPatch* terrain_patch_generator(
 		);
 }
 
-Grid::Grid(
-	const float fog_densty, const glm::vec3 &sun_direction, 
-	const nlohmann::json &terrainParam, const nlohmann::json &tressParameter,
-    const nlohmann::json &cloudParameters
-):current_center(0.0, 0.0){
+void Grid::generate_terrain_grid(
+    const glm::vec2 &center, const float fog_densty, 
+    const glm::vec3 &sun_direction, const nlohmann::json &terrainParam
+){
 	const float offset_to_terrain_path =  Grid::NumberOfPatcherInGridPerAxis / 2;
-	const float terrain_max_height = 
-                terrainParam.at("output_increase_fctr_").get<float>() * 
-                terrainParam.at("Mountain Scale Factor").get<float>();
 	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
 		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
 			std::string level_of_detail;
@@ -40,25 +36,26 @@ Grid::Grid(
 				sun_direction, 
 				terrainParam, 
 				glm::vec2(
-					i - offset_to_terrain_path, 
-					j - offset_to_terrain_path
+					center.x + i - offset_to_terrain_path, 
+					center.y + j - offset_to_terrain_path
 				),
 				true,
 				level_of_detail
 			);	
-            this->cloud_grid[ i ][ j ] = new Clouds(
-                cloudParameters.at("cloud per division").get<uint32_t>(),
-                cloudParameters.at("scale").get<float>(),
-                this->main_terrain_grid[ i ][ j ]->get_corners(),
-                sun_direction,
-                terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
-		        cloudParameters.at("input shrink factor"),
-		        cloudParameters.at("time shrink factor"),
-		        cloudParameters.at("velocity"),
-		        cloudParameters.at("rotational velocity degree")
-            );
+
 		}
 	}
+}
+
+Grid::Grid(
+	const float fog_densty, const glm::vec3 &sun_direction, 
+	const nlohmann::json &terrainParam, const nlohmann::json &tressParameter,
+    const nlohmann::json &cloudParameters
+):current_center(0.0, 0.0){
+	const float terrain_max_height = 
+                terrainParam.at("output_increase_fctr_").get<float>() * 
+                terrainParam.at("Mountain Scale Factor").get<float>();
+	generate_terrain_grid(current_center, fog_densty,sun_direction,terrainParam);
 	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
 		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
 			
@@ -90,11 +87,26 @@ void Grid::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
 	}
 }
 
-void Grid::update(uint32_t time){
-	return ;
-	for(int i=0;i<Grid::NumberOfPatcherInGridPerAxis;i++){
-		for(int j=0;j<Grid::NumberOfPatcherInGridPerAxis;j++){
-            this->cloud_grid[ i ][ j ]->flow(time);
-        }
-    }
+void Grid::update(
+	uint32_t time, const glm::vec3 &plane_position,
+	const float fog_densty, const glm::vec3 &sun_direction, 
+	const nlohmann::json &terrainParam
+){
+	const int offset_to_terrain_path =  Grid::NumberOfPatcherInGridPerAxis / 2;
+	float min_x, min_z, max_x, max_z;
+	std::tie(min_x, max_x, min_z, max_z) = this->main_terrain_grid[ offset_to_terrain_path ][ offset_to_terrain_path ]->get_corners();
+	const float plane_x = plane_position.x, plane_z = plane_position.z;
+	if(min_x <= plane_x && plane_x <= max_x && min_z <= plane_z && plane_z <= max_z){
+		return ;
+	}
+	std::cout<<min_x <<" "<< max_x<<" "<< min_z<<" "<< max_z<<std::endl;
+	std::cout<<"need to generate new terrain\nCurrent "<<this->current_center.x <<" "<<this->current_center.y<<std::endl;
+	const glm::vec2 movement_vector = glm::vec2(
+		-1.0 * static_cast<int>(min_x > plane_x) + static_cast<float>(max_x  < plane_x),
+		-1.0 * static_cast<int>(min_z > plane_z) + static_cast<float>(max_z  < plane_z)
+	);
+	const glm::vec2 new_center = this->current_center + movement_vector;
+	std::cout<<"New "<<new_center.x <<" "<<new_center.y<<std::endl;
+	generate_terrain_grid(new_center, fog_densty,sun_direction,terrainParam);
+	this->current_center = new_center;
 }

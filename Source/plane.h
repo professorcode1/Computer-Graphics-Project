@@ -34,6 +34,7 @@ class Plane{
         void set_Speed(float speed){
             this->speed = speed;
         }
+        glm::vec3 get_position() const;
 
         void render(glm::mat4 viewAndProjection);
 

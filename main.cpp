@@ -93,7 +93,7 @@ int main()
 	{	
 		start = end;
 		plane.catchInputs(window);
-		terrain.update(time++);
+		terrain.update(time++, plane.get_position(), fog_densty, sun_direction, terrainParam);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 VP, View;
