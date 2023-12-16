@@ -12,6 +12,7 @@
 #include "../FOSS_Code/json.hpp"
 
 
+
 class TerrainPatch{
     private:
         GLuint VBO;
@@ -39,6 +40,7 @@ class TerrainPatch{
 	    float Mountain_Scale_Factor, 
         const glm::vec3 &sun_direction,
         glm::vec2 terrain_index,
+        const bool async_generation,
         const std::string &terrainGeneratorShaderFile = "shaders/terrain/generate.glsl", 
 	    const std::string &vertexShaderFile = "shaders/terrain/vertex.glsl",
 	    const std::string &fragmentShaderFile = "shaders/terrain/fragment.glsl"
@@ -53,6 +55,8 @@ class TerrainPatch{
     unsigned int get_terrain_ssbo_buffer_id() const;
 
     float get_Mountain_Scale() const;
+
+    void sync();
 };
 
 

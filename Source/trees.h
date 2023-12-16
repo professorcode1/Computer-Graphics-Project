@@ -50,7 +50,7 @@ public:
 
 class Trees{
 private:
-    std::vector<TreeSpecie> Species;
+    static std::vector<TreeSpecie> Species;
     std::list<Tree> trees;
     Shader shader;
     ComputeShader height_extractor;
@@ -64,10 +64,11 @@ public:
         const TerrainPatch &terrain,
         const glm::vec3 &sun_dir,
         const float fog_density,
-        const std::string &tree_assets_folder = "assets/Trees", 
         const std::string &height_extract_file = "shaders/trees/extract_height.glsl",
         const std::string &vertex_shader_file = "shaders/trees/vertex.glsl",
         const std::string &fragment_shader_file = "shaders/trees/fragment.glsl"
     );
     void render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos);
+
+    void populateSpecies(const std::string &tree_assets_folder = "assets/Trees");
 };

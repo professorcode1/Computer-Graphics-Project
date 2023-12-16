@@ -72,30 +72,11 @@ void Tree::render()const {
     this->specie_m->render();
 }
 
-Trees::Trees(
-    unsigned int Trees_per_division,
-    const int tree_scale,
-    const bool align_with_normal,
-    const TerrainPatch&terrain,
-    const glm::vec3 &sun_dir,
-    const float fog_density,
-    const std::string &tree_assets_folder, 
-    const std::string &height_extract_file,
-    const std::string &vertex_shader_file,
-    const std::string &fragment_shader_file
-):
-    shader(vertex_shader_file, fragment_shader_file),
-    height_extractor(height_extract_file),
-    sun_dir_m{sun_dir},
-    fog_density_m{fog_density}
-{
+std::vector<TreeSpecie> Trees::Species;
+
+void Trees::populateSpecies(const std::string &tree_assets_folder){
     VertexBufferLayout vertex_layout_simple;
 	CREATE_VERTEX_LAYOUT(vertex_layout_simple);
-    this->shader.Bind();
-	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
-	this->shader.SetUniform1f("fog_density", fog_density_m);
-    this->shader.SetUniform1i("tree_tex_0", 0);
-
     for (const auto & tree_asset_folder : std::filesystem::directory_iterator(tree_assets_folder)){
         const auto obj_file = tree_asset_folder.path() / "model.obj";
         const auto texture_file = tree_asset_folder.path() / "texture.png";
@@ -107,6 +88,33 @@ Trees::Trees(
         );
         // break;
     }
+}
+
+Trees::Trees(
+    unsigned int Trees_per_division,
+    const int tree_scale,
+    const bool align_with_normal,
+    const TerrainPatch&terrain,
+    const glm::vec3 &sun_dir,
+    const float fog_density,
+    const std::string &height_extract_file,
+    const std::string &vertex_shader_file,
+    const std::string &fragment_shader_file
+):
+    shader(vertex_shader_file, fragment_shader_file),
+    height_extractor(height_extract_file),
+    sun_dir_m{sun_dir},
+    fog_density_m{fog_density}
+{
+
+    this->shader.Bind();
+	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
+	this->shader.SetUniform1f("fog_density", fog_density_m);
+    this->shader.SetUniform1i("tree_tex_0", 0);
+    if(this->Species.empty()){
+        this->populateSpecies();
+    }
+
     const int number_of_species = this->Species.size();
     {
         float tree_per_division_f = static_cast<float>(Trees_per_division);

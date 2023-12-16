@@ -6,7 +6,6 @@
     "terrain parameters":{
         "divisions" : 100, 
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
-        "wave numbers active " : [0, 1],
         "rotation angle fractal ground" : 36.87,
         "output_increase_fctr_" : 3.0,
         "input_shrink_fctr_": 3.0,

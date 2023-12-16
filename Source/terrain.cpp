@@ -11,6 +11,7 @@ TerrainPatch::TerrainPatch(
 	float Mountain_Scale_Factor, 
     const glm::vec3 &sun_direction,
 	glm::vec2 terrain_index,
+    const bool async_generation,
     const std::string &terrainGeneratorShaderFile, const std::string &vertexShaderFile, 
 	const std::string &fragmentShaderFile
 	):
@@ -64,7 +65,11 @@ TerrainPatch::TerrainPatch(
 	terrain_generator.SetUniformMat4f("MountainModelMatrix", mountain_model);
 	this->terrain_generator.bindSSOBuffer(0, vertex_buffer->GetRenderedID());
 	this->terrain_generator.bindSSOBuffer(1, index_buffer->GetRenderedID());
-	this->terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/8), 1);
+	if(async_generation){
+		this->terrain_generator.launch(ceil((float)(div +1)/8), ceil((float)(div +1)/8), 1);
+	}else{
+		this->terrain_generator.launch_and_Sync(ceil((float)(div +1)/8), ceil((float)(div +1)/8), 1);
+	}
 	this->vertex_array.AddBuffer(*vertex_buffer, vertex_layout_simple);
 	this->vertex_array.AddElementBuffer(*index_buffer);
 
@@ -127,6 +132,8 @@ std::tuple<float, float, float,float> TerrainPatch::get_corners() const {
 		);
 }
 
-
+void TerrainPatch::sync() {
+	this->terrain_generator.sync();
+}
 
 

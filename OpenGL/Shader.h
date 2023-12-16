@@ -57,5 +57,7 @@ class ComputeShader : public ShaderBase{
     
     void bindSSOBuffer(const int binding_point, const unsigned int buffer_ID);
     void launch_and_Sync(unsigned int x, unsigned int y, unsigned int z);
+    void launch(unsigned int x, unsigned int y, unsigned int z);
+    void sync();
 
 };

@@ -156,12 +156,20 @@ void ComputeShader::bindSSOBuffer(const int binding_point, const unsigned int bu
 
 void ComputeShader::launch_and_Sync(unsigned int x, unsigned int y, unsigned int z){
 	using namespace std::chrono;
-	this->Bind();
 	auto start = high_resolution_clock::now();
-	GLCall(glDispatchCompute(x,y,z));
-	GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
+	this->launch(x,y,z);
+	this->sync();
 	auto stop = high_resolution_clock::now();
 	auto duration = duration_cast<microseconds>(stop - start);
 	std::cout<< "Compute Shader time taken in microseconds :: \t" << duration.count() << std::endl;
 
+}
+
+void ComputeShader::launch(unsigned int x, unsigned int y, unsigned int z){
+	this->Bind();
+	GLCall(glDispatchCompute(x,y,z));
+}
+
+void ComputeShader::sync(){
+	GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 }
