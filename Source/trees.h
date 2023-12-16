@@ -56,6 +56,10 @@ private:
     ComputeShader height_extractor;
     const glm::vec3 sun_dir_m;
     const float fog_density_m;
+    uint32_t Trees_per_division_m;
+    uint32_t tree_positions_gpu_m;
+    uint32_t tree_scale_m;
+    glm::vec3 *tree_positions_cpu;
 public:
     Trees(
         const unsigned int Trees_per_division,
@@ -69,6 +73,6 @@ public:
         const std::string &fragment_shader_file = "shaders/trees/fragment.glsl"
     );
     void render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos);
-
+    void sync();
     void populateSpecies(const std::string &tree_assets_folder = "assets/Trees");
 };

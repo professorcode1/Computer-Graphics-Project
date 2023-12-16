@@ -98,7 +98,8 @@ Trees::Trees(
     shader(vertex_shader_file, fragment_shader_file),
     height_extractor(height_extract_file),
     sun_dir_m{sun_dir},
-    fog_density_m{fog_density}
+    fog_density_m{fog_density},
+    tree_scale_m{tree_scale}
 {
 
     this->shader.Bind();
@@ -108,7 +109,7 @@ Trees::Trees(
     if(this->Species.empty()){
         this->populateSpecies();
     }
-
+    
     const int number_of_species = this->Species.size();
     {
         float tree_per_division_f = static_cast<float>(Trees_per_division);
@@ -116,6 +117,7 @@ Trees::Trees(
         Trees_per_division = tree_per_division_sqrt * tree_per_division_sqrt;
         int divisions = terrain.get_divisions();
         glm::vec3 *tree_positions_cpu = new glm::vec3[ Trees_per_division ];
+        Trees_per_division_m = Trees_per_division;
         int tree_per_divison_per_axis = divisions / tree_per_division_sqrt;
         for(int row_tree_index = 0; row_tree_index < tree_per_division_sqrt ; row_tree_index++){
             for(int col_tree_index = 0; col_tree_index < tree_per_division_sqrt ; col_tree_index++){
@@ -125,33 +127,15 @@ Trees::Trees(
                 tree_positions_cpu[ row_major_index ] = glm::vec3(row, 0, col);
             }
         }
-        unsigned int tree_positions_gpu;
-        GLCall(glCreateBuffers(1, &tree_positions_gpu));
-        GLCall(glNamedBufferData(tree_positions_gpu, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu, GL_STATIC_DRAW));
+        GLCall(glCreateBuffers(1, &tree_positions_gpu_m));
+        GLCall(glNamedBufferData(tree_positions_gpu_m, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu, GL_STATIC_DRAW));
         height_extractor.Bind();
         height_extractor.SetUniform1i("number_of_divs", divisions);
         height_extractor.SetUniform1i("number_of_trees_sqrt", tree_per_division_sqrt);
         height_extractor.bindSSOBuffer(0, terrain.get_terrain_ssbo_buffer_id());
-        height_extractor.bindSSOBuffer(1, tree_positions_gpu);
-        height_extractor.launch_and_Sync( ceil((float)tree_per_division_sqrt/8), ceil((float)tree_per_division_sqrt/8) , 1);
-        GLCall(glGetNamedBufferSubData(tree_positions_gpu, 0, Trees_per_division *  sizeof(glm::vec3) , tree_positions_cpu));
-        GLCall(glDeleteBuffers(1, &tree_positions_gpu));
-        
-        for(uint32_t tree_index=0; tree_index<Trees_per_division ; tree_index++){
-            int specie_index = Randomness::Random_t::Random.rand(number_of_species);
-            this->trees.emplace_back(
-                tree_positions_cpu[  tree_index ],
-                tree_scale, 
-                &this->Species.at(specie_index));
-            if(false){
-                std::cout <<
-                tree_positions_cpu[ tree_index ].x << " "<<
-                tree_positions_cpu[ tree_index ].y << " "<<
-                tree_positions_cpu[ tree_index ].z << " "<<
-                std::endl;
-            }
-        }
-        delete[] tree_positions_cpu;
+        height_extractor.bindSSOBuffer(1, tree_positions_gpu_m);
+        height_extractor.launch( ceil((float)tree_per_division_sqrt/8), ceil((float)tree_per_division_sqrt/8) , 1);
+
     }
 
 }
@@ -166,4 +150,26 @@ void Trees::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos)
         tree.render();
     }
     shader.Unbind();
+}
+void Trees::sync(){
+        glm::vec3 *tree_positions_cpu = new glm::vec3[ Trees_per_division_m ];
+        GLCall(glGetNamedBufferSubData(tree_positions_gpu_m, 0, Trees_per_division_m *  sizeof(glm::vec3) , tree_positions_cpu));
+        GLCall(glDeleteBuffers(1, &tree_positions_gpu_m));
+        const int number_of_species = this->Species.size();
+        
+        for(uint32_t tree_index=0; tree_index<Trees_per_division_m ; tree_index++){
+            int specie_index = Randomness::Random_t::Random.rand(number_of_species);
+            this->trees.emplace_back(
+                tree_positions_cpu[  tree_index ],
+                tree_scale_m, 
+                &this->Species.at(specie_index));
+            if(false){
+                std::cout <<
+                tree_positions_cpu[ tree_index ].x << " "<<
+                tree_positions_cpu[ tree_index ].y << " "<<
+                tree_positions_cpu[ tree_index ].z << " "<<
+                std::endl;
+            }
+        }
+        delete[] tree_positions_cpu;
 }

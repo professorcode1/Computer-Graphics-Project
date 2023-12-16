@@ -20,6 +20,9 @@ Grid::Grid(
     const nlohmann::json &cloudParameters
 ):current_center(0.0, 0.0){
 	const float offset_to_terrain_path =  Grid::NumberOfPatcherInGridPerAxis / 2;
+	const float terrain_max_height = 
+                terrainParam.at("output_increase_fctr_").get<float>() * 
+                terrainParam.at("Mountain Scale Factor").get<float>();
 	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
 		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
 			this->main_terrain_grid[ i ][ j ] = terrain_patch_generator(
@@ -32,7 +35,17 @@ Grid::Grid(
 				),
 				true
 			);	
-
+            this->cloud_grid[ i ][ j ] = new Clouds(
+                cloudParameters.at("cloud per division").get<uint32_t>(),
+                cloudParameters.at("scale").get<float>(),
+                this->main_terrain_grid[ i ][ j ]->get_corners(),
+                sun_direction,
+                terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
+		        cloudParameters.at("input shrink factor"),
+		        cloudParameters.at("time shrink factor"),
+		        cloudParameters.at("velocity"),
+		        cloudParameters.at("rotational velocity degree")
+            );
 		}
 	}
 	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
@@ -46,24 +59,15 @@ Grid::Grid(
 				*this->main_terrain_grid[ i ][ j ], 
 				sun_direction,fog_densty
 			);
-        	const float terrain_max_height = 
-                terrainParam.at("output_increase_fctr_").get<float>() * 
-                terrainParam.at("Mountain Scale Factor").get<float>();
-
-            this->cloud_grid[ i ][ j ] = new Clouds(
-                cloudParameters.at("cloud per division").get<uint32_t>(),
-                cloudParameters.at("scale").get<float>(),
-                this->main_terrain_grid[ i ][ j ]->get_corners(),
-                sun_direction,
-                terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
-		        cloudParameters.at("input shrink factor"),
-		        cloudParameters.at("time shrink factor"),
-		        cloudParameters.at("velocity"),
-		        cloudParameters.at("rotational velocity degree")
-            );
-
 		}
 	}
+	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
+		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
+			
+			this->tree_grid[ i ][ j ]->sync();
+		}
+	}
+
 	// for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis + 2 ; i++){
 	// 	for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis + 2 ; j++){
 	// 		if( i == 0 || j == 0 || i == Grid::NumberOfPatcherInGridPerAxis +1 || j == Grid::NumberOfPatcherInGridPerAxis +1 ){
