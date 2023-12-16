@@ -64,7 +64,6 @@ public:
     Trees(
         const unsigned int Trees_per_division,
         const int tree_scale,
-        const bool align_with_normal,
         const TerrainPatch &terrain,
         const glm::vec3 &sun_dir,
         const float fog_density,

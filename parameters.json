@@ -4,7 +4,11 @@
     "sky color RGB" : [135,206,235],
     "fog density" : 0.00025,
     "terrain parameters":{
-        "divisions" : 100, 
+        "divisions" : {
+            "default":100,
+            "lower": 50,
+            "lowest":10
+        }, 
         "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
         "rotation angle fractal ground" : 36.87,
         "output_increase_fctr_" : 3.0,
@@ -35,8 +39,7 @@
     },
     "tress parameters":{
         "tress per division" : 10,
-        "tress scale" : 100.0,
-        "align with normals" : false
+        "tress scale" : 100.0
     },
     "sun parameters":{
         "direction vector":[ -0.624695 , 0.468521 , -0.624695 ]
