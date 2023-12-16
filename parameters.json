@@ -35,7 +35,7 @@
     },
     "tress parameters":{
         "tress per division" : 10,
-        "tress scale" : 20.0,
+        "tress scale" : 100.0,
         "align with normals" : false
     },
     "sun parameters":{

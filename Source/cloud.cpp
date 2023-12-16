@@ -79,7 +79,7 @@ void Cloud::render() const {
 Clouds::Clouds(
     unsigned int clouds_per_divison,
     const float cloud_scale,
-    const TerrainPatch&terrain,
+    const std::tuple<float, float, float,float> &terrain_corners,
     const glm::vec3 &sun_dir,
     const float height_to_start,
     const float input_shrink_factor,
@@ -107,7 +107,7 @@ angular_velocty_m{angular_velocty}
     }
     const int number_of_cloud_types = this->cloud_type.size();
 	float min_x, min_z, max_x, max_z;
-	std::tie(min_x, max_x, min_z, max_z) = terrain.get_corners();
+	std::tie(min_x, max_x, min_z, max_z) = terrain_corners;
 
 
 

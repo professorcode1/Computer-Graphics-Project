@@ -48,8 +48,7 @@ void TreeSpecie::render() const {
 }
 
 Tree::Tree(
-    const glm::vec3 &position, const glm::vec3 &normal, 
-    const bool rotate_to_normal,
+    const glm::vec3 &position, 
     const float scaling_factor,
     TreeSpecie const * const specie
 ):
@@ -61,11 +60,6 @@ Tree::Tree(
         );
 
     // this->model_matrix_m = glm::rotate(this->model_matrix_m, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-    if(rotate_to_normal){
-        const glm::vec3 rotation_vector = glm::cross(normal, glm::vec3(0.0, 1.0, 0.0));
-        const float rotation_angle = glm::acos(normal.y / glm::length(normal));
-        this->model_matrix_m = glm::rotate(this->model_matrix_m, rotation_angle, rotation_vector);
-    }
 }
 
 void Tree::render()const {
@@ -121,41 +115,39 @@ Trees::Trees(
         int tree_per_division_sqrt = ceil(sqrt(tree_per_division_f));
         Trees_per_division = tree_per_division_sqrt * tree_per_division_sqrt;
         int divisions = terrain.get_divisions();
-        glm::vec3 *tree_positions_cpu = new glm::vec3[ 2 * Trees_per_division ];
+        glm::vec3 *tree_positions_cpu = new glm::vec3[ Trees_per_division ];
         int tree_per_divison_per_axis = divisions / tree_per_division_sqrt;
         for(int row_tree_index = 0; row_tree_index < tree_per_division_sqrt ; row_tree_index++){
             for(int col_tree_index = 0; col_tree_index < tree_per_division_sqrt ; col_tree_index++){
                 float row = row_tree_index * tree_per_divison_per_axis + Randomness::Random_t::Random.rand( tree_per_divison_per_axis);
                 float col = col_tree_index * tree_per_divison_per_axis + Randomness::Random_t::Random.rand( tree_per_divison_per_axis);
                 int row_major_index = col_tree_index + row_tree_index * tree_per_division_sqrt;
-                tree_positions_cpu[ 2 * row_major_index ] = glm::vec3(row, 0, col);
+                tree_positions_cpu[ row_major_index ] = glm::vec3(row, 0, col);
             }
         }
         unsigned int tree_positions_gpu;
         GLCall(glCreateBuffers(1, &tree_positions_gpu));
-        GLCall(glNamedBufferData(tree_positions_gpu, Trees_per_division * 2 * sizeof(glm::vec3) , tree_positions_cpu, GL_STATIC_DRAW));
+        GLCall(glNamedBufferData(tree_positions_gpu, Trees_per_division * sizeof(glm::vec3) , tree_positions_cpu, GL_STATIC_DRAW));
         height_extractor.Bind();
         height_extractor.SetUniform1i("number_of_divs", divisions);
         height_extractor.SetUniform1i("number_of_trees_sqrt", tree_per_division_sqrt);
         height_extractor.bindSSOBuffer(0, terrain.get_terrain_ssbo_buffer_id());
         height_extractor.bindSSOBuffer(1, tree_positions_gpu);
         height_extractor.launch_and_Sync( ceil((float)tree_per_division_sqrt/8), ceil((float)tree_per_division_sqrt/8) , 1);
-        GLCall(glGetNamedBufferSubData(tree_positions_gpu, 0, Trees_per_division * 2 * sizeof(glm::vec3) , tree_positions_cpu));
+        GLCall(glGetNamedBufferSubData(tree_positions_gpu, 0, Trees_per_division *  sizeof(glm::vec3) , tree_positions_cpu));
         GLCall(glDeleteBuffers(1, &tree_positions_gpu));
         
         for(uint32_t tree_index=0; tree_index<Trees_per_division ; tree_index++){
             int specie_index = Randomness::Random_t::Random.rand(number_of_species);
             this->trees.emplace_back(
-                tree_positions_cpu[ 2 * tree_index ], 
-                tree_positions_cpu[ 2 * tree_index + 1 ], 
-                align_with_normal,
+                tree_positions_cpu[  tree_index ],
                 tree_scale, 
                 &this->Species.at(specie_index));
             if(false){
                 std::cout <<
-                tree_positions_cpu[ 2 * tree_index ].x << " "<<
-                tree_positions_cpu[ 2 * tree_index ].y << " "<<
-                tree_positions_cpu[ 2 * tree_index ].z << " "<<
+                tree_positions_cpu[ tree_index ].x << " "<<
+                tree_positions_cpu[ tree_index ].y << " "<<
+                tree_positions_cpu[ tree_index ].z << " "<<
                 std::endl;
             }
         }

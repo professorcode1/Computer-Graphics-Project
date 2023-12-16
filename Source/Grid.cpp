@@ -53,7 +53,7 @@ Grid::Grid(
             this->cloud_grid[ i ][ j ] = new Clouds(
                 cloudParameters.at("cloud per division").get<uint32_t>(),
                 cloudParameters.at("scale").get<float>(),
-                *this->main_terrain_grid[ i ][ j ],
+                this->main_terrain_grid[ i ][ j ]->get_corners(),
                 sun_direction,
                 terrain_max_height + cloudParameters.at("distance above terrain").get<float>(),
 		        cloudParameters.at("input shrink factor"),
@@ -64,24 +64,24 @@ Grid::Grid(
 
 		}
 	}
-	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis + 2 ; i++){
-		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis + 2 ; j++){
-			if( i == 0 || j == 0 || i == Grid::NumberOfPatcherInGridPerAxis +1 || j == Grid::NumberOfPatcherInGridPerAxis +1 ){
-				this->outter_terrain_grid[ i ] [ j ] = terrain_patch_generator(
-					fog_densty, 
-					sun_direction, 
-					terrainParam, 
-					glm::vec2(
-						i - offset_to_terrain_path - 1, 
-						j - offset_to_terrain_path - 1
-					),
-					true
-				);
-			}else{
-				this->outter_terrain_grid[ i ] [ j ] = nullptr;
-			}
-		}
-	}
+	// for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis + 2 ; i++){
+	// 	for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis + 2 ; j++){
+	// 		if( i == 0 || j == 0 || i == Grid::NumberOfPatcherInGridPerAxis +1 || j == Grid::NumberOfPatcherInGridPerAxis +1 ){
+	// 			this->outter_terrain_grid[ i ] [ j ] = terrain_patch_generator(
+	// 				fog_densty, 
+	// 				sun_direction, 
+	// 				terrainParam, 
+	// 				glm::vec2(
+	// 					i - offset_to_terrain_path - 1, 
+	// 					j - offset_to_terrain_path - 1
+	// 				),
+	// 				true
+	// 			);
+	// 		}else{
+	// 			this->outter_terrain_grid[ i ] [ j ] = nullptr;
+	// 		}
+	// 	}
+	// }
 }
 
 void Grid::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){

@@ -13,7 +13,6 @@ struct Vertex{
 };
 struct Position{
     float x,y,z;
-    float nx,ny,nz;
 };
 
 layout ( std430, binding = 0 ) buffer Vertices {Vertex vertices[] ; } terrain_vertex_container_object;
@@ -37,14 +36,5 @@ void main(){
 
     tree_position_container_object.positions[index].z = 
         terrain_vertex_container_object.vertices[terrain_index].posz;
-
-    tree_position_container_object.positions[index].nx = 
-        terrain_vertex_container_object.vertices[terrain_index].norx;
-
-    tree_position_container_object.positions[index].ny = 
-        terrain_vertex_container_object.vertices[terrain_index].nory;
-
-    tree_position_container_object.positions[index].nz = 
-        terrain_vertex_container_object.vertices[terrain_index].norz;
 
 }

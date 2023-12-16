@@ -73,7 +73,7 @@ public:
     Clouds(
         const unsigned int clouds_per_divison,
         const float cloud_scale,
-        const TerrainPatch &terrain,
+        const std::tuple<float, float, float,float> &terrain_corners,
         const glm::vec3 &sun_dir,
         const float height_to_start,
         const float input_shrink_factor,

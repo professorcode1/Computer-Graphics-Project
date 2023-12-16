@@ -40,8 +40,8 @@ private:
 
 public:
     Tree(
-        const glm::vec3 &position,const glm::vec3 &normal,
-        const bool rotate_to_normal, const float scaling_factor,
+        const glm::vec3 &position,
+        const float scaling_factor,
         TreeSpecie const * const specie
         );
 
