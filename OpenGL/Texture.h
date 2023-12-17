@@ -19,6 +19,7 @@ public:
         "assets/skybox/front.jpg",
         "assets/skybox/back.jpg"
     });
+    Texture(uint32_t SSBO_id);
     Texture(Texture &&other) noexcept ;
     ~Texture();
 

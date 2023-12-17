@@ -108,6 +108,11 @@ void ShaderBase::SetUniform1f(const std::string &name,float v0){
 void ShaderBase::SetUniform1i(const std::string &name,int v0){
     GLCall(glUniform1i(GetUniformLocation(name), v0));
 }
+
+void ShaderBase::SetUniform1ui(const std::string &name,uint32_t v0){
+    GLCall(glUniform1ui(GetUniformLocation(name), v0));
+}
+
 void ShaderBase::SetUniformMat4f(const std::string &name, const glm::mat4& matrix){
 	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
 }

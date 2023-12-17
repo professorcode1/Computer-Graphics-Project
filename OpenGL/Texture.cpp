@@ -94,3 +94,9 @@ void Texture::Bind(unsigned int slot, uint32_t texture_type) const {
 void Texture::Unbind() const {
     GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 }
+
+Texture::Texture(uint32_t SSBO_id){
+    GLCall(glGenTextures(1, &m_RendererID));
+    GLCall(glBindTexture(GL_TEXTURE_BUFFER, m_RendererID));
+    GLCall(glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, SSBO_id)); 
+}

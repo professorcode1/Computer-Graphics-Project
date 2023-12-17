@@ -8,6 +8,7 @@
 #include "waveFrontFileApi.h"
 #include <filesystem>
 #include "random.hpp"
+#include "glm/gtx/string_cast.hpp"
 /*
 CAN AND SHOULD BE BATCHED
 TODO: BATCH WHENEVER YOU CAN
@@ -28,38 +29,22 @@ public:
     TreeSpecie(TreeSpecie &&other)noexcept;
     ~TreeSpecie();
     
-    friend class Tree;
-};
-
-class Tree{
-private:
-    TreeSpecie const * const specie_m;
-    glm::mat4 model_matrix_m;
-
-    void render()const ;
-
-public:
-    Tree(
-        const glm::vec3 &position,
-        const float scaling_factor,
-        TreeSpecie const * const specie
-        );
-
     friend class Trees;
 };
+
 
 class Trees{
 private:
     static std::vector<TreeSpecie> Species;
-    std::list<Tree> trees;
+    
     Shader shader;
     ComputeShader height_extractor;
     const glm::vec3 sun_dir_m;
     const float fog_density_m;
     uint32_t Trees_per_division_m;
-    uint32_t tree_positions_gpu_m;
+    uint32_t tree_positions_gpu;
     uint32_t tree_scale_m;
-    glm::vec3 *tree_positions_cpu;
+    Texture *tree_ssbo_container;
 public:
     Trees(
         const unsigned int Trees_per_division,
