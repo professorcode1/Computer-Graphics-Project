@@ -1,6 +1,41 @@
 #include "terrain.h"
 #include "waveFrontFileApi.h"
 
+static void setup_the_terrain_generator_compute_shader(
+	ComputeShader &terrain_generator,
+	const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
+	float output_increase_fctr_, float input_shrink_fctr_, 
+    float lacunarity, float persistance,
+	int div, 
+	float length_of_side, 
+	float Mountain_Scale_Factor,
+	glm::vec2 &terrain_index,
+	uint32_t vertex_buffer_id,
+	uint32_t index_buffer_id
+){
+	terrain_generator.Bind();
+	terrain_generator.SetUniform1i("number_of_divs", div);
+	int ActiveWaveFreqsGround = 0;
+    for(int freq : ActiveWaveNumber){
+        ActiveWaveFreqsGround |= (1 << freq);
+	}
+	// std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
+
+	terrain_generator.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
+	terrain_generator.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
+	terrain_generator.SetUniform1f("output_increase_fctr", output_increase_fctr_);
+	terrain_generator.SetUniform1f("input_shrink_fctr", input_shrink_fctr_);
+	terrain_generator.SetUniform1f("lacunarity", lacunarity);
+	terrain_generator.SetUniform1f("persistance", persistance);
+	terrain_generator.SetUniform1f("length_of_side", length_of_side);
+	terrain_generator.SetUniform2f("terrain_index", terrain_index.x,terrain_index.y );
+    glm::mat4 mountain_model;
+	mountain_model = glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor));
+	terrain_generator.SetUniformMat4f("MountainModelMatrix", mountain_model);
+	terrain_generator.bindSSOBuffer(0, vertex_buffer_id);
+	terrain_generator.bindSSOBuffer(1, index_buffer_id);
+}
+
 TerrainPatch::TerrainPatch( 
 	const std::string &terrainTextureFile,float fog_density , 
     const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
@@ -43,28 +78,18 @@ TerrainPatch::TerrainPatch(
 	this->shader.SetUniform1i("mountain_tex", 0);
 	this->shader.SetUniform3f("sun_direction_vector", sun_dir_m.x , sun_dir_m.y , sun_dir_m.z );
 
-	this->terrain_generator.Bind();
-	this->terrain_generator.SetUniform1i("number_of_divs", div);
-	this->terrain_generator.SetUniform1f("length_of_side", length_of_side_m);
-	int ActiveWaveFreqsGround = 0;
-    for(int freq : ActiveWaveNumber){
-        ActiveWaveFreqsGround |= (1 << freq);
-	}
-	// std::cout<<"ActiveWaveFreqsGround\t"<<ActiveWaveFreqsGround<<std::endl;
-
-	this->terrain_generator.SetUniform1i("ActiveWaveFreqsGround", ActiveWaveFreqsGround);
-	this->terrain_generator.SetUniform1f("rotation_Angle", M_PI * rotation_angle_fractal_ground / 180.0f);
-	this->terrain_generator.SetUniform1f("output_increase_fctr", output_increase_fctr_);
-	this->terrain_generator.SetUniform1f("input_shrink_fctr", input_shrink_fctr_);
-	this->terrain_generator.SetUniform1f("lacunarity", lacunarity);
-	this->terrain_generator.SetUniform1f("persistance", persistance);
-	this->terrain_generator.SetUniform1f("length_of_side", length_of_side_m);
-	this->terrain_generator.SetUniform2f("terrain_index", terrain_index_m.x,terrain_index_m.y );
     glm::mat4 mountain_model;
 	mountain_model = glm::scale(glm::mat4(1.0f), glm::vec3(Mountain_Scale_Factor, Mountain_Scale_Factor, Mountain_Scale_Factor));
-	terrain_generator.SetUniformMat4f("MountainModelMatrix", mountain_model);
-	this->terrain_generator.bindSSOBuffer(0, vertex_buffer->GetRenderedID());
-	this->terrain_generator.bindSSOBuffer(1, index_buffer->GetRenderedID());
+
+	setup_the_terrain_generator_compute_shader(
+		terrain_generator,ActiveWaveNumber,
+		rotation_angle_fractal_ground,output_increase_fctr_,
+		input_shrink_fctr_, lacunarity,
+		persistance,div, length_of_side,Mountain_Scale_Factor, 
+		terrain_index, vertex_buffer->GetRenderedID(),
+		index_buffer->GetRenderedID()
+	);
+
 	if(async_generation){
 		this->terrain_generator.launch(ceil((float)(div +1)/8), ceil((float)(div +1)/8), 1);
 	}else{
@@ -137,3 +162,24 @@ void TerrainPatch::sync() {
 }
 
 
+void TerrainPatch::set_index(
+    const glm::vec2 &new_index,const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
+	float output_increase_fctr_, float input_shrink_fctr_, 
+    float lacunarity, float persistance, 
+	float length_of_side, 
+	float Mountain_Scale_Factor
+){
+	if(new_index == this->terrain_index_m){
+		return ;
+	}
+	this->terrain_index_m = new_index;
+	setup_the_terrain_generator_compute_shader(
+		terrain_generator,ActiveWaveNumber,
+		rotation_angle_fractal_ground,output_increase_fctr_,
+		input_shrink_fctr_, lacunarity,
+		persistance,div_m, length_of_side,Mountain_Scale_Factor, 
+		terrain_index_m, vertex_buffer->GetRenderedID(),
+		index_buffer->GetRenderedID()
+	);
+	this->terrain_generator.launch_and_Sync(ceil((float)(div_m +1)/8), ceil((float)(div_m +1)/8), 1);
+}

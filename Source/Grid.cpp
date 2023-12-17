@@ -99,14 +99,39 @@ void Grid::update(
 	if(min_x <= plane_x && plane_x <= max_x && min_z <= plane_z && plane_z <= max_z){
 		return ;
 	}
-	std::cout<<min_x <<" "<< max_x<<" "<< min_z<<" "<< max_z<<std::endl;
-	std::cout<<"need to generate new terrain\nCurrent "<<this->current_center.x <<" "<<this->current_center.y<<std::endl;
+
 	const glm::vec2 movement_vector = glm::vec2(
 		-1.0 * static_cast<int>(min_x > plane_x) + static_cast<float>(max_x  < plane_x),
 		-1.0 * static_cast<int>(min_z > plane_z) + static_cast<float>(max_z  < plane_z)
 	);
 	const glm::vec2 new_center = this->current_center + movement_vector;
-	std::cout<<"New "<<new_center.x <<" "<<new_center.y<<std::endl;
-	generate_terrain_grid(new_center, fog_densty,sun_direction,terrainParam);
+
 	this->current_center = new_center;
+
+	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
+		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
+			std::string level_of_detail;
+			if(i==0 || j ==0 || i == Grid::NumberOfPatcherInGridPerAxis - 1 || j == Grid::NumberOfPatcherInGridPerAxis - 1){
+				level_of_detail = "lowest";
+			}else if(i == Grid::NumberOfPatcherInGridPerAxis / 2 || j == Grid::NumberOfPatcherInGridPerAxis / 2){
+				level_of_detail = "default";
+			}else{
+				level_of_detail = "lower";
+			}
+
+			this->main_terrain_grid[ i ][ j ]->set_index(
+				glm::vec2(
+					new_center.x + i - offset_to_terrain_path, 
+					new_center.y + j - offset_to_terrain_path
+				),
+				terrainParam["wave numbers active"], 
+				terrainParam.at("rotation angle fractal ground"),
+				terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
+				terrainParam.at("lacunarity"), terrainParam.at("persistance"), 
+				terrainParam.at("length of one side"), 
+				terrainParam.at("Mountain Scale Factor")
+			);
+		}
+	}
+
 }

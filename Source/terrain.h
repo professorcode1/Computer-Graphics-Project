@@ -28,7 +28,7 @@ class TerrainPatch{
 	    const float length_of_side_m;
         const float mountain_scale_factor_m;
         const glm::vec3 sun_dir_m;
-        const glm::vec2 terrain_index_m;
+        glm::vec2 terrain_index_m;
     public:
     TerrainPatch( 
         const std::string &terrainTextureFile,float fog_density , 
@@ -57,6 +57,14 @@ class TerrainPatch{
     float get_Mountain_Scale() const;
 
     void sync();
+
+    void set_index(
+        const glm::vec2 &new_index,const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
+	float output_increase_fctr_, float input_shrink_fctr_, 
+    float lacunarity, float persistance, 
+	float length_of_side, 
+	float Mountain_Scale_Factor
+    );
 };
 
 
