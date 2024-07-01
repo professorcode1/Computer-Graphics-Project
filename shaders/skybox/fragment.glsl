@@ -1,10 +1,11 @@
-#version 330 core
-
-out vec4 FragColor;
+#version 300 es
+precision mediump float;
 
 in vec3 TexCoords;
 
 uniform samplerCube skybox;
+
+out vec4 FragColor;
 
 void main()
 {    

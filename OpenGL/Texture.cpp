@@ -8,8 +8,8 @@ Texture::Texture(const std::string& path) : m_FilePath(path), m_LocalBuffer(null
     stbi_set_flip_vertically_on_load(1);
     m_LocalBuffer = stbi_load(path.c_str(), &m_Width, &m_Height, &m_BPP, 4);
     // std::cout<<"Height::"<<m_Height<<"\t Width::"<<m_Width<<std::endl;
-    GLCall(glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID));
-    GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
+    // GLCall(glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID));
+    // GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -30,7 +30,9 @@ Texture::Texture(const std::string& path) : m_FilePath(path), m_LocalBuffer(null
 
 
 Texture::Texture(const std::vector<std::string>& paths){
+    std::cout<<"calling glGenTextures"<<std::endl;
     GLCall(glGenTextures(1, &m_RendererID));
+    std::cout<<"calling glBindTexture"<<std::endl;
     GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID));
 
     int width, height, nrChannels;
@@ -41,6 +43,7 @@ Texture::Texture(const std::vector<std::string>& paths){
         if (data)
         {
             // std::cout<<width <<" "<<height<<std::endl;
+            std::cout<<"calling glTexImage2D"<<std::endl;
             GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
                          0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
             ));
@@ -53,6 +56,8 @@ Texture::Texture(const std::vector<std::string>& paths){
             stbi_image_free(data);
         }
     }
+    std::cout<<"calling glTexParameteri"<<std::endl;
+    
     GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -95,8 +100,8 @@ void Texture::Unbind() const {
     GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-Texture::Texture(uint32_t SSBO_id){
-    GLCall(glGenTextures(1, &m_RendererID));
-    GLCall(glBindTexture(GL_TEXTURE_BUFFER, m_RendererID));
-    GLCall(glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, SSBO_id)); 
-}
+// Texture::Texture(uint32_t SSBO_id){
+//     GLCall(glGenTextures(1, &m_RendererID));
+//     GLCall(glBindTexture(GL_TEXTURE_BUFFER, m_RendererID));
+//     // GLCall(glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, SSBO_id)); 
+// }

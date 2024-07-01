@@ -1,4 +1,5 @@
 #pragma once
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <glm/fwd.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -22,7 +23,7 @@
 #include "OpenGL/Skybox.hpp"
 // #include <glad/glad.h>
 
-#include <GLFW/glfw3.h>
+// #include <GLFW/glfw3.h>
 #include "FOSS_Code/json.hpp"
 using json = nlohmann::json;
 

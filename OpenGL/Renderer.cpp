@@ -16,7 +16,7 @@ bool GLLogCall(const char *function, const char* file, int line){
 	return isErrorFree;
 }
 void GLClearError(){
-	while(glGetError() != GL_NO_ERROR);
+	// while(glGetError() != GL_NO_ERROR);
 }
 
 void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib,const Shader &shader) const {

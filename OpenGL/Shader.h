@@ -4,8 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "../IncGLM.hpp"
 #include <chrono>
 /*
 Todo, make a shader base class with protected constructor to abstract out the 

@@ -4,7 +4,6 @@
 #include "main.h"
 
 
-
 const unsigned int SCREEN_WIDTH = 1920 ;
 const unsigned int SCREEN_HEIGHT = 1024;
 
@@ -15,26 +14,26 @@ bool vSync = true;
 
 int main()
 {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_MAJOR_VERSION);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR_VERSION);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	// glfwInit();
+	// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_MAJOR_VERSION);
+	// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR_VERSION);
+	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raghav's Relaxing Flight Simulator", NULL, NULL);
-	if (!window)
-	{
-		std::cout << "Failed to create the GLFW window\n";
-		glfwTerminate();
-	}
-	glfwMakeContextCurrent(window);
-	glfwSwapInterval(vSync);
-	// GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    if(glewInit() != GLEW_OK){
-        std::cout<<"Error"<<std::endl;  
-	}
+	// GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raghav's Relaxing Flight Simulator", NULL, NULL);
+	// if (!window)
+	// {
+	// 	std::cout << "Failed to create the GLFW window\n";
+	// 	glfwTerminate();
+	// }
+	// glfwMakeContextCurrent(window);
+	// glfwSwapInterval(vSync);
+	// // GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    // if(glewInit() != GLEW_OK){
+    //     std::cout<<"Error"<<std::endl;  
+	// }
 
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	// glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	std::ifstream parameter_file("parameters.json");
 	json parameter_json;
 	parameter_file >> parameter_json;
@@ -49,7 +48,7 @@ int main()
 
 	Grid terrain(fog_densty, sun_direction, terrainParam, tressParameter, cloudParameters);
 	const float terrain_max_height = terrainParam.at("output_increase_fctr_").get<float>() * terrainParam.at("Mountain Scale Factor").get<float>();
-	glfwSwapInterval(1);
+	// glfwSwapInterval(1);
 
 
 	glEnable(GL_BLEND);
@@ -89,34 +88,34 @@ int main()
 	auto start = std::chrono::system_clock::now();
 	auto end = std::chrono::system_clock::now();
 	uint32_t time = 0;
-	while (!glfwWindowShouldClose(window))
-	{	
-		start = end;
-		plane.catchInputs(window);
-		terrain.update(time++, plane.get_position(), fog_densty, sun_direction, terrainParam);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// while (!glfwWindowShouldClose(window))
+	// {	
+	// 	start = end;
+	// 	plane.catchInputs(window);
+	// 	terrain.update(time++, plane.get_position(), fog_densty, sun_direction, terrainParam);
+	// 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 VP, View;
-		glm::vec3 camera_pos;
-		std::tie(View, camera_pos) = plane.get_MVP_Matrix();
-		VP = projection * View ;
-		terrain.render(VP, camera_pos);
+	// 	glm::mat4 VP, View;
+	// 	glm::vec3 camera_pos;
+	// 	std::tie(View, camera_pos) = plane.get_MVP_Matrix();
+	// 	VP = projection * View ;
+	// 	terrain.render(VP, camera_pos);
 		
 
-		plane.render(VP);
+	// 	plane.render(VP);
 
 
-		skybox.render(View , projection);
+	// 	skybox.render(View , projection);
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-		end = std::chrono::system_clock::now();
-		if(false){
-			float elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-			printf("Frame Rate :: %.1f fps\n", (1000000.0 / elapsed));
-		}
-	}
+	// 	glfwSwapBuffers(window);
+	// 	glfwPollEvents();
+	// 	end = std::chrono::system_clock::now();
+	// 	if(false){
+	// 		float elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+	// 		printf("Frame Rate :: %.1f fps\n", (1000000.0 / elapsed));
+	// 	}
+	// }
 
-	glfwDestroyWindow(window);
-	glfwTerminate();
+	// glfwDestroyWindow(window);
+	// glfwTerminate();
 }

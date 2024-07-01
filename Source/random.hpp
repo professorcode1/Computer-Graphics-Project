@@ -1,6 +1,6 @@
 #pragma once
-#include <bits/stdc++.h>
-
+#include <vector>
+#include <random>
 namespace Randomness{
 class Random_t{
 private:

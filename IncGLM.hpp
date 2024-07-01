@@ -1,0 +1,18 @@
+#define GLM_FORCE_PURE
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/fwd.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/rotate_vector.hpp"
+#include "glm/gtx/vector_angle.hpp"
+#include "glm/gtx/string_cast.hpp"
+#include "glm/gtx/transform.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/common.hpp"
+#include "glm/geometric.hpp"
+#include "glm/trigonometric.hpp"
+// #include "glm/ext.hpp" 

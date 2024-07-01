@@ -63,11 +63,11 @@ TerrainPatch::TerrainPatch(
 	CREATE_VERTEX_LAYOUT(vertex_layout_simple);
 
     
-	GLCall(glCreateBuffers(1, &this->VBO));
-	GLCall(glCreateBuffers(1, &this->EBO));
+	// GLCall(glCreateBuffers(1, &this->VBO));
+	// GLCall(glCreateBuffers(1, &this->EBO));
 
-    GLCall(glNamedBufferData(this->VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW));
-	GLCall(glNamedBufferData(this->EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW));
+    // GLCall(glNamedBufferData(this->VBO, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t) , NULL, GL_STATIC_DRAW));
+	// GLCall(glNamedBufferData(this->EBO, div * div * 6 * 4, NULL, GL_STATIC_DRAW));
 
 	this->vertex_buffer = new VertexBuffer(this->VBO);
 	this->index_buffer = new IndexBuffer(this->EBO, div * div * 6);

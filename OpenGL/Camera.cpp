@@ -1,7 +1,5 @@
 #include"Camera.h"
-#include <glm/fwd.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/transform.hpp>
+
 
 
 

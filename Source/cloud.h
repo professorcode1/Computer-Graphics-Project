@@ -9,6 +9,7 @@
 #include <filesystem>
 #include "random.hpp"
 #include "../FOSS_Code/PerlinNoise.hpp"
+#include <list>
 /*
 TODO: BATCH, and frustum cull
 */

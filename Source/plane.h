@@ -10,19 +10,9 @@
 #include "waveFrontFileApi.h"
 #include "meshTransform.h"
 #include <cstddef>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
 #include<GLFW/glfw3.h>
-#include <glm/geometric.hpp>
-#include <glm/trigonometric.hpp>
-#include<glm/gtx/rotate_vector.hpp>
 #include <cstdio>
-#include <glm/common.hpp>
-#include <glm/fwd.hpp>
-#include <glm/geometric.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/trigonometric.hpp>
+#include "../IncGLM.hpp"
 
 
 class Plane{

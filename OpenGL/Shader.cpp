@@ -172,9 +172,9 @@ void ComputeShader::launch_and_Sync(unsigned int x, unsigned int y, unsigned int
 
 void ComputeShader::launch(unsigned int x, unsigned int y, unsigned int z){
 	this->Bind();
-	GLCall(glDispatchCompute(x,y,z));
+	// GLCall(glDispatchCompute(x,y,z));
 }
 
 void ComputeShader::sync(){
-	GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
+	// GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 }

@@ -9,8 +9,8 @@ void write_to_file(GLuint VBO,GLuint EBO,int div, bool write_normals, const char
 	using namespace std;
     vertex_t* data_buffer = new vertex_t[( div + 1 ) * ( div + 1 )];
 	index_t* indices_buffer = new index_t[ div * div ];
-	glGetNamedBufferSubData(VBO, 0, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t), data_buffer);
-	glGetNamedBufferSubData(EBO, 0, div * div * sizeof(struct index_t), indices_buffer);
+	// glGetNamedBufferSubData(VBO, 0, ( div + 1 ) * ( div + 1 ) * sizeof(struct vertex_t), data_buffer);
+	// glGetNamedBufferSubData(EBO, 0, div * div * sizeof(struct index_t), indices_buffer);
 	std::ofstream file(file_name);
 	int progress = -1;
 	for(int iter_i = 0 ; iter_i < ( div + 1 ) * ( div + 1 ) ; iter_i++){
