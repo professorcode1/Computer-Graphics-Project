@@ -8,6 +8,7 @@ public:
     ~VertexBuffer();
     void Bind()const ;
     void Unbind()const ;
+    void rewrite_data(const void* data, unsigned int size);
     inline unsigned int GetRenderedID() const {return m_RendererID;}
 
 };

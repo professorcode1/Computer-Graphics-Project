@@ -74,6 +74,7 @@ int ShaderBase::GetUniformLocation(const std::string &name){
 	if(m_UniformLocationCache.find(name) != m_UniformLocationCache.end()){
 		return m_UniformLocationCache[name];
 	}
+	// std::cout<<"the glGetUniformLocation has been called for \t"<<name<<std::endl;
     GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
     if(location == -1)
         std::cout<<"Warning : uniform '" << name<< "' doesn't exist"<<std::endl;

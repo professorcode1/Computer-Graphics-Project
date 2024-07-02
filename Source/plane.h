@@ -10,10 +10,11 @@
 #include "waveFrontFileApi.h"
 #include "meshTransform.h"
 #include <cstddef>
-#include<GLFW/glfw3.h>
+// #include<GLFW/glfw3.h>
 #include <cstdio>
 #include "../IncGLM.hpp"
 
+#include <GL/glut.h>
 
 class Plane{
     public:
@@ -28,7 +29,7 @@ class Plane{
 
         void render(glm::mat4 viewAndProjection);
 
-        void catchInputs(GLFWwindow* window);
+        void catchInputs(int key);
         
         std::tuple<glm::mat4,glm::vec3> get_MVP_Matrix();
         

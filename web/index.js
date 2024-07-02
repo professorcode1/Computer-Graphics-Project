@@ -39,7 +39,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmp1bjwytm1.js
+// include: /tmp/tmpd_iprumf.js
 
   if (!Module.expectedDataFileDownloads) {
     Module.expectedDataFileDownloads = 0;
@@ -236,25 +236,25 @@ Module['FS_createPath']("/shaders", "trees", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/assets/Ground Textures/danny_DaVito.jpeg", "start": 0, "end": 290481}, {"filename": "/assets/Ground Textures/desset_mountain.jpg", "start": 290481, "end": 549563}, {"filename": "/assets/Ground Textures/dirt.jpg", "start": 549563, "end": 689346}, {"filename": "/assets/Ground Textures/dirtAndGrass.jpg", "start": 689346, "end": 810038}, {"filename": "/assets/Ground Textures/gradient.jpeg", "start": 810038, "end": 811509}, {"filename": "/assets/Ground Textures/grass.jpg", "start": 811509, "end": 2351951}, {"filename": "/assets/Ground Textures/imageGrad.png", "start": 2351951, "end": 2493838}, {"filename": "/assets/Ground Textures/mountain.jpg", "start": 2493838, "end": 2624208}, {"filename": "/assets/Ground Textures/soil.jpg", "start": 2624208, "end": 2883286}, {"filename": "/assets/Planes/Aeroplane/Color plane map.png", "start": 2883286, "end": 3187497}, {"filename": "/assets/Planes/Aeroplane/Plane.mtl", "start": 3187497, "end": 3187668}, {"filename": "/assets/Planes/Aeroplane/Plane.obj", "start": 3187668, "end": 3227169}, {"filename": "/assets/Planes/Airplane (1)/Airplane Texture.png", "start": 3227169, "end": 3275246}, {"filename": "/assets/Planes/Airplane (1)/Airplane.mtl", "start": 3275246, "end": 3275362}, {"filename": "/assets/Planes/Airplane (1)/Airplane.obj", "start": 3275362, "end": 3584672}, {"filename": "/assets/Planes/Airplane/PUSHILIN_PLANE.png", "start": 3584672, "end": 3845866}, {"filename": "/assets/Planes/Airplane/PUSHILIN_Plane.mtl", "start": 3845866, "end": 3846128}, {"filename": "/assets/Planes/Airplane/PUSHILIN_Plane.obj", "start": 3846128, "end": 3972649}, {"filename": "/assets/Trees/Orange tree/model.obj", "start": 3972649, "end": 4221373}, {"filename": "/assets/Trees/Orange tree/texture.png", "start": 4221373, "end": 6704868}, {"filename": "/assets/Trees/Pine tree/model.obj", "start": 6704868, "end": 6710716}, {"filename": "/assets/Trees/Pine tree/texture.png", "start": 6710716, "end": 6841078}, {"filename": "/assets/cloud/Cloud2.obj", "start": 6841078, "end": 6927256}, {"filename": "/assets/cloud/Cloud4.obj", "start": 6927256, "end": 7013573}, {"filename": "/assets/cloud/Cloud_01.obj", "start": 7013573, "end": 7084173}, {"filename": "/assets/cloud/Cloud_2.obj", "start": 7084173, "end": 7175469}, {"filename": "/assets/cloud/model.obj", "start": 7175469, "end": 7389731}, {"filename": "/assets/cloud/model1.obj", "start": 7389731, "end": 8721998}, {"filename": "/assets/cloud/model2.obj", "start": 8721998, "end": 10067093}, {"filename": "/assets/grass/Grass #1/ElwFor_Grass01.mtl", "start": 10067093, "end": 10067300}, {"filename": "/assets/grass/Grass/material.lib", "start": 10067300, "end": 10067661}, {"filename": "/assets/grass/grass blades/materials.mtl", "start": 10067661, "end": 10067695}, {"filename": "/assets/grass/grass blades/materials.mtl.bak", "start": 10067695, "end": 10067732}, {"filename": "/assets/skybox/back.jpg", "start": 10067732, "end": 10807800}, {"filename": "/assets/skybox/bottom.jpg", "start": 10807800, "end": 11088389}, {"filename": "/assets/skybox/front.jpg", "start": 11088389, "end": 11561718}, {"filename": "/assets/skybox/left.jpg", "start": 11561718, "end": 12163603}, {"filename": "/assets/skybox/right.jpg", "start": 12163603, "end": 12701641}, {"filename": "/assets/skybox/top.jpg", "start": 12701641, "end": 13047780}, {"filename": "/shaders/clouds/flowField.glsl", "start": 13047780, "end": 13050238}, {"filename": "/shaders/clouds/fragment.glsl", "start": 13050238, "end": 13050388}, {"filename": "/shaders/clouds/vertex.glsl", "start": 13050388, "end": 13050728}, {"filename": "/shaders/plane/fragment.glsl", "start": 13050728, "end": 13050943}, {"filename": "/shaders/plane/vertex.glsl", "start": 13050943, "end": 13051204}, {"filename": "/shaders/skybox/fragment.glsl", "start": 13051204, "end": 13051380}, {"filename": "/shaders/skybox/vertex.glsl", "start": 13051380, "end": 13051668}, {"filename": "/shaders/terrain/collition.glsl", "start": 13051668, "end": 13060163}, {"filename": "/shaders/terrain/fragment.glsl", "start": 13060163, "end": 13061147}, {"filename": "/shaders/terrain/generate.glsl", "start": 13061147, "end": 13066430}, {"filename": "/shaders/terrain/vertex.glsl", "start": 13066430, "end": 13066982}, {"filename": "/shaders/trees/extract_height.glsl", "start": 13066982, "end": 13068891}, {"filename": "/shaders/trees/fragment.glsl", "start": 13068891, "end": 13069835}, {"filename": "/shaders/trees/vertex.glsl", "start": 13069835, "end": 13071041}], "remote_package_size": 13071041});
+    loadPackage({"files": [{"filename": "/assets/Ground Textures/danny_DaVito.jpeg", "start": 0, "end": 290481}, {"filename": "/assets/Ground Textures/desset_mountain.jpg", "start": 290481, "end": 549563}, {"filename": "/assets/Ground Textures/dirt.jpg", "start": 549563, "end": 689346}, {"filename": "/assets/Ground Textures/dirtAndGrass.jpg", "start": 689346, "end": 810038}, {"filename": "/assets/Ground Textures/gradient.jpeg", "start": 810038, "end": 811509}, {"filename": "/assets/Ground Textures/grass.jpg", "start": 811509, "end": 2351951}, {"filename": "/assets/Ground Textures/imageGrad.png", "start": 2351951, "end": 2493838}, {"filename": "/assets/Ground Textures/mountain.jpg", "start": 2493838, "end": 2624208}, {"filename": "/assets/Ground Textures/soil.jpg", "start": 2624208, "end": 2883286}, {"filename": "/assets/Planes/Aeroplane/Color plane map.png", "start": 2883286, "end": 3187497}, {"filename": "/assets/Planes/Aeroplane/Plane.mtl", "start": 3187497, "end": 3187668}, {"filename": "/assets/Planes/Aeroplane/Plane.obj", "start": 3187668, "end": 3227169}, {"filename": "/assets/Planes/Airplane (1)/Airplane Texture.png", "start": 3227169, "end": 3275246}, {"filename": "/assets/Planes/Airplane (1)/Airplane.mtl", "start": 3275246, "end": 3275362}, {"filename": "/assets/Planes/Airplane (1)/Airplane.obj", "start": 3275362, "end": 3584672}, {"filename": "/assets/Planes/Airplane/PUSHILIN_PLANE.png", "start": 3584672, "end": 3845866}, {"filename": "/assets/Planes/Airplane/PUSHILIN_Plane.mtl", "start": 3845866, "end": 3846128}, {"filename": "/assets/Planes/Airplane/PUSHILIN_Plane.obj", "start": 3846128, "end": 3972649}, {"filename": "/assets/Trees/Orange tree/model.obj", "start": 3972649, "end": 4221373}, {"filename": "/assets/Trees/Orange tree/texture.png", "start": 4221373, "end": 6704868}, {"filename": "/assets/Trees/Pine tree/model.obj", "start": 6704868, "end": 6710716}, {"filename": "/assets/Trees/Pine tree/texture.png", "start": 6710716, "end": 6841078}, {"filename": "/assets/cloud/Cloud2.obj", "start": 6841078, "end": 6927256}, {"filename": "/assets/cloud/Cloud4.obj", "start": 6927256, "end": 7013573}, {"filename": "/assets/cloud/Cloud_01.obj", "start": 7013573, "end": 7084173}, {"filename": "/assets/cloud/Cloud_2.obj", "start": 7084173, "end": 7175469}, {"filename": "/assets/cloud/model.obj", "start": 7175469, "end": 7389731}, {"filename": "/assets/cloud/model1.obj", "start": 7389731, "end": 8721998}, {"filename": "/assets/cloud/model2.obj", "start": 8721998, "end": 10067093}, {"filename": "/assets/grass/Grass #1/ElwFor_Grass01.mtl", "start": 10067093, "end": 10067300}, {"filename": "/assets/grass/Grass/material.lib", "start": 10067300, "end": 10067661}, {"filename": "/assets/grass/grass blades/materials.mtl", "start": 10067661, "end": 10067695}, {"filename": "/assets/grass/grass blades/materials.mtl.bak", "start": 10067695, "end": 10067732}, {"filename": "/assets/skybox/back.jpg", "start": 10067732, "end": 10807800}, {"filename": "/assets/skybox/bottom.jpg", "start": 10807800, "end": 11088389}, {"filename": "/assets/skybox/front.jpg", "start": 11088389, "end": 11561718}, {"filename": "/assets/skybox/left.jpg", "start": 11561718, "end": 12163603}, {"filename": "/assets/skybox/right.jpg", "start": 12163603, "end": 12701641}, {"filename": "/assets/skybox/top.jpg", "start": 12701641, "end": 13047780}, {"filename": "/parameters.json", "start": 13047780, "end": 13050266}, {"filename": "/shaders/clouds/flowField.glsl", "start": 13050266, "end": 13052724}, {"filename": "/shaders/clouds/fragment.glsl", "start": 13052724, "end": 13052874}, {"filename": "/shaders/clouds/vertex.glsl", "start": 13052874, "end": 13053214}, {"filename": "/shaders/plane/fragment.glsl", "start": 13053214, "end": 13053463}, {"filename": "/shaders/plane/vertex.glsl", "start": 13053463, "end": 13053749}, {"filename": "/shaders/skybox/fragment.glsl", "start": 13053749, "end": 13053925}, {"filename": "/shaders/skybox/vertex.glsl", "start": 13053925, "end": 13054213}, {"filename": "/shaders/terrain/fragment.glsl", "start": 13054213, "end": 13055220}, {"filename": "/shaders/terrain/vertex.glsl", "start": 13055220, "end": 13055796}, {"filename": "/shaders/trees/extract_height.glsl", "start": 13055796, "end": 13057705}, {"filename": "/shaders/trees/fragment.glsl", "start": 13057705, "end": 13058649}, {"filename": "/shaders/trees/vertex.glsl", "start": 13058649, "end": 13059855}], "remote_package_size": 13059855});
 
   })();
 
-// end include: /tmp/tmp1bjwytm1.js
-// include: /tmp/tmp73w46go8.js
+// end include: /tmp/tmpd_iprumf.js
+// include: /tmp/tmp_omy_98v.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmp73w46go8.js
-// include: /tmp/tmpb0awxea2.js
+  // end include: /tmp/tmp_omy_98v.js
+// include: /tmp/tmpnavdlbd9.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach(function(task) {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmpb0awxea2.js
+  // end include: /tmp/tmpnavdlbd9.js
 
 
 // Sometimes an existing Module object exists with properties
@@ -5135,6 +5135,31 @@ function dbg(...args) {
       GL.postDrawHandleClientVertexAttribBindings();
     };
 
+  var _glDrawElements = (mode, count, type, indices) => {
+      var buf;
+      if (!GLctx.currentElementArrayBufferBinding) {
+        var size = GL.calcBufLength(1, type, 0, count);
+        buf = GL.getTempIndexBuffer(size);
+        GLctx.bindBuffer(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, buf);
+        GLctx.bufferSubData(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/,
+                            0,
+                            HEAPU8.subarray(indices, indices + size));
+        // the index is now 0
+        indices = 0;
+      }
+  
+      // bind any client-side buffers
+      GL.preDrawHandleClientVertexAttribBindings(count);
+  
+      GLctx.drawElements(mode, count, type, indices);
+  
+      GL.postDrawHandleClientVertexAttribBindings(count);
+  
+      if (!GLctx.currentElementArrayBufferBinding) {
+        GLctx.bindBuffer(0x8893 /*GL_ELEMENT_ARRAY_BUFFER*/, null);
+      }
+    };
+
   var _glEnable = (x0) => GLctx.enable(x0);
 
   var _glEnableVertexAttribArray = (index) => {
@@ -5426,8 +5451,18 @@ function dbg(...args) {
       }
     };
   
+  var _glUniform1f = (location, v0) => {
+      GLctx.uniform1f(webglGetUniformLocation(location), v0);
+    };
+
+  
   var _glUniform1i = (location, v0) => {
       GLctx.uniform1i(webglGetUniformLocation(location), v0);
+    };
+
+  
+  var _glUniform3f = (location, v0, v1, v2) => {
+      GLctx.uniform3f(webglGetUniformLocation(location), v0, v1, v2);
     };
 
   
@@ -7188,6 +7223,8 @@ var wasmImports = {
   /** @export */
   glDrawArrays: _glDrawArrays,
   /** @export */
+  glDrawElements: _glDrawElements,
+  /** @export */
   glEnable: _glEnable,
   /** @export */
   glEnableVertexAttribArray: _glEnableVertexAttribArray,
@@ -7214,7 +7251,11 @@ var wasmImports = {
   /** @export */
   glTexParameteri: _glTexParameteri,
   /** @export */
+  glUniform1f: _glUniform1f,
+  /** @export */
   glUniform1i: _glUniform1i,
+  /** @export */
+  glUniform3f: _glUniform3f,
   /** @export */
   glUniformMatrix4fv: _glUniformMatrix4fv,
   /** @export */
@@ -7268,7 +7309,7 @@ var dynCall_viijii = Module['dynCall_viijii'] = createExportWrapper('dynCall_vii
 var dynCall_iiiiij = Module['dynCall_iiiiij'] = createExportWrapper('dynCall_iiiiij', 7);
 var dynCall_iiiiijj = Module['dynCall_iiiiijj'] = createExportWrapper('dynCall_iiiiijj', 9);
 var dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = createExportWrapper('dynCall_iiiiiijj', 10);
-var _flight_simulator = Module['_flight_simulator'] = 90704;
+var _flight_simulator = Module['_flight_simulator'] = 105296;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===

@@ -6,6 +6,11 @@ IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count) : m_Count
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
     GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, GL_STATIC_DRAW));
 }
+
+void IndexBuffer::rewrite_data(const void* data, unsigned int count){
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
+    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, GL_STATIC_DRAW));
+}
 IndexBuffer::IndexBuffer(const int RendererID, unsigned int count) :m_RendererID(RendererID), m_Count(count) {
 }
 

@@ -17,7 +17,7 @@ LIBS = -lGLEW
 ECHO_MESSAGE = "Emscripten"
 CC = emcc
 CXX = em++
-CXXFLAGS += -s USE_GLFW=3 -s FULL_ES3=1 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s ASSERTIONS=1  --preload-file assets --preload-file shaders
+CXXFLAGS += -s USE_GLFW=3 -s FULL_ES3=1 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s ASSERTIONS=1  --preload-file assets --preload-file shaders --preload-file parameters.json
 LIBS += -lGL -s USE_WEBGL2=1
 
 ##---------------------------------------------------------------------

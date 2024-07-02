@@ -77,40 +77,40 @@ void Plane::render(glm::mat4 viewAndProjection){
 	ibo->Unbind();
 }
 
-void Plane::catchInputs(GLFWwindow* window){
+void Plane::catchInputs(int key){
     glm::vec3 orientation( cos(glm::radians(pitch_degree)) * sin(glm::radians(yay_degree)), 
 	sin(glm::radians(pitch_degree)) ,
 	 cos(glm::radians(pitch_degree)) * cos(glm::radians(yay_degree)));
-	bool roll_was_changed = false;
-	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+	static bool roll_was_changed = false;
+	if(key == GLUT_KEY_UP){
 		pitch_degree = std::min(pitch_degree+rotation_angle_per_frame_deg, 60.0f);
 
     }
-    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+    if(key == GLUT_KEY_DOWN){
 		pitch_degree = std::max(pitch_degree - rotation_angle_per_frame_deg, -60.0f);
     }
-    if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+    if(key == GLUT_KEY_LEFT){
 		roll_was_changed = true;
 		roll_degree -= rotation_angle_per_frame_deg; 
 		yay_degree += rotation_angle_per_frame_deg;
     }
-    if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+    else if(key == GLUT_KEY_RIGHT){
 		roll_was_changed = true;
 		roll_degree += rotation_angle_per_frame_deg; 
 		yay_degree -= rotation_angle_per_frame_deg;
-    }
-	if(glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS){
-    	position += speed * orientation;
+    }else{
+		roll_was_changed = false;
 	}
+    position += speed * orientation;
 	if(! roll_was_changed && roll_was_changed > 360.0f){
 		roll_degree = glm::mod(roll_degree, 360.0f);
 	}
 	if(! roll_was_changed  && roll_degree >= 1.0f){
-			roll_degree -= rotation_angle_per_frame_deg;
+			roll_degree -= rotation_angle_per_frame_deg/2.0;
 	}
 
 	if(! roll_was_changed  && roll_degree <= -1.0f){
-			roll_degree += rotation_angle_per_frame_deg;
+			roll_degree += rotation_angle_per_frame_deg/2.0;
 	}
 	// printf("%s \n", glm::to_string(position).c_str());
 }

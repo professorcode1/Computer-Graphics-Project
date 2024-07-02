@@ -10,7 +10,7 @@
 #include "waveFrontFileApi.h"
 #include "../IncGLM.hpp"
 #include "../FOSS_Code/json.hpp"
-
+#include "./vertex_index_layout.h"
 
 
 
@@ -21,7 +21,8 @@ class TerrainPatch{
         VertexArray vertex_array;
         VertexBuffer* vertex_buffer;
         IndexBuffer* index_buffer;
-        ComputeShader terrain_generator;
+        vertex_t* vertex_buffer_cpu;
+        index_t* index_buffer_cpu;
         Shader shader;
         Texture tex;
         unsigned int texture_slot_m = 0;
@@ -42,7 +43,6 @@ class TerrainPatch{
         const glm::vec3 &sun_direction,
         glm::vec2 terrain_index,
         const bool async_generation,
-        const std::string &terrainGeneratorShaderFile = "shaders/terrain/generate.glsl", 
 	    const std::string &vertexShaderFile = "shaders/terrain/vertex.glsl",
 	    const std::string &fragmentShaderFile = "shaders/terrain/fragment.glsl"
 	);
@@ -56,8 +56,6 @@ class TerrainPatch{
     unsigned int get_terrain_ssbo_buffer_id() const;
 
     float get_Mountain_Scale() const;
-
-    void sync();
 
     void set_index(
         const glm::vec2 &new_index,const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,

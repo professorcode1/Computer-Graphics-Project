@@ -11,4 +11,5 @@ public:
     void Unbind() const ;
     inline unsigned int GetCount() const {return m_Count;}
     inline unsigned int GetRenderedID() const {return m_RendererID;}
+    void rewrite_data(const void* data, unsigned int count);
 };
