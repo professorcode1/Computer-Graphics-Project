@@ -1,15 +1,15 @@
-#version 460 core
+#version 300 es	
+precision mediump float;
 
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texture_uv;
 
 uniform mat4 VPMatrix;
-uniform samplerBuffer LocationArrayTexture;
+uniform vec3 tranlsation_data;
 uniform vec3 camera_loc;
 uniform vec3 sun_direction_vector;
 uniform float scaling_factor;
-uniform int LocationArrayTextureIndex;
 
 
 out vec2 v_TexCoord;
@@ -31,7 +31,6 @@ mat4 scale_and_translate(vec3 translation, float scale) {
 }
 
 void main(){
-	vec4 tranlsation_data = texelFetch(LocationArrayTexture, LocationArrayTextureIndex);
 
 	mat4 ModelMatrix = scale_and_translate(tranlsation_data.xyz, scaling_factor);
 	gl_Position = VPMatrix * ModelMatrix * position;

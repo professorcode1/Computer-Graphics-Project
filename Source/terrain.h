@@ -24,7 +24,6 @@ class TerrainPatch{
         vertex_t* vertex_buffer_cpu;
         index_t* index_buffer_cpu;
         Shader shader;
-        unsigned int texture_slot_m = 0;
         const int div_m; 
 	    const float length_of_side_m;
         const float mountain_scale_factor_m;
@@ -52,7 +51,7 @@ class TerrainPatch{
 
     std::tuple<float, float, float,float> get_corners() const ;
 
-    unsigned int get_terrain_ssbo_buffer_id() const;
+    vertex_t *get_vertex_buffer_cpu() const;
 
     float get_Mountain_Scale() const;
 

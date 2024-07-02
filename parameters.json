@@ -34,7 +34,7 @@
         "rotational velocity degree" : 0.10
     },
     "tress parameters":{
-        "tress per division" : 10,
+        "tress per division" : 4,
         "tress scale" : 100.0
     },
     "sun parameters":{

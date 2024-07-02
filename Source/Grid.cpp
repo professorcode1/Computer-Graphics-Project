@@ -51,23 +51,17 @@ Grid::Grid(
 	;
 	this->tex = new Texture(terrainParam.at("noise texture file").get<std::string>());
 	generate_terrain_grid(current_center, fog_densty,sun_direction,terrainParam);
-	// for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
-	// 	for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
+	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
+		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
 			
-	// 		this->main_terrain_grid[ i ][ j ]->sync();
-	// 		this->tree_grid[ i ][ j ] = new Trees(
-	// 			tressParameter.at("tress per division").get<int>(),
-	// 			tressParameter.at("tress scale").get<float>(),
-	// 			*this->main_terrain_grid[ i ][ j ], 
-	// 			sun_direction,fog_densty
-	// 		);
-	// 	}
-	// }
-	// for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
-	// 	for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
-	// 		this->tree_grid[ i ][ j ]->sync();
-	// 	}
-	// }
+			this->tree_grid[ i ][ j ] = new Trees(
+				tressParameter.at("tress per division").get<int>(),
+				tressParameter.at("tress scale").get<float>(),
+				*this->main_terrain_grid[ i ][ j ], 
+				sun_direction,fog_densty
+			);
+		}
+	}
 
 
 }
@@ -77,7 +71,7 @@ void Grid::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
 	for(int i=0;i<Grid::NumberOfPatcherInGridPerAxis;i++){
 		for(int j=0;j<Grid::NumberOfPatcherInGridPerAxis;j++){
 			this->main_terrain_grid[i][j]->render(ViewProjection, camera_pos);
-            // this->tree_grid[ i ][ j ]->render(ViewProjection, camera_pos);
+            this->tree_grid[ i ][ j ]->render(ViewProjection, camera_pos);
             // this->cloud_grid[ i ][ j ]->render(ViewProjection);
 		}
 	}

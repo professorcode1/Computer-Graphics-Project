@@ -267,8 +267,8 @@ int TerrainPatch::get_divisions() const{
 	return div_m;
 }
 
-unsigned int TerrainPatch::get_terrain_ssbo_buffer_id() const{
-	return this->VBO;
+vertex_t * TerrainPatch::get_vertex_buffer_cpu() const{
+	return this->vertex_buffer_cpu;
 }
 
 float TerrainPatch::get_Mountain_Scale() const{

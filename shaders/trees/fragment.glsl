@@ -1,4 +1,5 @@
-#version 460 core
+#version 300 es
+precision mediump float;
 
 layout(location = 0) out vec4 color;
 
@@ -12,13 +13,9 @@ in vec2 v_TexCoord;
 in float intensity;
 in float camera_dist;
 
-void applyExponentialSquareFog(inout vec4 original_color, float view_distance){
-	float fog_factor = pow(2.0, -1 * view_distance * fog_density * view_distance * fog_density);
-	original_color = mix(fog_color, original_color, fog_factor);
-}
 
 void applyExponentialFog(inout vec4 original_color, float view_distance){
-	float fog_factor = pow(2.0, -1 * view_distance * fog_density);
+	float fog_factor = pow(2.0, -1.0 * view_distance * fog_density);
 	original_color = mix(fog_color, original_color, fog_factor);
 }
 
