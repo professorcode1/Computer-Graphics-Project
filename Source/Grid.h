@@ -1,6 +1,7 @@
 #include "trees.h"
 #include "cloud.h"
 #include "terrain.h"
+#include "../OpenGL/Texture.h"
 
 class Grid{
 private:
@@ -8,7 +9,7 @@ private:
     // Trees* tree_grid[Grid::NumberOfPatcherInGridPerAxis][Grid::NumberOfPatcherInGridPerAxis];
     TerrainPatch* main_terrain_grid[Grid::NumberOfPatcherInGridPerAxis][Grid::NumberOfPatcherInGridPerAxis];
     // Clouds* cloud_grid[Grid::NumberOfPatcherInGridPerAxis][Grid::NumberOfPatcherInGridPerAxis];
-    
+    Texture* tex;
     glm::vec2 current_center;
 
     void generate_terrain_grid(

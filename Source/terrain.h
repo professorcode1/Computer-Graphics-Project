@@ -24,7 +24,6 @@ class TerrainPatch{
         vertex_t* vertex_buffer_cpu;
         index_t* index_buffer_cpu;
         Shader shader;
-        Texture tex;
         unsigned int texture_slot_m = 0;
         const int div_m; 
 	    const float length_of_side_m;
@@ -33,7 +32,7 @@ class TerrainPatch{
         glm::vec2 terrain_index_m;
     public:
     TerrainPatch( 
-        const std::string &terrainTextureFile,float fog_density , 
+        float fog_density , 
         const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
 	    float output_increase_fctr_, float input_shrink_fctr_, 
         float lacunarity, float persistance,

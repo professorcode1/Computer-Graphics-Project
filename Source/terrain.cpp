@@ -166,7 +166,7 @@ static void generate_the_terrain(
 }
 
 TerrainPatch::TerrainPatch( 
-	const std::string &terrainTextureFile,float fog_density , 
+	float fog_density , 
     const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
 	float output_increase_fctr_, float input_shrink_fctr_, 
     float lacunarity, float persistance,
@@ -180,7 +180,6 @@ TerrainPatch::TerrainPatch(
 	const std::string &fragmentShaderFile
 ):
 shader(vertexShaderFile, fragmentShaderFile),
-tex(terrainTextureFile),
 div_m{div},
 length_of_side_m{length_of_side},
 mountain_scale_factor_m{Mountain_Scale_Factor},
@@ -232,7 +231,6 @@ terrain_index_m{terrain_index}
 		write_to_file(this->VBO,this->EBO,div);
 	// std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
 
-	this->tex.Unbind();
 	this->vertex_array.Unbind();
 	this->vertex_buffer->Unbind();
 	this->index_buffer->Unbind();
@@ -255,11 +253,9 @@ void TerrainPatch::render(const glm::mat4 &ViewProjection, const glm::vec3 &came
 		this->shader.SetUniform3f("camera_loc", camera_pos.x, camera_pos.y, camera_pos.z);
 		this->vertex_array.Bind();
 
-		this->tex.Bind();
 		// std::cout<<"terrain patch render called"<<std::endl;
 		GLCall(glDrawElements(GL_TRIANGLES, this->index_buffer->GetCount() , GL_UNSIGNED_INT, nullptr));
 
-		this->tex.Unbind();
 		this->vertex_array.Unbind();
 		this->vertex_buffer->Unbind();
 		this->index_buffer->Unbind();
@@ -307,6 +303,8 @@ void TerrainPatch::set_index(
 		persistance,div_m, length_of_side,Mountain_Scale_Factor, 
 		terrain_index_m, vertex_buffer_cpu, index_buffer_cpu
 	);
-	this->vertex_buffer->rewrite_data(vertex_buffer_cpu, (div_m+1) * (div_m+1));
-	this->index_buffer->rewrite_data(index_buffer_cpu, div_m * div_m);
+
+
+	this->vertex_buffer->rewrite_data(vertex_buffer_cpu, (div_m+1) * (div_m+1)* sizeof(vertex_t));
+	this->index_buffer->rewrite_data(index_buffer_cpu, div_m * div_m * 6);
 }

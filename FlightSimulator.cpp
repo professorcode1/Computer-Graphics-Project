@@ -70,7 +70,7 @@ public:
   	this->plane->render(VP);
     this->plane->catchInputs(KEY_VALUE_OUTSIDE_GLUT_RANGE);
 
-    // this->TerrainGrid->update(time++, plane->get_position(), fog_densty, sun_direction, terrainParam);
+    this->TerrainGrid->update(time++, plane->get_position(), fog_densty, sun_direction, terrainParam);
 		this->TerrainGrid->render(VP, camera_pos);
 
   }
@@ -85,7 +85,8 @@ void initGL() {
   glEnable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-	// GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+  glDepthFunc(GL_LESS);
+
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   flight_simulator = new FlightSimulator();
 }
@@ -132,7 +133,8 @@ void key(int key, int x, int y) {
 /* Mainfunction: GLUT runs as a console application starting at main() */
 int main(int argc, char ** argv) {
   glutInit( & argc, argv); // Initialize GLUT
-  glutInitDisplayMode(GLUT_DOUBLE); // Enable double buffered mode
+  glutInitDisplayMode(GLUT_DOUBLE| GLUT_DEPTH);
+
   glutInitWindowSize(500, 500); // Set the window's initial width & height - non-square
   glutInitWindowPosition(50, 50); // Position the window's initial top-left corner
   glutCreateWindow("Namma Metro 1SK16CS017"); // Create window with the given title

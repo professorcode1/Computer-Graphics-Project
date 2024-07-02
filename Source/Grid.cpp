@@ -3,11 +3,12 @@
 static TerrainPatch* terrain_patch_generator(
 	const float fog_densty, const glm::vec3 &sun_direction, 
 	const nlohmann::json &terrainParam, const glm::vec2 &center ,
-	const bool async_generation, const std::string &level_of_detail
+	const bool async_generation
 ){
-	const int number_of_divisions = terrainParam.at("divisions").at(level_of_detail).get<int>();
+	const int number_of_divisions = terrainParam.at("divisions").get<int>();
+	std::cout<<"generating terrain patch for "<<number_of_divisions<<" divisions"<<std::endl;
 	return new TerrainPatch(
-		terrainParam.at("noise texture file"), fog_densty,terrainParam["wave numbers active"], 
+		fog_densty,terrainParam["wave numbers active"], 
 		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
 		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"),number_of_divisions, 
 		terrainParam.at("length of one side"), 
@@ -22,15 +23,7 @@ void Grid::generate_terrain_grid(
 	const float offset_to_terrain_path =  Grid::NumberOfPatcherInGridPerAxis / 2;
 	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis  ; i++){
 		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
-			std::string level_of_detail;
-			if(i==0 || j ==0 || i == Grid::NumberOfPatcherInGridPerAxis - 1 || j == Grid::NumberOfPatcherInGridPerAxis - 1){
-				level_of_detail = "lowest";
-			}else if(i == Grid::NumberOfPatcherInGridPerAxis / 2 || j == Grid::NumberOfPatcherInGridPerAxis / 2){
-				level_of_detail = "default";
-			}else{
-				level_of_detail = "lower";
-			}
-			std::cout<<"calling terrain patch generate for "<<i<<"\t"<<j<<std::endl;
+			
 			this->main_terrain_grid[ i ][ j ] = terrain_patch_generator(
 				fog_densty, 
 				sun_direction, 
@@ -39,8 +32,7 @@ void Grid::generate_terrain_grid(
 					center.x + i - offset_to_terrain_path, 
 					center.y + j - offset_to_terrain_path
 				),
-				true,
-				level_of_detail
+				true
 			);	
 
 		}
@@ -56,6 +48,8 @@ Grid::Grid(
 	const float terrain_max_height = 
                 terrainParam.at("output_increase_fctr_").get<float>() * 
                 terrainParam.at("Mountain Scale Factor").get<float>();
+	;
+	this->tex = new Texture(terrainParam.at("noise texture file").get<std::string>());
 	generate_terrain_grid(current_center, fog_densty,sun_direction,terrainParam);
 	// for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
 	// 	for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
@@ -79,6 +73,7 @@ Grid::Grid(
 }
 
 void Grid::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
+	this->tex->Bind();
 	for(int i=0;i<Grid::NumberOfPatcherInGridPerAxis;i++){
 		for(int j=0;j<Grid::NumberOfPatcherInGridPerAxis;j++){
 			this->main_terrain_grid[i][j]->render(ViewProjection, camera_pos);
@@ -86,6 +81,7 @@ void Grid::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
             // this->cloud_grid[ i ][ j ]->render(ViewProjection);
 		}
 	}
+	this->tex->Unbind();
 }
 
 void Grid::update(
@@ -111,14 +107,6 @@ void Grid::update(
 
 	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
 		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
-			std::string level_of_detail;
-			if(i==0 || j ==0 || i == Grid::NumberOfPatcherInGridPerAxis - 1 || j == Grid::NumberOfPatcherInGridPerAxis - 1){
-				level_of_detail = "lowest";
-			}else if(i == Grid::NumberOfPatcherInGridPerAxis / 2 || j == Grid::NumberOfPatcherInGridPerAxis / 2){
-				level_of_detail = "default";
-			}else{
-				level_of_detail = "lower";
-			}
 
 			this->main_terrain_grid[ i ][ j ]->set_index(
 				glm::vec2(
