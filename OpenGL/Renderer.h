@@ -5,10 +5,10 @@
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #define ASSERT(x) if(!(x)) __builtin_trap();
-#define GLCall(x) GLClearError();\
-	x;\
-	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
+// #define GLCall(x) GLClearError();\
+// 	x;\
+// 	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+#define GLCall(x) x
 
 bool GLLogCall(const char *function, const char* file, int line);
 void GLClearError();

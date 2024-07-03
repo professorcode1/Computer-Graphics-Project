@@ -59,4 +59,5 @@ public:
     );
     void render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos);
     void populateSpecies(const std::string &tree_assets_folder = "assets/Trees");
+    void position_the_trees(int divisions,vertex_t *terrain);
 };

@@ -39,7 +39,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpj8grqype.js
+// include: /tmp/tmpmojmtqf7.js
 
   if (!Module.expectedDataFileDownloads) {
     Module.expectedDataFileDownloads = 0;
@@ -240,21 +240,21 @@ Module['FS_createPath']("/shaders", "trees", true, true);
 
   })();
 
-// end include: /tmp/tmpj8grqype.js
-// include: /tmp/tmpusm5ubbs.js
+// end include: /tmp/tmpmojmtqf7.js
+// include: /tmp/tmpzoh8qqcb.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmpusm5ubbs.js
-// include: /tmp/tmpxf55un5k.js
+  // end include: /tmp/tmpzoh8qqcb.js
+// include: /tmp/tmpr02389i0.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach(function(task) {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmpxf55un5k.js
+  // end include: /tmp/tmpr02389i0.js
 
 
 // Sometimes an existing Module object exists with properties
@@ -5246,12 +5246,6 @@ function dbg(...args) {
         );
     };
 
-  var _glGetError = () => {
-      var error = GLctx.getError() || GL.lastError;
-      GL.lastError = 0/*GL_NO_ERROR*/;
-      return error;
-    };
-
   
   var _glGetShaderInfoLog = (shader, maxLength, length, infoLog) => {
       var log = GLctx.getShaderInfoLog(GL.shaders[shader]);
@@ -7298,8 +7292,6 @@ var wasmImports = {
   /** @export */
   glGenVertexArrays: _glGenVertexArrays,
   /** @export */
-  glGetError: _glGetError,
-  /** @export */
   glGetShaderInfoLog: _glGetShaderInfoLog,
   /** @export */
   glGetShaderiv: _glGetShaderiv,
@@ -7354,8 +7346,6 @@ var wasmImports = {
 };
 var wasmExports = createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors', 0);
-var _move_train_forward = Module['_move_train_forward'] = createExportWrapper('move_train_forward', 0);
-var _move_train_backward = Module['_move_train_backward'] = createExportWrapper('move_train_backward', 0);
 var _main = Module['_main'] = createExportWrapper('__main_argc_argv', 2);
 var _malloc = createExportWrapper('malloc', 1);
 var _fflush = createExportWrapper('fflush', 1);
@@ -7372,7 +7362,7 @@ var dynCall_viijii = Module['dynCall_viijii'] = createExportWrapper('dynCall_vii
 var dynCall_iiiiij = Module['dynCall_iiiiij'] = createExportWrapper('dynCall_iiiiij', 7);
 var dynCall_iiiiijj = Module['dynCall_iiiiijj'] = createExportWrapper('dynCall_iiiiijj', 9);
 var dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = createExportWrapper('dynCall_iiiiiijj', 10);
-var _flight_simulator = Module['_flight_simulator'] = 108352;
+
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===

@@ -114,6 +114,10 @@ void Grid::update(
 				terrainParam.at("length of one side"), 
 				terrainParam.at("Mountain Scale Factor")
 			);
+			this->tree_grid[ i ][ j ]->position_the_trees(
+				this->main_terrain_grid[ i ][ j ]->get_divisions(),
+				this->main_terrain_grid[ i ][ j ]->get_vertex_buffer_cpu()
+			);
 		}
 	}
 

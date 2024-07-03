@@ -6,9 +6,85 @@
 #include "Source/plane.h"
 #include "FOSS_Code/json.hpp"
 #include "Source/Grid.h"
+#include <cstring>
 using json = nlohmann::json;
 
 constexpr int KEY_VALUE_OUTSIDE_GLUT_RANGE = 1000;
+char const * const RenderingParameterJSON = R"(
+{
+    "screen width" : 500,
+    "screen height" : 500,
+    "sky color RGB" : [135,206,235],
+    "fog density" : 0.00025,
+    "terrain parameters":{
+        "divisions" : 10, 
+        "wave numbers active" : [0,1,2,3,4,5,6,7,8,9,10],
+        "rotation angle fractal ground" : 36.87,
+        "output_increase_fctr_" : 3.0,
+        "input_shrink_fctr_": 3.0,
+        "length of one side":20.0,
+        "lacunarity" : 2.0,
+        "persistance" : 3.1,
+        "write normals" : false,
+        "write to file" : false,
+        "noise texture file" : "assets/Ground Textures/soil.jpg",
+        "Mountain Scale Factor" : 50
+    },
+    "plane parameters":{
+        "plane":"two",
+        "Camera Beind Distance" : 20.0,
+        "Camera Up Distance" : 3.50,
+        "Camera ViewPoint Distance" : 1.0,
+        "Plane Speed" : 5      
+    },
+    "cloud parameters":{
+        "distance above terrain" : 350,
+        "cloud per division" : 50,
+        "scale" : 0.4,
+        "input shrink factor" : 500.0,
+        "time shrink factor" : 600.0,
+        "velocity" : 0.15,
+        "rotational velocity degree" : 0.10
+    },
+    "tress parameters":{
+        "tress per division" : 4,
+        "tress scale" : 100.0
+    },
+    "sun parameters":{
+        "direction vector":[ -0.624695 , 0.468521 , -0.624695 ]
+    },
+    "camera":{
+        "FOV": 45.0,
+        "Near Plane" : 0.1,
+        "Far Plane" : 10000.0
+    },
+    "planes":{
+        "one":{
+            "Plane OBJ file" : "assets/Planes/Aeroplane/Plane.obj",
+            "Plane Texuture file" : "assets/Planes/Aeroplane/Color plane map.png",
+            "Plane Scale" : 1.0,
+            "rotation angles":[ 0.0 , 0.0 , 0.0 ],
+            "rotation axises":[ "y" , "z" , "x" ]            
+        },
+        "two":{
+            "Plane OBJ file" : "assets/Planes/Airplane/PUSHILIN_Plane.obj",
+            "Plane Texuture file" : "assets/Planes/Airplane/PUSHILIN_PLANE.png",
+            "Plane Scale" : 1.0,
+            "rotation angles":[ -90.0 , -10.0 , 0.0 ],
+            "rotation axises":[ "y" , "z" , "x" ]
+        },
+        "three":{
+            "Plane OBJ file" : "assets/Planes/Airplane (1)/Airplane.obj",
+            "Plane Texuture file" : "assets/Planes/Airplane (1)/Airplane Texture.png",
+            "Plane Scale" : 0.0025,
+            "rotation angles":[ 0.0 , 0.0 ,0.0 ],
+            "rotation axises":[ "x" , "y" , "z" ]
+        }
+
+    }
+
+}   
+)";
 
 class FlightSimulator{
 private:
@@ -20,9 +96,13 @@ private:
   json terrainParam;
 public:
   FlightSimulator(){
-    std::ifstream parameter_file("parameters.json");
-	  json parameter_json;
-	  parameter_file >> parameter_json;
+	  json parameter_json = json::parse(RenderingParameterJSON);
+    
+    glutInitWindowSize(
+      parameter_json.at("screen width").get<int>(), 
+      parameter_json.at("screen height").get<int>()
+    ); 
+
     const json planeParam = parameter_json.at("plane parameters");
 	  const json planeToUse = parameter_json.at("planes").at(planeParam.at("plane"));
   	const json terrainParam = parameter_json.at("terrain parameters");
@@ -78,7 +158,7 @@ public:
     this->plane->catchInputs(key);
   }
 };
-EMSCRIPTEN_KEEPALIVE FlightSimulator* flight_simulator = nullptr;
+FlightSimulator* flight_simulator = nullptr;
 
 void initGL() {
 
@@ -86,8 +166,8 @@ void initGL() {
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
-
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
   flight_simulator = new FlightSimulator();
 }
 void idle() {
@@ -113,20 +193,20 @@ void reshape(GLsizei width, GLsizei height) {
   // }
 }
 
-extern "C" void EMSCRIPTEN_KEEPALIVE move_train_forward() { 
-    // angle -= 0.01f;
-    glutPostRedisplay();
- }
-
- extern "C" void EMSCRIPTEN_KEEPALIVE move_train_backward() { 
-    // angle += 0.01f;
-    glutPostRedisplay();
- }
+// extern "C" 
+// void EMSCRIPTEN_KEEPALIVE rewrite_render_parameters(
+//   const std::string &new_rendering_parameter_json
+// ) {   
+//     delete flight_simulator;
+//     flight_simulator = new FlightSimulator();
+//     glutPostRedisplay();
+// }
 
 
 void key(int key, int x, int y) {
   if(flight_simulator == nullptr) return ;
   flight_simulator->forward_input_to_plane(key);  
+
  
 }; 
 

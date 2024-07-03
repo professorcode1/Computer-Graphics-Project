@@ -56,11 +56,13 @@ class TerrainPatch{
     float get_Mountain_Scale() const;
 
     void set_index(
-        const glm::vec2 &new_index,const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
-	float output_increase_fctr_, float input_shrink_fctr_, 
-    float lacunarity, float persistance, 
-	float length_of_side, 
-	float Mountain_Scale_Factor
+        const glm::vec2 &new_index,
+        const std::vector<int>  &ActiveWaveNumber, 
+        float rotation_angle_fractal_ground,
+	    float output_increase_fctr_, float input_shrink_fctr_, 
+        float lacunarity, float persistance, 
+	    float length_of_side, 
+	    float Mountain_Scale_Factor
     );
 };
 

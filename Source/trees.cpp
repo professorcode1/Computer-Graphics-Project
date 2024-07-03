@@ -65,17 +65,21 @@ void Trees::populateSpecies(const std::string &tree_assets_folder){
     }
 }
 
-void position_the_trees(
-    glm::vec3 *trees,
-    unsigned int number_of_trees_sqrt,
-    unsigned int number_of_divs,
-    unsigned int tree_per_divison_per_axis,
+static unsigned int round_value_to_nearest_higher_square(int x){
+    unsigned int x_rt = ceil(sqrt(static_cast<float>(x)));
+    return x_rt * x_rt;
+}
+
+void Trees::position_the_trees(
+    int divisions,
     vertex_t *terrain
 ){
     using namespace std;
-    for(int row=0 ; row < number_of_trees_sqrt; row++){
-        for(int col=0; col < number_of_trees_sqrt ; col++){
-            int index = col + row * number_of_trees_sqrt;
+    int tree_per_division_sqrt = sqrt(float(Trees_per_division_m));
+    int tree_per_divison_per_axis = divisions / tree_per_division_sqrt;
+    for(int row=0 ; row < tree_per_division_sqrt; row++){
+        for(int col=0; col < tree_per_division_sqrt ; col++){
+            int index = col + row * tree_per_division_sqrt;
             unsigned int div_row_to_sample = 
                 row * tree_per_divison_per_axis + (
                 (
@@ -104,13 +108,15 @@ void position_the_trees(
                     )
                 ) % tree_per_divison_per_axis
             );
-            unsigned int terrain_index = div_col_to_sample + div_row_to_sample * ( number_of_divs + 1 );
-            trees[index].x = terrain[terrain_index].pos[0];
-            trees[index].y = terrain[terrain_index].pos[1];
-            trees[index].z = terrain[terrain_index].pos[2];
+            unsigned int terrain_index = div_col_to_sample + div_row_to_sample * ( divisions + 1 );
+            tree_positions_cpu[index].x = terrain[terrain_index].pos[0];
+            tree_positions_cpu[index].y = terrain[terrain_index].pos[1];
+            tree_positions_cpu[index].z = terrain[terrain_index].pos[2];
         }
     }
 }
+
+
 
 Trees::Trees(
     unsigned int Trees_per_division,
@@ -124,7 +130,8 @@ Trees::Trees(
     shader(vertex_shader_file, fragment_shader_file),
     sun_dir_m{sun_dir},
     fog_density_m{fog_density},
-    tree_scale_m{static_cast<uint32_t>(tree_scale)}
+    tree_scale_m{static_cast<uint32_t>(tree_scale)},
+    Trees_per_division_m{round_value_to_nearest_higher_square(Trees_per_division)}
 {
 
     this->shader.Bind();
@@ -134,24 +141,12 @@ Trees::Trees(
     if(this->Species.empty()){
         this->populateSpecies();
     }
-    
+    this->tree_positions_cpu = new glm::vec3[Trees_per_division_m]; 
     const int number_of_species = this->Species.size();
-    {
-        float tree_per_division_f = static_cast<float>(Trees_per_division);
-        int tree_per_division_sqrt = ceil(sqrt(tree_per_division_f));
-        Trees_per_division = tree_per_division_sqrt * tree_per_division_sqrt;
-        int divisions = terrain.get_divisions();
-        Trees_per_division_m = Trees_per_division;
-        int tree_per_divison_per_axis = divisions / tree_per_division_sqrt;
-        this->tree_positions_cpu = new glm::vec3[Trees_per_division_m]; 
-        position_the_trees(
-            this->tree_positions_cpu,
-            tree_per_division_sqrt,
-            divisions,
-            tree_per_divison_per_axis,
-            terrain.get_vertex_buffer_cpu()
-        );
-    }
+    position_the_trees(
+        terrain.get_divisions(),
+        terrain.get_vertex_buffer_cpu()
+    );
 
 
 }
