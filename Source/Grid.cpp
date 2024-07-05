@@ -72,9 +72,9 @@ Grid::Grid(
 }
 
 void Grid::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){
-	this->tex->Bind();
 	for(int i=0;i<Grid::NumberOfPatcherInGridPerAxis;i++){
 		for(int j=0;j<Grid::NumberOfPatcherInGridPerAxis;j++){
+			this->tex->Bind();
 			this->main_terrain_grid[i][j]->render(ViewProjection, camera_pos);
             this->tree_grid[ i ][ j ]->render(ViewProjection, camera_pos);
             // this->cloud_grid[ i ][ j ]->render(ViewProjection);
