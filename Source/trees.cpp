@@ -130,8 +130,8 @@ Trees::Trees(
     shader(vertex_shader_file, fragment_shader_file),
     sun_dir_m{sun_dir},
     fog_density_m{fog_density},
-    tree_scale_m{static_cast<uint32_t>(tree_scale)},
-    Trees_per_division_m{round_value_to_nearest_higher_square(Trees_per_division)}
+    Trees_per_division_m{round_value_to_nearest_higher_square(Trees_per_division)},
+    tree_scale_m{static_cast<uint32_t>(tree_scale)}
 {
 
     this->shader.Bind();
@@ -142,7 +142,6 @@ Trees::Trees(
         this->populateSpecies();
     }
     this->tree_positions_cpu = new glm::vec3[Trees_per_division_m]; 
-    const int number_of_species = this->Species.size();
     position_the_trees(
         terrain.get_divisions(),
         terrain.get_vertex_buffer_cpu()

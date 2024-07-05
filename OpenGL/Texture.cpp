@@ -66,15 +66,15 @@ Texture::Texture(const std::vector<std::string>& paths){
 }
 
 Texture::Texture(Texture &&other) noexcept:
-    m_FilePath{move(other.m_FilePath)}
+    m_FilePath{std::move(other.m_FilePath)}
 {
     if(&other == this){
         return ;
     }
     this->m_RendererID = other.m_RendererID;
-    this->m_Width = m_Width;
-    this->m_Height = m_Height;
-    this->m_BPP = m_BPP;
+    this->m_Width = other.m_Width;
+    this->m_Height = other.m_Height;
+    this->m_BPP = other.m_BPP;
     other.m_RendererID = 0;
 }
 

@@ -22,6 +22,9 @@ class Plane{
         void set_position(glm::vec3 position){
             this->position = position;
         }
+        void set_position_to_origin(){
+            this->position = position = glm::vec3(0.0f,this->position.y,0.0f);
+        }
         void set_Speed(float speed){
             this->speed = speed;
         }
@@ -34,22 +37,31 @@ class Plane{
         std::tuple<glm::mat4,glm::vec3> get_MVP_Matrix();
         
         Plane(
-        const std::string& modelObjFile, const std::string &texFile,
-        float camera_behind_distant,float camera_up_distance, 
-        float camera_ViewPoint_distance,float scaling_factor,
-        float speed, float starting_height,
-        const std::vector<float> &rotation_angles,
-        const std::vector<std::string> &rotation_axises,
-        const std::string &texture_UniformName = "plane_texture",
-        const std::string& vertexFile = "shaders/plane/vertex.glsl", 
-        const std::string& fragFile = "shaders/plane/fragment.glsl"
-         );
+            const std::string& modelObjFile, const std::string &texFile,
+            float camera_behind_distant,float camera_up_distance, 
+            float camera_ViewPoint_distance,float scaling_factor,
+            float speed, float starting_height,
+            const std::vector<float> &rotation_angles,
+            const std::vector<std::string> &rotation_axises,
+            const std::string &texture_UniformName = "plane_texture",
+            const std::string& vertexFile = "shaders/plane/vertex.glsl", 
+            const std::string& fragFile = "shaders/plane/fragment.glsl"
+        );
+        void setup_plane(
+        	const std::string& modelObjFile,
+            const std::string &texFile,
+            float scaling_factor,
+        	const std::vector<float> &rotation_angles,
+            const std::vector<std::string> &rotation_axises,
+
+        	const bool delete_previous=true
+        );
     private:
         VertexArray vao;
         VertexBuffer* vbo;
         IndexBuffer* ibo;
         Shader shader;
-        Texture tex;
+        Texture* tex;
         const int texture_BindSlot = 0;
         float scaling_factor;
         glm::vec3 position;

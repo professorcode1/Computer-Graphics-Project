@@ -170,7 +170,7 @@ TerrainPatch::TerrainPatch(
     const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
 	float output_increase_fctr_, float input_shrink_fctr_, 
     float lacunarity, float persistance,
-	bool writeToFile,int div, 
+	int div, 
 	float length_of_side, 
 	float Mountain_Scale_Factor, 
     const glm::vec3 &sun_direction,
@@ -227,8 +227,8 @@ terrain_index_m{terrain_index}
 
 
 
-	if(writeToFile)
-		write_to_file(this->VBO,this->EBO,div);
+	// if(writeToFile)
+	// 	write_to_file(this->VBO,this->EBO,div);
 	// std::cout<<min_x<<" "<< max_x<<" "<<  min_z<<" "<<  max_z<<std::endl;
 
 	this->vertex_array.Unbind();

@@ -10,7 +10,7 @@ static TerrainPatch* terrain_patch_generator(
 	return new TerrainPatch(
 		fog_densty,terrainParam["wave numbers active"], 
 		terrainParam.at("rotation angle fractal ground"), terrainParam.at("output_increase_fctr_"), terrainParam.at("input_shrink_fctr_"), 
-		terrainParam.at("lacunarity"), terrainParam.at("persistance"),terrainParam.at("write to file"),number_of_divisions, 
+		terrainParam.at("lacunarity"), terrainParam.at("persistance"),number_of_divisions, 
 		terrainParam.at("length of one side"), 
 		terrainParam.at("Mountain Scale Factor"), sun_direction, center, async_generation
 		);
@@ -39,31 +39,36 @@ void Grid::generate_terrain_grid(
 	}
 }
 
-Grid::Grid(
+void Grid::generate_trees(
 	const float fog_densty, const glm::vec3 &sun_direction, 
-	const nlohmann::json &terrainParam, const nlohmann::json &tressParameter,
-    const nlohmann::json &cloudParameters
-):current_center(0.0, 0.0){
-	std::cout<<"calling generate_terrain_grid from grid constructor"<<std::endl;
-	const float terrain_max_height = 
-                terrainParam.at("output_increase_fctr_").get<float>() * 
-                terrainParam.at("Mountain Scale Factor").get<float>();
-	;
-	this->tex = new Texture(terrainParam.at("noise texture file").get<std::string>());
-	generate_terrain_grid(current_center, fog_densty,sun_direction,terrainParam);
+	const int trees_per_division,const int tress_scale
+){
 	for(int i=0 ; i < Grid::NumberOfPatcherInGridPerAxis ; i++){
 		for(int j=0 ; j < Grid::NumberOfPatcherInGridPerAxis ; j++){
 			
 			this->tree_grid[ i ][ j ] = new Trees(
-				tressParameter.at("tress per division").get<int>(),
-				tressParameter.at("tress scale").get<float>(),
+				trees_per_division,
+				tress_scale,
 				*this->main_terrain_grid[ i ][ j ], 
 				sun_direction,fog_densty
 			);
 		}
 	}
-
-
+}
+Grid::Grid(
+	const float fog_densty, const glm::vec3 &sun_direction, 
+	const nlohmann::json &terrainParam, const nlohmann::json &tressParameter,
+    const nlohmann::json &cloudParameters,
+    const glm::vec2 current_center,
+	const std::string &textureFile
+):current_center(current_center){
+	this->tex = new Texture(textureFile);
+	this->generate_terrain_grid(current_center, fog_densty,sun_direction,terrainParam);
+	this->generate_trees(
+		fog_densty,sun_direction, 
+		tressParameter.at("tress per division").get<int>(), 
+		tressParameter.at("tress scale").get<float>()
+	);
 }
 
 void Grid::render(const glm::mat4 &ViewProjection, const glm::vec3 &camera_pos){

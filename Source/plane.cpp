@@ -1,6 +1,34 @@
 #include "plane.h"
 #include "waveFrontFileApi.h"
 
+void Plane::setup_plane(
+	const std::string& modelObjFile,
+	const std::string &texFile,
+	float scaling_factor,
+	const std::vector<float> &rotation_angles,
+    const std::vector<std::string> &rotation_axises,
+	const bool delete_previous
+){
+	this->scaling_factor = scaling_factor;
+	if(delete_previous){
+		delete this->vbo;
+		delete this->ibo;
+		delete this->tex;
+	}
+	this->tex = new Texture(texFile);
+	VertexBufferLayout vertex_layout_simple;
+	CREATE_VERTEX_LAYOUT(vertex_layout_simple);
+	// this->vao  = std::move(VertexArray());
+	std::vector<vertex_t> vertices_plane;
+	std::vector<unsigned int> index_buffer_plane; 
+	parse_complex_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
+	rotate_mesh_inplace(vertices_plane, rotation_angles, rotation_axises);
+	this->vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
+	this->ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
+	this->vao.AddBuffer(*vbo, vertex_layout_simple);
+	this->vao.AddElementBuffer(*ibo);
+}
+
 Plane::Plane(
 	const std::string& modelObjFile,
 	const std::string &texFile,
@@ -12,30 +40,18 @@ Plane::Plane(
 	const std::string &texture_UniformName,
 	const std::string& vertexFile, 
 	const std::string& fragFile
-	):
+):
 	vbo(nullptr), 
 	ibo(nullptr), 
 	shader(vertexFile,fragFile),
+	position(0,starting_height,0),
+	texture_UniformName(texture_UniformName),
+	speed(speed),
 	camera_behind_distant(camera_behind_distant) ,
 	camera_up_distance( camera_up_distance),
-	camera_ViewPoint_distance(camera_ViewPoint_distance),  
-	tex(texFile),
-	texture_UniformName(texture_UniformName),
-	scaling_factor(scaling_factor), 
-	speed(speed),
-	position(0,starting_height,0)
-	{
-	VertexBufferLayout vertex_layout_simple;
-	CREATE_VERTEX_LAYOUT(vertex_layout_simple);
-
-	std::vector<vertex_t> vertices_plane;
-	std::vector<unsigned int> index_buffer_plane; 
-	parse_complex_wavefront(modelObjFile, vertices_plane, index_buffer_plane);
-	rotate_mesh_inplace(vertices_plane, rotation_angles, rotation_axises);
-	vbo = new VertexBuffer(vertices_plane.data(), vertices_plane.size() * sizeof(vertex_t));
-	ibo = new IndexBuffer(index_buffer_plane.data(), index_buffer_plane.size());
-	vao.AddBuffer(*vbo, vertex_layout_simple);
-	vao.AddElementBuffer(*ibo);
+	camera_ViewPoint_distance(camera_ViewPoint_distance)
+{
+	this->setup_plane(modelObjFile,texFile, scaling_factor, rotation_angles, rotation_axises, false);
 	shader.Bind();
 	shader.SetUniform1i(texture_UniformName, texture_BindSlot);
 
@@ -68,9 +84,9 @@ void Plane::render(glm::mat4 viewAndProjection){
 	model = glm::rotate(model, glm::radians(pitch_degree), glm::vec3(-1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(roll_degree  ), glm::vec3(0.0f, 0.0f, 1.0f));
     shader.SetUniformMat4f("MVP_plane", viewAndProjection * model);
-	tex.Bind();
+	tex->Bind();
     GLCall(glDrawElements(GL_TRIANGLES, ibo->GetCount() , GL_UNSIGNED_INT, nullptr));
-	tex.Unbind();
+	tex->Unbind();
 	shader.Unbind();
 	vao.Unbind();
 	vbo->Unbind();

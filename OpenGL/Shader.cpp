@@ -35,23 +35,21 @@ unsigned int ShaderBase::CompileShader(unsigned int type, const std::string& sou
 	GLCall(glShaderSource(id, 1, &src, nullptr));
 	GLCall(glCompileShader(id));
 
-	char* shader_name;
-	switch (type)
-	{
-		case GL_VERTEX_SHADER:
-			shader_name = "Vertex Shader";
-			break;
-		case GL_FRAGMENT_SHADER:
-			shader_name = "Fragment Shader";
-			break;
-		case GL_COMPUTE_SHADER:
-			shader_name = "Compute Shader";
-			break;
-		default:
-			std::cout<<"Unknown Shader type encountered in compile"<<std::endl;
-			assert(false);
-			break;
-	}
+	char const * const shader_name = std::invoke( [type]() { 
+		switch (type)
+		{
+			case GL_VERTEX_SHADER:
+				return "Vertex Shader";
+			case GL_FRAGMENT_SHADER:
+				return "Fragment Shader";
+			case GL_COMPUTE_SHADER:
+				return "Compute Shader";
+			default:
+				std::cout<<"Unknown Shader type encountered in compile"<<std::endl;
+				assert(false);
+		}
+	 });
+
 	
 	//error handeling
 	int result;
@@ -141,8 +139,8 @@ ShaderBase::ShaderBase(const std::string& filepathComputeShader){
 
 Shader::Shader(const std::string& filepathVertexShader, const std::string& filepathFragmentShader):
 	ShaderBase(filepathVertexShader, filepathFragmentShader), 
-	m_filepathFragmentShader(filepathFragmentShader), 
-	m_filepathVertexShader(filepathVertexShader) {}
+	m_filepathVertexShader(filepathVertexShader) ,
+	m_filepathFragmentShader(filepathFragmentShader){} 
 
 
 Shader::~Shader(){}

@@ -1,7 +1,7 @@
 EXE = web/index.js
 CHERNO_LIB = OpenGL
 MY_CODE = Source
-SOURCES = FlightSimulator.cpp
+SOURCES = main.cpp
 GLM_LIB = glm
 SOURCES += $(wildcard $(CHERNO_LIB)/*.cpp)
 SOURCES += $(wildcard $(GLM_LIB)/*.cpp)
@@ -17,7 +17,7 @@ LIBS = -lGLEW
 ECHO_MESSAGE = "Emscripten"
 CC = emcc
 CXX = em++
-CXXFLAGS += -s USE_GLFW=3 -s FULL_ES3=1 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s ASSERTIONS=1  --preload-file assets --preload-file shaders --preload-file parameters.json
+CXXFLAGS += -s USE_GLFW=3 -s FULL_ES3=1 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s ASSERTIONS=1  --preload-file assets --preload-file shaders 
 LIBS += -lGL -s USE_WEBGL2=1
 
 ##---------------------------------------------------------------------

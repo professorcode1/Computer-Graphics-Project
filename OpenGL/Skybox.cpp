@@ -5,8 +5,8 @@ Skybox::Skybox(
     const std::string &vertex_shader_file,
     const std::string &frgmnt_shader_file
 ):
-shader(vertex_shader_file, frgmnt_shader_file),
-tex(images_name)
+tex(images_name),
+shader(vertex_shader_file, frgmnt_shader_file)
 {
     std::vector<float> skyboxVertices =
         {

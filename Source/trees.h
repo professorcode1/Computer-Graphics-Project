@@ -44,7 +44,6 @@ private:
     const glm::vec3 sun_dir_m;
     const float fog_density_m;
     uint32_t Trees_per_division_m;
-    uint32_t tree_positions_gpu;
     uint32_t tree_scale_m;
     glm::vec3 *tree_positions_cpu;
 public:

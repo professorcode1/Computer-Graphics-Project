@@ -16,8 +16,6 @@
 
 class TerrainPatch{
     private:
-        GLuint VBO;
-        GLuint EBO;
         VertexArray vertex_array;
         VertexBuffer* vertex_buffer;
         IndexBuffer* index_buffer;
@@ -35,7 +33,7 @@ class TerrainPatch{
         const std::vector<int>  &ActiveWaveNumber, float rotation_angle_fractal_ground,
 	    float output_increase_fctr_, float input_shrink_fctr_, 
         float lacunarity, float persistance,
-	    bool writeToFile,int div, 
+	    int div, 
 	    float length_of_side, 
 	    float Mountain_Scale_Factor, 
         const glm::vec3 &sun_direction,

@@ -10,6 +10,7 @@
 Todo, make a shader base class with protected constructor to abstract out the 
 uniforms and such
 */
+#include <functional>
 
 class ShaderBase{
 private:

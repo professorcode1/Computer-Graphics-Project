@@ -10,7 +10,7 @@ public:
     VertexArray(VertexArray &&other) noexcept ;
     VertexArray(const unsigned int RendererID);
     ~VertexArray();
-
+    VertexArray& operator=(const VertexArray&) = default;
     void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
     void AddElementBuffer(const IndexBuffer &ib) const;
     void Bind() const ;

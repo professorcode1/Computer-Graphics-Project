@@ -21,6 +21,7 @@ public:
     });
     // Texture(uint32_t SSBO_id);
     Texture(Texture &&other) noexcept ;
+    Texture& operator=(Texture &&other) = default ;
     ~Texture();
 
     void Bind(unsigned int slot = 0 ) const ;
