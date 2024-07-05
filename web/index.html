@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="noUiSlider.css">
+    <style>
+    @font-face {
+        font-family: 'Marart Sans Bold';
+        src: url('./marat-sans/Marat Sans Bold.otf') format("opentype");
+    }
+    .MarartSansBoldFont{
+        font-family: 'Marart Sans Bold', sans-serif;
+    }
+    #update{
+        opacity: 1;
+        transition: opacity 0.3s; 
+    }
+    #update:disabled {
+        opacity: 0.1;
+    }
+    #plane-selector > button:disabled{
+        border-color: rgb(74 222 128)
+    }
+
+    </style>
+  </head>
+
+  <body>
+    <div class="w-full flex flex-col items-center">
+        <div style="width: 700px;" class="pt-4 flex flex-col h-screen">
+            <p class="MarartSansBoldFont text-6xl pb-4">Flight Simulator</p>
+            <canvas style="height: 394px;" id="canvas"></canvas>
+            <button id="fullscreen" class="place-self-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4 border border-blue-700 rounded">
+                Fullscreen
+            </button>
+        </div>
+        <div style="width: 700px;" class=" flex flex-col min-h-screen ">
+            <div class="h-1/2 flex flex-col">
+                <p class="MarartSansBoldFont text-4xl pt-4">Terrain Parameter</p>
+
+                <div>
+
+                    <div class="w-full mt-4 pl-4 items-center">
+                        <span class=" flex">
+                            <p>Active Wave Numbers</p>
+                            <p id="active-wave-numbers-values"></p>
+                        </span>
+                        <div id="active-wave-numbers-input-container" class="mt-1flex justify-around pr-2">
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox" checked/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                            <input type="checkbox"/>
+                        </div>
+                    </div>
+
+                    <div class="w-full flex mt-4 pl-4 items-center">
+                        <span class="w-2/5 flex">
+                            <p>Rotation Angle</p>
+                            <p id="rotation-angle-value"></p>
+                        </span>
+                        <div class="w-3/5" id="rotation-slider"></div>
+                    </div>
+
+                    <div class="w-full flex mt-4 pl-4 items-center">
+                        <span class="w-2/5 flex">
+                            <p>Output scale factor</p>
+                            <p id="output-increase-fctr-value"></p>
+                        </span>
+                        <div class="w-3/5" id="output-increase-fctr-slider"></div>
+                    </div>
+
+                    <div class="w-full flex mt-4 pl-4 items-center">
+                        <span class="w-2/5 flex">
+                            <p>Input shrink factor</p>
+                            <p id="input-shrink-fctr-value"></p>
+                        </span>
+                        <div class="w-3/5" id="input-shrink-fctr-slider"></div>
+                    </div>
+
+                    <div class="w-full flex mt-4 pl-4 items-center">
+                        <span class="w-2/5 flex">
+                            <p>Lacunarity</p>
+                            <p id="lacunarity-value"></p>
+                        </span>
+                        <div class="w-3/5" id="lacunarity-slider"></div>
+                    </div>
+
+                    <div class="w-full flex mt-4 pl-4 items-center">
+                        <span class="w-2/5 flex">
+                            <p>Persistance</p>
+                            <p id="persistance-value"></p>
+                        </span>
+                        <div class="w-3/5" id="persistance-slider"></div>
+                    </div>
+                </div>
+
+                <button 
+                    id="update" 
+                    class="place-self-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4 border border-blue-700 rounded" 
+                    disabled
+                >
+                    Update
+                </button>
+            </div>
+
+            <div class="h-1/2 flex flex-col">
+                <p class="MarartSansBoldFont text-4xl pt-4">Plane</p>
+                <div class="flex justify-around mt-4" id="plane-selector">
+                    <button class="h-32 w-32 border-2 border-slate-800 rounded-lg flex items-center justify-center text-5xl" disabled>1</button>
+                    <button class="h-32 w-32 border-2 border-slate-800 rounded-lg flex items-center justify-center text-5xl" >2</button>
+                    <button class="h-32 w-32 border-2 border-slate-800 rounded-lg flex items-center justify-center text-5xl" >3</button>
+                </div>
+            </div>
+
+            <a class="place-self-center mt-16" style="color: #0000EE;">Source Code</a>
+        </div>
+
+    </div>
+    <div>
+    </div>
+    <script defer type="text/javascript">
+      var canvas = document.getElementById("canvas");
+      var Module = {
+        canvas
+      };
+      document.getElementById("fullscreen").addEventListener(
+        "click",
+        function () {
+          if (canvas.requestFullscreen) {
+            canvas.requestFullscreen();
+          } else if (canvas.webkitRequestFullscreen) {
+            /* Safari */
+            canvas.webkitRequestFullscreen();
+          } else if (canvas.msRequestFullscreen) {
+            /* IE11 */
+            canvas.msRequestFullscreen();
+          }
+        },
+        false
+      );
+
+    </script>
+    <script defer src="index.js"></script>
+     <script defer src="noUiSlider.js"></script>
+    <script defer src="custom.js" ></script>
+  </body>
+</html>
